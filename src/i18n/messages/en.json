@@ -56,7 +56,8 @@
     "calendar": "Calendar",
     "more": "More",
     "profile": "Profile",
-    "shop": "Shop"
+    "shop": "Shop",
+    "bastu": "Sauna"
   },
   "roles": {
     "customer": "User",
@@ -444,7 +445,8 @@
       "forCreators": "Creators",
       "forVenues": "Venues",
       "forAudience": "Discover",
-      "shop": "Shop"
+      "shop": "Shop",
+      "bastu": "Sauna"
     },
     "install": {
       "title": "Install Usha Platform",

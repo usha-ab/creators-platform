@@ -6,6 +6,7 @@ import UschjaLogo from "@/components/UschjaLogo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
+import { BASTU_URL, isBastuLinkVisible } from "@/lib/bastu";
 import { Menu, X } from "lucide-react";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -52,6 +53,10 @@ export function Nav() {
     { href: "/for-publik", label: t("nav.forAudience") },
     // Storefront lives on the shop.usha.se subdomain (same brand, separate app).
     { href: "https://shop.usha.se", label: t("nav.shop") },
+    // Usha Bastu — hidden until the sauna is permitted. See lib/bastu.ts.
+    ...(isBastuLinkVisible()
+      ? [{ href: BASTU_URL, label: t("nav.bastu") }]
+      : []),
   ];
   const appLinks = [
     { href: "/flode", label: t("nav.feed") },

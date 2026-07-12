@@ -56,7 +56,8 @@
     "calendar": "Kalender",
     "more": "Mer",
     "profile": "Profil",
-    "shop": "Butik"
+    "shop": "Butik",
+    "bastu": "Bastu"
   },
   "roles": {
     "customer": "Användare",
@@ -444,7 +445,8 @@
       "forCreators": "Kreatör",
       "forVenues": "Plats",
       "forAudience": "Upplev",
-      "shop": "Shop"
+      "shop": "Shop",
+      "bastu": "Bastu"
     },
     "install": {
       "title": "Installera Usha Platform",

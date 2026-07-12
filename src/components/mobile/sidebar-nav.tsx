@@ -16,9 +16,11 @@ import {
   Trophy,
   CalendarDays,
   ShoppingBag,
+  Flame,
 } from "lucide-react";
 import { useRole } from "./role-context";
 import { useSubscription } from "@/lib/subscription/context";
+import { BASTU_URL, isBastuLinkVisible } from "@/lib/bastu";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import UschjaLogo from "@/components/UschjaLogo";
 
@@ -113,6 +115,17 @@ export function SidebarNav() {
             <ShoppingBag size={20} strokeWidth={1.5} />
             {t("shop")}
           </a>
+
+          {/* Usha Bastu — hidden until the sauna is permitted. See lib/bastu.ts. */}
+          {isBastuLinkVisible() && (
+            <a
+              href={BASTU_URL}
+              className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card)] hover:text-[var(--usha-white)]"
+            >
+              <Flame size={20} strokeWidth={1.5} />
+              {t("bastu")}
+            </a>
+          )}
         </nav>
       </div>
 
