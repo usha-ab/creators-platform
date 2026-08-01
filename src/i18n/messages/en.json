@@ -925,6 +925,21 @@
     "bankidBadge": "BankID",
     "rate": "{category}: {rate} SEK/h",
     "sendMessage": "Send message",
+    "tip": {
+      "button": "Tip",
+      "title": "Send a tip",
+      "subtitle": "Show your appreciation — the full amount goes to the recipient.",
+      "subtitleNamed": "Show {name} your appreciation — the full amount goes straight to them.",
+      "customLabel": "Custom amount",
+      "messageLabel": "Message (optional)",
+      "messagePlaceholder": "Thanks for an amazing night!",
+      "submit": "Send tip",
+      "submitting": "Sending…",
+      "cancel": "Close",
+      "error": "Something went wrong. Please try again.",
+      "invalidAmount": "Enter an amount between 20 and 5,000 kr.",
+      "disclaimer": "A tip is a gift, not a payment for a service. Secure payment via Stripe."
+    },
     "userFallbackName": "User",
     "services": {
       "heading": "Services",

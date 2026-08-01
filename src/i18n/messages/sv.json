@@ -925,6 +925,21 @@
     "bankidBadge": "BankID",
     "rate": "{category}: {rate} SEK/h",
     "sendMessage": "Skicka meddelande",
+    "tip": {
+      "button": "Tippa",
+      "title": "Skicka ett tips",
+      "subtitle": "Visa din uppskattning — hela beloppet går till mottagaren.",
+      "subtitleNamed": "Visa {name} din uppskattning — hela beloppet går direkt till dem.",
+      "customLabel": "Eget belopp",
+      "messageLabel": "Meddelande (valfritt)",
+      "messagePlaceholder": "Tack för en grym kväll!",
+      "submit": "Skicka tips",
+      "submitting": "Skickar…",
+      "cancel": "Stäng",
+      "error": "Något gick fel. Försök igen.",
+      "invalidAmount": "Ange ett belopp mellan 20 och 5 000 kr.",
+      "disclaimer": "Ett tips är en gåva, inte en betalning för en tjänst. Säker betalning via Stripe."
+    },
     "userFallbackName": "Användare",
     "services": {
       "heading": "Tjänster",

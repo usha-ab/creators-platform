@@ -392,6 +392,45 @@ export async function POST(req: NextRequest) {
           break;
         }
 
+        // Handle tips (one-time gratitude payments via destination charge)
+        if (session.metadata?.type === "tip") {
+          const recipientId = session.metadata.recipientId;
+          if (!recipientId) {
+            console.error("Webhook: missing recipientId metadata for tip");
+            break;
+          }
+          // Idempotent on the Checkout session id.
+          const { data: existing } = await getSupabaseAdmin()
+            .from("tips")
+            .select("id")
+            .eq("stripe_session_id", session.id)
+            .maybeSingle();
+          if (existing) break;
+
+          const amountOre = session.amount_total ?? 0;
+          const note = session.metadata.message || null;
+          await getSupabaseAdmin().from("tips").insert({
+            recipient_id: recipientId,
+            tipper_email: session.customer_details?.email ?? null,
+            amount_ore: amountOre,
+            message: note,
+            stripe_session_id: session.id,
+            status: "paid",
+          });
+
+          const amountKr = Math.round(amountOre / 100).toLocaleString("sv-SE");
+          await getSupabaseAdmin().from("notifications").insert({
+            user_id: recipientId,
+            type: "tip_received",
+            title: "Du fick ett tips! 🎉",
+            message: `Någon tippade dig ${amountKr} kr.${note ? ` ”${note}”` : ""}`,
+            link: "/app/profile",
+            is_read: false,
+          });
+
+          break;
+        }
+
         // Handle ticket purchases (one-time payments via Connect)
         if (session.metadata?.type === "ticket") {
           const listingId = session.metadata.listingId;

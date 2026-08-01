@@ -21,6 +21,7 @@ import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
+import { TipButton } from "@/components/tip-button";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -379,6 +380,9 @@ export default async function CreatorProfilePage(props: Props) {
                   followerCount={followerCount || 0}
                   isLoggedIn={isLoggedIn}
                 />
+                {hasConnect && (
+                  <TipButton recipientId={profile.id} recipientName={profile.full_name} />
+                )}
                 {isLoggedIn && (
                   <>
                     <Link
