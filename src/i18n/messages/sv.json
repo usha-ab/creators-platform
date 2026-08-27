@@ -61,7 +61,8 @@
     "more": "Mer",
     "profile": "Profil",
     "shop": "Butik",
-    "buddies": "Träningsvänner"
+    "buddies": "Träningsvänner",
+    "listen": "Lyssna"
   },
   "roles": {
     "customer": "Publik",
@@ -2473,7 +2474,9 @@
     "rewardsDesc": "Poäng",
     "notificationsLabel": "Notiser",
     "profileLabel": "Profil",
-    "settingsLabel": "Inställningar"
+    "settingsLabel": "Inställningar",
+    "listenLabel": "Lyssna",
+    "listenDesc": "Få texter upplästa"
   },
   "courses": {
     "pageTitle": "Mitt innehåll",
@@ -3660,5 +3663,48 @@
     "subtitle": "Vilket språk appen visas på.",
     "back": "Tillbaka till profilen",
     "hint": "Valet gäller den här enheten och används också för mejlen vi skickar dig."
+  },
+  "listen": {
+    "title": "Lyssna",
+    "subtitle": "Klistra in en text, ladda upp en fil eller importera en artikel — och få den uppläst.",
+    "back": "Tillbaka",
+    "meta": "{words} ord · ca {duration}",
+    "wordCount": "{words} ord · ca {duration}",
+    "progress": "{percent}% uppläst",
+    "remaining": "{duration} kvar",
+    "smallerText": "Mindre text",
+    "largerText": "Större text",
+    "longDocumentNotice": "Långt dokument — texten visas i ett fönster runt läspositionen.",
+    "seek": "Hoppa i texten",
+    "play": "Spela upp",
+    "pause": "Pausa",
+    "stop": "Stoppa",
+    "previousSentence": "Föregående mening",
+    "nextSentence": "Nästa mening",
+    "speed": "Hastighet",
+    "voice": "Röst",
+    "defaultVoice": "Systemets röst",
+    "loadingVoices": "Hämtar röster …",
+    "unsupported": "Din webbläsare kan inte läsa upp text. Prova Chrome, Edge eller Safari.",
+    "tabPaste": "Klistra in",
+    "tabFile": "Fil",
+    "tabUrl": "Länk",
+    "pastePlaceholder": "Klistra in texten du vill lyssna på …",
+    "listenAction": "Lyssna",
+    "importAction": "Importera",
+    "fileCta": "Välj en textfil",
+    "fileHint": "TXT, MD, CSV eller JSON — max 2 MB",
+    "urlHint": "Hämtar artikelns text från sidan.",
+    "libraryHeading": "Mitt bibliotek",
+    "libraryEmpty": "Inga texter sparade än. Lägg till en ovan.",
+    "loading": "Laddar …",
+    "delete": "Ta bort",
+    "untitled": "Namnlöst dokument",
+    "privacyNote": "Texterna sparas i den här webbläsaren och lämnar aldrig din enhet. De följer alltså inte med till en annan enhet.",
+    "errorEmpty": "Texten är tom.",
+    "errorImport": "Sidan gick inte att importera.",
+    "errorFileSize": "Filen är för stor. Max 2 MB.",
+    "errorFileRead": "Filen gick inte att läsa.",
+    "deleteConfirm": "Ta bort ”{title}”? Texten går inte att få tillbaka."
   }
 }

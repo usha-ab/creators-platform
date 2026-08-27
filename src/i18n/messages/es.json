@@ -61,7 +61,8 @@
     "more": "Más",
     "profile": "Perfil",
     "shop": "Tienda",
-    "buddies": "Compañeros"
+    "buddies": "Compañeros",
+    "listen": "Escuchar"
   },
   "roles": {
     "customer": "Público",
@@ -2473,7 +2474,9 @@
     "rewardsDesc": "Puntos",
     "notificationsLabel": "Notificaciones",
     "profileLabel": "Perfil",
-    "settingsLabel": "Ajustes"
+    "settingsLabel": "Ajustes",
+    "listenLabel": "Escuchar",
+    "listenDesc": "Escucha textos en voz alta"
   },
   "courses": {
     "pageTitle": "Mi contenido",
@@ -3660,5 +3663,48 @@
     "subtitle": "El idioma en el que se muestra la app.",
     "back": "Volver al perfil",
     "hint": "La elección se aplica a este dispositivo y también se usa para los correos que te enviamos."
+  },
+  "listen": {
+    "title": "Escuchar",
+    "subtitle": "Pega un texto, sube un archivo o importa un artículo — y escúchalo en voz alta.",
+    "back": "Volver",
+    "meta": "{words} palabras · aprox. {duration}",
+    "wordCount": "{words} palabras · aprox. {duration}",
+    "progress": "{percent}% leído",
+    "remaining": "quedan {duration}",
+    "smallerText": "Texto más pequeño",
+    "largerText": "Texto más grande",
+    "longDocumentNotice": "Documento largo: se muestra una ventana de texto alrededor de la posición de lectura.",
+    "seek": "Saltar en el texto",
+    "play": "Reproducir",
+    "pause": "Pausar",
+    "stop": "Detener",
+    "previousSentence": "Frase anterior",
+    "nextSentence": "Frase siguiente",
+    "speed": "Velocidad",
+    "voice": "Voz",
+    "defaultVoice": "Voz del sistema",
+    "loadingVoices": "Cargando voces …",
+    "unsupported": "Tu navegador no puede leer texto en voz alta. Prueba Chrome, Edge o Safari.",
+    "tabPaste": "Pegar",
+    "tabFile": "Archivo",
+    "tabUrl": "Enlace",
+    "pastePlaceholder": "Pega el texto que quieres escuchar …",
+    "listenAction": "Escuchar",
+    "importAction": "Importar",
+    "fileCta": "Elige un archivo de texto",
+    "fileHint": "TXT, MD, CSV o JSON — máx. 2 MB",
+    "urlHint": "Obtiene el texto del artículo de la página.",
+    "libraryHeading": "Mi biblioteca",
+    "libraryEmpty": "Aún no hay textos guardados. Añade uno arriba.",
+    "loading": "Cargando …",
+    "delete": "Eliminar",
+    "untitled": "Documento sin título",
+    "privacyNote": "Los textos se guardan en este navegador y nunca salen de tu dispositivo, por lo que no se sincronizan con otros dispositivos.",
+    "errorEmpty": "El texto está vacío.",
+    "errorImport": "No se pudo importar la página.",
+    "errorFileSize": "El archivo es demasiado grande. Máx. 2 MB.",
+    "errorFileRead": "No se pudo leer el archivo.",
+    "deleteConfirm": "¿Eliminar «{title}»? El texto no se podrá recuperar."
   }
 }

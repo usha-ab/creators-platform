@@ -18,7 +18,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages,
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Headphones,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -124,6 +124,8 @@ export const APP_DESTINATIONS: AppDestination[] = [
   { path: "/app/messages", labelKey: "messagesLabel", navLabelKey: "messages", icon: MessageCircle,
     group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/library", labelKey: "libraryLabel", descKey: "libraryDesc", navLabelKey: "library", icon: BookMarked,
+    group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
+  { path: "/app/lyssna", labelKey: "listenLabel", descKey: "listenDesc", navLabelKey: "listen", icon: Headphones,
     group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/rewards", labelKey: "rewardsLabel", descKey: "rewardsDesc", icon: Gift,
     group: "myAccount", roles: "all", surfaces: ["more", "profile"] },

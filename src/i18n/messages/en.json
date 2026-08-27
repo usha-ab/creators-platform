@@ -61,7 +61,8 @@
     "more": "More",
     "profile": "Profile",
     "shop": "Shop",
-    "buddies": "Training buddies"
+    "buddies": "Training buddies",
+    "listen": "Listen"
   },
   "roles": {
     "customer": "Audience",
@@ -2473,7 +2474,9 @@
     "rewardsDesc": "Points",
     "notificationsLabel": "Notifications",
     "profileLabel": "Profile",
-    "settingsLabel": "Settings"
+    "settingsLabel": "Settings",
+    "listenLabel": "Listen",
+    "listenDesc": "Have texts read aloud"
   },
   "courses": {
     "pageTitle": "My content",
@@ -3660,5 +3663,48 @@
     "subtitle": "The language the app is shown in.",
     "back": "Back to profile",
     "hint": "The choice applies to this device and is also used for the emails we send you."
+  },
+  "listen": {
+    "title": "Listen",
+    "subtitle": "Paste text, upload a file or import an article — and have it read aloud.",
+    "back": "Back",
+    "meta": "{words} words · approx. {duration}",
+    "wordCount": "{words} words · approx. {duration}",
+    "progress": "{percent}% read",
+    "remaining": "{duration} left",
+    "smallerText": "Smaller text",
+    "largerText": "Larger text",
+    "longDocumentNotice": "Long document — the text is shown in a window around the reading position.",
+    "seek": "Jump in the text",
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop",
+    "previousSentence": "Previous sentence",
+    "nextSentence": "Next sentence",
+    "speed": "Speed",
+    "voice": "Voice",
+    "defaultVoice": "System voice",
+    "loadingVoices": "Loading voices …",
+    "unsupported": "Your browser cannot read text aloud. Try Chrome, Edge or Safari.",
+    "tabPaste": "Paste",
+    "tabFile": "File",
+    "tabUrl": "Link",
+    "pastePlaceholder": "Paste the text you want to listen to …",
+    "listenAction": "Listen",
+    "importAction": "Import",
+    "fileCta": "Choose a text file",
+    "fileHint": "TXT, MD, CSV or JSON — max 2 MB",
+    "urlHint": "Fetches the article text from the page.",
+    "libraryHeading": "My library",
+    "libraryEmpty": "No texts saved yet. Add one above.",
+    "loading": "Loading …",
+    "delete": "Delete",
+    "untitled": "Untitled document",
+    "privacyNote": "Texts are stored in this browser and never leave your device — so they don't follow you to another device.",
+    "errorEmpty": "The text is empty.",
+    "errorImport": "The page could not be imported.",
+    "errorFileSize": "The file is too large. Max 2 MB.",
+    "errorFileRead": "The file could not be read.",
+    "deleteConfirm": "Delete “{title}”? The text cannot be recovered."
   }
 }
