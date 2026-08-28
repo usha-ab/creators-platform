@@ -2,19 +2,24 @@
 
 // Uppläsaren: lägg in en text, lyssna på den, hitta tillbaka till den.
 //
-// Texterna sparas i webbläsaren och lämnar aldrig enheten. Undantaget är
-// artikelimporten, där servern måste hämta sidan åt oss eftersom CORS
-// stoppar webbläsaren.
+// Biblioteket ligger både lokalt (localStorage, så att vyn öppnar direkt och
+// fungerar utan nät) och på kontot (`listen_documents` med RLS, så att det
+// följer med mellan enheter). Synken sker vid öppning och efter varje
+// ändring; misslyckas den ligger ändringen kvar som osparad och tas nästa
+// gång. Se client-sync.ts.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Check,
   ClipboardPaste,
+  CloudOff,
   FileText,
   Headphones,
   Link2,
   Loader2,
   Play,
+  RefreshCw,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -24,46 +29,88 @@ import {
   loadDocuments,
   progressRatio,
   saveProgress,
+  type DocumentSource,
   type ListenDocument,
 } from "@/lib/tts/library";
+import { ensureText, httpApi, syncLibrary, type SyncStatus } from "@/lib/tts/client-sync";
 import { countWords, estimateSeconds, formatDuration } from "@/lib/tts/segment";
+import { EpubError, parseEpub, type EpubErrorCode } from "@/lib/tts/epub";
+import { PdfError, parsePdf, type PdfErrorCode } from "@/lib/tts/pdf";
 import { Reader } from "./reader";
 
 type Tab = "paste" | "file" | "url";
 
-/** Textfiler vi kan läsa direkt i webbläsaren utan tolkningslager. */
-const ACCEPTED_FILES = ".txt,.md,.markdown,.csv,.json,text/plain,text/markdown";
-const MAX_FILE_BYTES = 2 * 1024 * 1024;
+/** Filtyper vi kan läsa. PDF och EPUB tolkas i webbläsaren, resten är text. */
+const ACCEPTED_FILES = ".txt,.md,.markdown,.csv,.json,.pdf,.epub,text/plain,application/pdf,application/epub+zip";
+/** En PDF eller EPUB kan vara stor; texten den ger ifrån sig är det sällan. */
+const MAX_FILE_BYTES = 60 * 1024 * 1024;
+
+/** Bibliotekens felkoder översatta till meddelanden användaren förstår. */
+const PDF_ERROR_KEYS: Record<PdfErrorCode, string> = {
+  unreadable: "errorPdfUnreadable",
+  "no-text": "errorPdfNoText",
+};
+
+const EPUB_ERROR_KEYS: Record<EpubErrorCode, string> = {
+  "not-an-archive": "errorEpubNotArchive",
+  "no-container": "errorEpubBroken",
+  "no-content-file": "errorEpubBroken",
+  "unsupported-compression": "errorEpubCompression",
+  "no-text": "errorEpubNoText",
+};
 
 export function ListenApp() {
   const t = useTranslations("listen");
   const [documents, setDocuments] = useState<ListenDocument[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [active, setActive] = useState<ListenDocument | null>(null);
   const [tab, setTab] = useState<Tab>("paste");
   const [pasted, setPasted] = useState("");
   const [url, setUrl] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const [syncing, setSyncing] = useState(false);
+  const [opening, setOpening] = useState<string | null>(null);
+  // Läspositionen sparas ofta. Servern behöver inte varje sparning direkt, så
+  // anropet skickas i bakgrunden och får misslyckas.
+  const activeIdRef = useRef<string | null>(null);
+  // Utloggad finns ingen server att prata med. Utan den här spärren skulle
+  // varje sparning och radering skicka ett anrop som bara kan bli 401.
+  const remoteRef = useRef(true);
 
-  // Biblioteket finns bara i webbläsaren, så det läses efter montering.
+  const runSync = useCallback(async (force = false) => {
+    if (!force && !remoteRef.current) return;
+    setSyncing(true);
+    try {
+      const result = await syncLibrary(window.localStorage, httpApi);
+      remoteRef.current = result.status !== "signed-out";
+      setDocuments(result.documents);
+      setSyncStatus(result.status);
+    } finally {
+      setSyncing(false);
+    }
+  }, []);
+
+  // Lokalt först — vyn ska aldrig vänta på nätet — och sedan synk.
   useEffect(() => {
     setDocuments(loadDocuments(window.localStorage));
     setReady(true);
-  }, []);
-
-  const active = useMemo(
-    () => documents.find((d) => d.id === activeId) ?? null,
-    [documents, activeId]
-  );
+    void runSync(true);
+  }, [runSync]);
 
   const handleProgress = useCallback((offset: number) => {
-    if (!activeId) return;
-    setDocuments(saveProgress(window.localStorage, activeId, offset));
-  }, [activeId]);
+    const id = activeIdRef.current;
+    if (!id) return;
+    setDocuments(saveProgress(window.localStorage, id, offset));
+    if (!remoteRef.current) return;
+    void httpApi.patchProgress(id, offset).catch(() => {
+      // Ligger kvar som osparad ändring och går upp vid nästa synk.
+    });
+  }, []);
 
   const add = useCallback(
-    (input: { title?: string; text: string; source: Tab; url?: string }) => {
+    (input: { title?: string; text: string; source: DocumentSource; url?: string }) => {
       const text = input.text.trim();
       if (text.length === 0) {
         setError(t("errorEmpty"));
@@ -75,17 +122,26 @@ export function ListenApp() {
         t("untitled")
       );
       setDocuments(next);
-      setActiveId(document.id);
+      activeIdRef.current = document.id;
+      setActive(document);
       setError(null);
       setPasted("");
       setUrl("");
+      if (remoteRef.current) {
+        void httpApi.upload(document).then(
+          () => void runSync(),
+          () => {
+            // Osparad tills vidare; synken tar den senare.
+          }
+        );
+      }
     },
-    [t]
+    [t, runSync]
   );
 
   const importUrl = useCallback(async () => {
     if (!url.trim()) return;
-    setBusy(true);
+    setBusy(t("importing"));
     setError(null);
     try {
       const response = await fetch("/api/tts/extract", {
@@ -102,7 +158,7 @@ export function ListenApp() {
     } catch {
       setError(t("errorImport"));
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }, [url, add, t]);
 
@@ -112,28 +168,88 @@ export function ListenApp() {
         setError(t("errorFileSize"));
         return;
       }
-      setBusy(true);
+      const name = file.name.toLowerCase();
+      const title = file.name.replace(/\.[^.]+$/, "");
       setError(null);
+      setBusy(t("reading"));
       try {
-        const text = await file.text();
-        add({ title: file.name.replace(/\.[^.]+$/, ""), text, source: "file" });
-      } catch {
-        setError(t("errorFileRead"));
+        if (name.endsWith(".pdf")) {
+          const pdf = await parsePdf(await file.arrayBuffer(), {
+            onProgress: (page, total) => setBusy(t("readingPage", { page, total })),
+          });
+          add({ title: pdf.title || title, text: pdf.text, source: "pdf" });
+        } else if (name.endsWith(".epub")) {
+          const book = await parseEpub(await file.arrayBuffer());
+          add({ title: book.title || title, text: book.text, source: "epub" });
+        } else {
+          add({ title, text: await file.text(), source: "file" });
+        }
+      } catch (caught) {
+        if (caught instanceof PdfError) setError(t(PDF_ERROR_KEYS[caught.code]));
+        else if (caught instanceof EpubError) setError(t(EPUB_ERROR_KEYS[caught.code]));
+        else setError(t("errorFileRead"));
       } finally {
-        setBusy(false);
+        setBusy(null);
       }
     },
     [add, t]
   );
 
+  const open = useCallback(
+    async (doc: ListenDocument) => {
+      // Ett dokument som kommit hit via synk har bara metadata tills nu.
+      if (doc.text.length > 0) {
+        activeIdRef.current = doc.id;
+        setActive(doc);
+        return;
+      }
+      if (!remoteRef.current) {
+        setError(t("errorFetchText"));
+        return;
+      }
+      setOpening(doc.id);
+      setError(null);
+      try {
+        const filled = await ensureText(window.localStorage, httpApi, doc);
+        if (filled.text.length === 0) {
+          setError(t("errorFetchText"));
+          return;
+        }
+        setDocuments(loadDocuments(window.localStorage));
+        activeIdRef.current = filled.id;
+        setActive(filled);
+      } catch {
+        setError(t("errorFetchText"));
+      } finally {
+        setOpening(null);
+      }
+    },
+    [t]
+  );
+
+  const remove = useCallback(
+    (doc: ListenDocument) => {
+      if (!window.confirm(t("deleteConfirm", { title: doc.title }))) return;
+      setDocuments(deleteDocument(window.localStorage, doc.id).documents);
+      if (!remoteRef.current) return;
+      void httpApi.remove(doc.id).catch(() => {
+        // Gravstenen ligger kvar och raderingen görs om vid nästa synk.
+      });
+    },
+    [t]
+  );
+
+  const close = useCallback(() => {
+    activeIdRef.current = null;
+    setActive(null);
+    setDocuments(loadDocuments(window.localStorage));
+    void runSync();
+  }, [runSync]);
+
+  const pastedWords = useMemo(() => countWords(pasted), [pasted]);
+
   if (active) {
-    return (
-      <Reader
-        document={active}
-        onProgress={handleProgress}
-        onClose={() => setActiveId(null)}
-      />
-    );
+    return <Reader document={active} onProgress={handleProgress} onClose={close} />;
   }
 
   return (
@@ -183,8 +299,8 @@ export function ListenApp() {
             <div className="flex items-center justify-between gap-3">
               <span className="text-xs text-[var(--usha-muted)]">
                 {t("wordCount", {
-                  words: countWords(pasted),
-                  duration: formatDuration(estimateSeconds(countWords(pasted))),
+                  words: pastedWords,
+                  duration: formatDuration(estimateSeconds(pastedWords)),
                 })}
               </span>
               <button
@@ -199,24 +315,27 @@ export function ListenApp() {
         )}
 
         {tab === "file" && (
-          <div className="space-y-3">
-            <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-[var(--usha-border)] p-6 text-center transition hover:border-[var(--usha-gold)]/60">
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-[var(--usha-border)] p-6 text-center transition hover:border-[var(--usha-gold)]/60">
+            {busy ? (
+              <Loader2 size={22} className="animate-spin text-[var(--usha-gold)]" />
+            ) : (
               <Upload size={22} className="text-[var(--usha-gold)]" />
-              <span className="text-sm font-medium">{t("fileCta")}</span>
-              <span className="text-xs text-[var(--usha-muted)]">{t("fileHint")}</span>
-              <input
-                type="file"
-                accept={ACCEPTED_FILES}
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  // Nollställ så att samma fil kan väljas igen efter ett fel.
-                  e.target.value = "";
-                  if (file) void importFile(file);
-                }}
-              />
-            </label>
-          </div>
+            )}
+            <span className="text-sm font-medium">{busy ?? t("fileCta")}</span>
+            <span className="text-xs text-[var(--usha-muted)]">{t("fileHint")}</span>
+            <input
+              type="file"
+              accept={ACCEPTED_FILES}
+              className="hidden"
+              disabled={busy !== null}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                // Nollställ så att samma fil kan väljas igen efter ett fel.
+                e.target.value = "";
+                if (file) void importFile(file);
+              }}
+            />
+          </label>
         )}
 
         {tab === "url" && (
@@ -236,7 +355,7 @@ export function ListenApp() {
               <span className="text-xs text-[var(--usha-muted)]">{t("urlHint")}</span>
               <button
                 onClick={() => void importUrl()}
-                disabled={busy || url.trim().length === 0}
+                disabled={busy !== null || url.trim().length === 0}
                 className="flex items-center gap-2 rounded-xl bg-[var(--usha-gold)] px-4 py-2 text-sm font-semibold text-[var(--usha-black)] transition hover:opacity-90 disabled:opacity-40"
               >
                 {busy && <Loader2 size={14} className="animate-spin" />}
@@ -254,9 +373,12 @@ export function ListenApp() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
-          {t("libraryHeading")}
-        </h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-[var(--usha-muted)]">
+            {t("libraryHeading")}
+          </h2>
+          <SyncBadge status={syncStatus} syncing={syncing} onRetry={() => void runSync(true)} />
+        </div>
 
         {!ready ? (
           <p className="text-sm text-[var(--usha-muted)]">{t("loading")}</p>
@@ -268,7 +390,9 @@ export function ListenApp() {
         ) : (
           <ul className="space-y-2">
             {documents.map((doc) => {
-              const words = countWords(doc.text);
+              // Ord räknas ur texten när den finns här, annars uppskattas de ur
+              // längden: ett svenskt ord är i snitt drygt sex tecken med blanksteg.
+              const words = doc.text.length > 0 ? countWords(doc.text) : Math.round(doc.length / 6.5);
               const percent = Math.round(progressRatio(doc) * 100);
               return (
                 <li
@@ -276,11 +400,16 @@ export function ListenApp() {
                   className="flex items-center gap-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-3"
                 >
                   <button
-                    onClick={() => setActiveId(doc.id)}
+                    onClick={() => void open(doc)}
+                    disabled={opening === doc.id}
                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
                   >
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]">
-                      <Play size={16} />
+                      {opening === doc.id ? (
+                        <Loader2 size={16} className="animate-spin" />
+                      ) : (
+                        <Play size={16} />
+                      )}
                     </span>
                     <span className="min-w-0">
                       <span className="block truncate font-semibold">{doc.title}</span>
@@ -292,10 +421,7 @@ export function ListenApp() {
                   </button>
                   <button
                     aria-label={t("delete")}
-                    onClick={() => {
-                      if (!window.confirm(t("deleteConfirm", { title: doc.title }))) return;
-                      setDocuments(deleteDocument(window.localStorage, doc.id));
-                    }}
+                    onClick={() => remove(doc)}
                     className="rounded-lg p-2 text-[var(--usha-muted)] transition hover:text-[var(--usha-accent)]"
                   >
                     <Trash2 size={16} />
@@ -306,8 +432,55 @@ export function ListenApp() {
           </ul>
         )}
 
-        <p className="mt-3 text-xs text-[var(--usha-muted)]">{t("privacyNote")}</p>
+        <p className="mt-3 text-xs text-[var(--usha-muted)]">
+          {syncStatus === "signed-out" ? t("privacyLocal") : t("privacySynced")}
+        </p>
       </section>
     </div>
   );
+}
+
+/** Var biblioteket står: synkat, bara här, eller väntande på nät. */
+function SyncBadge({
+  status,
+  syncing,
+  onRetry,
+}: {
+  status: SyncStatus | null;
+  syncing: boolean;
+  onRetry: () => void;
+}) {
+  const t = useTranslations("listen");
+  if (syncing) {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)]">
+        <Loader2 size={12} className="animate-spin" /> {t("syncing")}
+      </span>
+    );
+  }
+  if (status === "synced") {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)]">
+        <Check size={12} className="text-[var(--usha-gold)]" /> {t("syncOk")}
+      </span>
+    );
+  }
+  if (status === "offline") {
+    return (
+      <button
+        onClick={onRetry}
+        className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"
+      >
+        <RefreshCw size={12} /> {t("syncOffline")}
+      </button>
+    );
+  }
+  if (status === "signed-out") {
+    return (
+      <span className="flex items-center gap-1.5 text-xs text-[var(--usha-muted)]">
+        <CloudOff size={12} /> {t("syncLocalOnly")}
+      </span>
+    );
+  }
+  return null;
 }

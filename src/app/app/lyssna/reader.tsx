@@ -29,6 +29,7 @@ import {
   splitSentences,
 } from "@/lib/tts/segment";
 import { MAX_RATE, MIN_RATE, useSpeech } from "@/lib/tts/use-speech";
+import { useMediaSession } from "@/lib/tts/use-media-session";
 import type { ListenDocument } from "@/lib/tts/library";
 
 const SETTINGS_KEY = "usha.listen.settings";
@@ -168,6 +169,21 @@ export function Reader({ document: doc, onProgress, onClose }: ReaderProps) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggle, skip]);
+
+  // Låsskärm, notis och hörlurarnas knappar styr samma uppläsning som
+  // knappraden nedan — och det tysta spåret håller sidan vaken när skärmen
+  // släcks. Se use-media-session.ts för vad det inte räcker till.
+  useMediaSession({
+    active: true,
+    playing: status === "playing",
+    title: doc.title,
+    subtitle: segments[speech.segmentIndex]?.text.slice(0, 80),
+    onPlay: play,
+    onPause: pause,
+    onNext: () => skip(1),
+    onPrevious: () => skip(-1),
+    onStop: stop,
+  });
 
   const totalWords = useMemo(() => countWords(doc.text), [doc.text]);
   const current = segments[speech.segmentIndex];
