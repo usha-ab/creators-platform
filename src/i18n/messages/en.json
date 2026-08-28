@@ -61,8 +61,7 @@
     "more": "More",
     "profile": "Profile",
     "shop": "Shop",
-    "buddies": "Training buddies",
-    "listen": "Listen"
+    "buddies": "Training buddies"
   },
   "roles": {
     "customer": "Audience",
@@ -2474,9 +2473,7 @@
     "rewardsDesc": "Points",
     "notificationsLabel": "Notifications",
     "profileLabel": "Profile",
-    "settingsLabel": "Settings",
-    "listenLabel": "Listen",
-    "listenDesc": "Have texts read aloud"
+    "settingsLabel": "Settings"
   },
   "courses": {
     "pageTitle": "My content",

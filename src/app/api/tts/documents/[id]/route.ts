@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { canUseListen } from "@/lib/tts/access";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,14 @@ async function requireUser() {
   } = await supabase.auth.getUser();
   if (!user) {
     return { error: NextResponse.json({ error: "Du måste vara inloggad." }, { status: 401 }) };
+  }
+  if (!(await canUseListen(user.id))) {
+    return {
+      error: NextResponse.json(
+        { error: "Uppläsaren är inte tillgänglig för ditt konto." },
+        { status: 403 }
+      ),
+    };
   }
   return { supabase, user };
 }

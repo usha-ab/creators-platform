@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { canUseListen } from "@/lib/tts/access";
 import { MAX_DOCUMENT_CHARS, type DocumentSource } from "@/lib/tts/library";
 
 export const dynamic = "force-dynamic";
@@ -19,6 +20,10 @@ export async function GET() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Du måste vara inloggad." }, { status: 401 });
+  if (!(await canUseListen(user.id))) {
+    return NextResponse.json({ error: "Uppläsaren är inte tillgänglig för ditt konto." }, { status: 403 });
+  }
+
 
   const { data, error } = await supabase
     .from("listen_documents")
@@ -39,6 +44,10 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Du måste vara inloggad." }, { status: 401 });
+  if (!(await canUseListen(user.id))) {
+    return NextResponse.json({ error: "Uppläsaren är inte tillgänglig för ditt konto." }, { status: 403 });
+  }
+
 
   const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
   const limited = rateLimit(getRateLimitKey(req, `tts-upload:${user.id}`), 60, 60_000);

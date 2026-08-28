@@ -61,8 +61,7 @@
     "more": "Mer",
     "profile": "Profil",
     "shop": "Butik",
-    "buddies": "Träningsvänner",
-    "listen": "Lyssna"
+    "buddies": "Träningsvänner"
   },
   "roles": {
     "customer": "Publik",
@@ -2474,9 +2473,7 @@
     "rewardsDesc": "Poäng",
     "notificationsLabel": "Notiser",
     "profileLabel": "Profil",
-    "settingsLabel": "Inställningar",
-    "listenLabel": "Lyssna",
-    "listenDesc": "Få texter upplästa"
+    "settingsLabel": "Inställningar"
   },
   "courses": {
     "pageTitle": "Mitt innehåll",

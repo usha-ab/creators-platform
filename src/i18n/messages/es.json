@@ -61,8 +61,7 @@
     "more": "Más",
     "profile": "Perfil",
     "shop": "Tienda",
-    "buddies": "Compañeros",
-    "listen": "Escuchar"
+    "buddies": "Compañeros"
   },
   "roles": {
     "customer": "Público",
@@ -2474,9 +2473,7 @@
     "rewardsDesc": "Puntos",
     "notificationsLabel": "Notificaciones",
     "profileLabel": "Perfil",
-    "settingsLabel": "Ajustes",
-    "listenLabel": "Escuchar",
-    "listenDesc": "Escucha textos en voz alta"
+    "settingsLabel": "Ajustes"
   },
   "courses": {
     "pageTitle": "Mi contenido",

@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lookup } from "node:dns/promises";
 import { createClient } from "@/lib/supabase/server";
+import { canUseListen } from "@/lib/tts/access";
 import { checkUrl, isPrivateAddress, type UrlRejection } from "@/lib/tts/url-guard";
 import { htmlToText, extractTitle } from "@/lib/tts/html-text";
 
@@ -127,6 +128,9 @@ export async function POST(req: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Du måste vara inloggad." }, { status: 401 });
+  }
+  if (!(await canUseListen(user.id))) {
+    return NextResponse.json({ error: "Uppläsaren är inte tillgänglig för ditt konto." }, { status: 403 });
   }
 
   const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");

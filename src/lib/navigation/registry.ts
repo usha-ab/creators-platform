@@ -18,7 +18,7 @@ import {
   Package, CalendarCheck, CalendarDays, ScanLine, Briefcase, BookOpen, Building2,
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
-  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Headphones,
+  Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -125,8 +125,6 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/library", labelKey: "libraryLabel", descKey: "libraryDesc", navLabelKey: "library", icon: BookMarked,
     group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
-  { path: "/app/lyssna", labelKey: "listenLabel", descKey: "listenDesc", navLabelKey: "listen", icon: Headphones,
-    group: "myAccount", roles: "all", surfaces: ["more", "sidebar"] },
   { path: "/app/rewards", labelKey: "rewardsLabel", descKey: "rewardsDesc", icon: Gift,
     group: "myAccount", roles: "all", surfaces: ["more", "profile"] },
   { path: "/app/notifications", labelKey: "notificationsLabel", icon: Bell,
@@ -212,6 +210,7 @@ export function adminDestinationsFor(access: AdminAccess): AdminDestination[] {
 
 export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/dashboard": "Omdirigerar bara vidare till /app.",
+  "/app/lyssna": "Privat verktyg under utbrytning till egen app. Nås via direktlänk och är grindad i sidan (se lib/tts/access.ts) — den ska inte synas i menyerna.",
   "/app/events/[id]/bookings": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/edit": "Nås genom att öppna ett event i listan.",
   "/app/events/[id]/crew": "Nås från knappraden på eventsidan.",
