@@ -119,7 +119,7 @@ export async function parsePdf(
 
   let document;
   try {
-    document = await pdfjs.getDocument({ data, isEvalSupported: false }).promise;
+    document = await pdfjs.getDocument({ data }).promise;
   } catch {
     throw new PdfError("unreadable");
   }
