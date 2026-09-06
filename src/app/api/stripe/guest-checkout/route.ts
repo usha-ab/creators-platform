@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeEmail } from "@/lib/email/normalize";
 import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
@@ -24,7 +25,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email, name, ticketTypeId, quantity, attendeeNames } = await req.json();
+    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames } = await req.json();
+    // Adressen är identiteten som knyter gästbiljetten till ett konto senare.
+    // Sparas den som den skrevs slutar `guest_email = user.email` matcha så
+    // fort någon råkar få en versal med sig från tangentbordet.
+    const email = normalizeEmail(rawEmail);
     const qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
