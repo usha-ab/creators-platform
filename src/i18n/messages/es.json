@@ -2116,7 +2116,9 @@
     "quantity": "Cantidad",
     "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)",
     "mapHeading": "Cómo llegar",
-    "openInMaps": "Abrir en Maps"
+    "openInMaps": "Abrir en Maps",
+    "creditApplied": "Tu saldo de bienvenida de {amount} kr está aplicado",
+    "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",

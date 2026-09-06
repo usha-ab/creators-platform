@@ -69,3 +69,23 @@ describe("aggregateEventBookings", () => {
     expect(t).toEqual({ ticketsSold: 0, grossOre: 0, platformFeeOre: 0, refundedOre: 0, refundedCount: 0 });
   });
 });
+
+describe("välkomstavdrag i underlaget", () => {
+  it("räknar partnerns andel på ordinarie pris, inte på det köparen betalade", () => {
+    // Köparen betalade 150 kr av 200 med sitt välkomstavdrag. Usha stod för
+    // femtiolappen, så partnern ska räkna som om biljetten kostat 200.
+    const totals = aggregateEventBookings(
+      [{ status: "confirmed", amount_paid: 15000, credit_applied_ore: 5000, platform_fee_amount: 0, refund_amount: null, guest_count: 1 }],
+      0.03
+    );
+    expect(totals.grossOre).toBe(20000);
+  });
+
+  it("är oförändrat för bokningar utan avdrag", () => {
+    const totals = aggregateEventBookings(
+      [{ status: "confirmed", amount_paid: 20000, platform_fee_amount: 0, refund_amount: null, guest_count: 1 }],
+      0.03
+    );
+    expect(totals.grossOre).toBe(20000);
+  });
+});

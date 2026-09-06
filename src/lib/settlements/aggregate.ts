@@ -12,6 +12,12 @@ export interface SettlementBookingRow {
   platform_fee_amount: number | null;
   refund_amount: number | null;
   guest_count: number | null;
+  /**
+   * Välkomstavdrag som Usha stod för. Räknas MED i bruttot: partnerns andel
+   * ska vila på ordinarie pris, annars finansierar partnern halva avdraget
+   * utan att ha sagt ja till det.
+   */
+  credit_applied_ore?: number | null;
 }
 
 export interface EventTotals {
@@ -53,7 +59,7 @@ export function aggregateEventBookings(
 
   for (const b of rows) {
     const qty = b.guest_count ?? 1;
-    const paid = b.amount_paid ?? 0;
+    const paid = (b.amount_paid ?? 0) + (b.credit_applied_ore ?? 0);
     const isActive = b.status === "confirmed" || b.status === "completed";
     const isRefunded = b.status === "canceled" && !!b.refund_amount;
 

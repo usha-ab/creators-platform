@@ -101,7 +101,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
 
     const { data: bookings } = await db
       .from("bookings")
-      .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count")
+      .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
       .eq("listing_id", listing.id)
       .eq("booking_type", "ticket");
 
