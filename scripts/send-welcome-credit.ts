@@ -11,9 +11,11 @@
  *   ... scripts/send-welcome-credit.ts --send   # skickar på riktigt
  *   ... --only nagon@example.com                # en enda adress
  *
- * Urvalet: oanvänt avdrag, konto som inte tackat nej till marknadsföring, och
- * inte redan mejlat (notified_at). Kolumnen gör körningen ofarlig att upprepa —
- * ett avbrutet utskick kan köras om utan att någon får mejlet två gånger.
+ * Urvalet: oanvänt avdrag, AKTIVT ja till marknadsföring (notif_marketing =
+ * true — en tom inställningsrad räknas som nej, precis som appen visar den),
+ * och inte redan mejlat (notified_at). Kolumnen gör körningen ofarlig att
+ * upprepa: ett avbrutet utskick kan köras om utan att någon får mejlet två
+ * gånger.
  */
 import { config } from 'dotenv';
 // RESEND_API_KEY och service-role-nyckeln finns bara i Vercel, inte i
@@ -56,8 +58,11 @@ async function main() {
     .select('user_id, notif_marketing')
     .in('user_id', ids);
 
-  const optedOut = new Set(
-    (settings ?? []).filter((s) => s.notif_marketing === false).map((s) => s.user_id)
+  // Aktivt ja krävs. Tidigare filtrerades bara de bort som uttryckligen tackat
+  // nej, vilket gjorde tystnad till ett samtycke — och appen visar samtidigt
+  // marknadsföring som avstängd för den som aldrig sparat något.
+  const optedIn = new Set(
+    (settings ?? []).filter((s) => s.notif_marketing === true).map((s) => s.user_id)
   );
   const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
 
@@ -65,7 +70,7 @@ async function main() {
     .map((c) => ({ credit: c, profile: byId.get(c.user_id) }))
     .filter(({ credit, profile }) => {
       if (!profile?.email || profile.deleted_at) return false;
-      if (optedOut.has(credit.user_id)) return false;
+      if (!optedIn.has(credit.user_id)) return false;
       if (ONLY && profile.email !== ONLY) return false;
       return true;
     });

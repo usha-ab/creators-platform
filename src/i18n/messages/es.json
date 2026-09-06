@@ -517,7 +517,9 @@
     "businessIndividualDesc": "Vendo en mi propio nombre, sin número de organización",
     "businessCompany": "Empresa",
     "businessCompanyDesc": "Facturo a través de una empresa con número de organización",
-    "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde."
+    "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde.",
+    "signupCreditTitle": "{amount} kr para cuentas nuevas",
+    "signupCreditNote": "Para usar en una compra desde {minSpend} kr. Válido durante 12 meses."
   },
   "landing": {
     "meta": {

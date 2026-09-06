@@ -517,7 +517,9 @@
     "businessIndividualDesc": "I sell in my own name, without a company registration number",
     "businessCompany": "Company",
     "businessCompanyDesc": "I invoice through a company with a registration number",
-    "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later."
+    "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later.",
+    "signupCreditTitle": "{amount} kr for new accounts",
+    "signupCreditNote": "To use on a purchase from {minSpend} kr. Valid for 12 months."
   },
   "landing": {
     "meta": {
