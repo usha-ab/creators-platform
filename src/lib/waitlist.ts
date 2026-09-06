@@ -8,10 +8,15 @@ export function isValidEmail(value: unknown): value is string {
   return typeof value === "string" && EMAIL_RE.test(value.trim());
 }
 
-/** Normalisera för dedup + lagring: trimma och gemener. */
-export function normalizeEmail(value: string): string {
-  return value.trim().toLowerCase();
-}
+/**
+ * Normalisera för dedup + lagring: trimma och gemener.
+ *
+ * Implementationen bor i lib/email/normalize — samma regel används av
+ * gästkassan, biljettlistan och lokalens samtycke, och två kopior av den hade
+ * garanterat drivit isär. Återexporten finns kvar så att befintliga importer
+ * från waitlist fortsätter fungera.
+ */
+export { normalizeEmail } from "@/lib/email/normalize";
 
 /** Trimma namn och kapa orimligt långa värden; tomt → null. */
 export function cleanName(value: unknown): string | null {

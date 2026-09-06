@@ -204,7 +204,7 @@ export async function POST(
     booking_type: "ticket",
     amount_paid: 0,
     is_free: true,
-    ...(user ? { customer_id: user.id } : { guest_email: email, guest_name: name }),
+    ...(user ? { customer_id: user.id } : { guest_email: normalizeEmail(email), guest_name: name }),
   }).select("id").single();
   if (bookErr) {
     await admin.rpc("increment_tickets_sold", { p_listing: listingId, p_n: -1 });
