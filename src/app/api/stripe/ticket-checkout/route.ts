@@ -3,6 +3,7 @@ import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
 import { computeServiceFeeOre, serviceFeeMode } from '@/lib/tickets/service-fee';
+import { applicableCredit } from '@/lib/credits/signup';
 import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from '@/lib/tickets/attendees';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -256,22 +257,59 @@ export async function POST(req: NextRequest) {
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
     const applicationFee = Math.round(amountInOre * commissionRate);
+    // OBS: applicationFee räknas per biljett på ordinarie pris nedan, och
+    // avdraget dras från Ushas egen del i slutänden (se creditOre).
 
     // Tickster-style service fee (gated off until the flag is set). In BOTH
     // modes the fee is added to the application_fee so it stays with Usha; in
     // "buyer" mode it is ALSO added as a line item so the buyer pays it on top.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
     const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
+    // Välkomstavdraget. Räknas på ordersumman för biljetterna, INTE på
+    // serviceavgiften — avgiften är Ushas ersättning, inte en del av köpet.
+    //
+    // Avdraget dras som en egen negativ post går inte i Stripe, så det görs på
+    // biljettradens styckpris. Med flera biljetter fördelas det över hela
+    // ordern, vilket är samma sak för köparen och gör att qty * unit_amount
+    // fortfarande stämmer med det Stripe drar.
+    const subtotalOre = amountInOre * qty;
+    const { data: creditRow } = await admin
+      .from('account_credits')
+      .select('amount_ore, used_at, expires_at')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const creditOre = applicableCredit({
+      creditOre: creditRow?.amount_ore,
+      subtotalOre,
+      used: !!creditRow?.used_at,
+      expired: !!creditRow?.expires_at && new Date(creditRow.expires_at) < new Date(),
+    });
+    const payableOre = subtotalOre - creditOre;
+    // Styckpriset avrundas nedåt och resten läggs på första biljetten, så att
+    // summan blir exakt även när avdraget inte går jämnt upp på antalet.
+    const unitAfterCredit = Math.floor(payableOre / qty);
+    const remainderOre = payableOre - unitAfterCredit * qty;
+
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: 'sek',
           product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
-          unit_amount: amountInOre,
+          unit_amount: unitAfterCredit,
         },
         quantity: qty,
       },
     ];
+    if (remainderOre > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'sek',
+          product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
+          unit_amount: remainderOre,
+        },
+        quantity: 1,
+      });
+    }
     if (serviceFee > 0 && feeMode === 'buyer') {
       lineItems.push({
         price_data: {
@@ -303,7 +341,16 @@ export async function POST(req: NextRequest) {
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
-      applicationFeeOre: applicationFee * qty + serviceFee,
+      // Usha bär avdraget, och det syns här: plattformsavgiften minskas med
+      // hela avdraget innan den dras. Arrangören får alltså lika mycket som
+      // om köparen betalat fullt, ända tills avdraget överstiger Ushas egen
+      // avgift — då finns inget mer av Ushas del att ge, och resten hamnar
+      // hos arrangören. I dag är arrangören och Usha samma bolag på varje
+      // kväll som säljer biljetter, så det är en gräns i teorin.
+      //
+      // Partnern är skyddad oavsett: avräkningen räknas på ordinarie pris via
+      // bookings.credit_applied_ore, inte på det köparen betalade.
+      applicationFeeOre: Math.max(0, applicationFee * qty + serviceFee - creditOre),
       metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
     });
 
@@ -332,9 +379,10 @@ export async function POST(req: NextRequest) {
           discountedPrice: String(discountedPrice),
           serviceFeeOre: String(serviceFee),
           serviceFeeMode: feeMode,
-          platformFeeOre: String(applicationFee * qty + serviceFee),
+          platformFeeOre: String(Math.max(0, applicationFee * qty + serviceFee - creditOre)),
           ticketTypeId: ticketType?.id ?? '',
           ticketTypeName: ticketType?.name ?? '',
+          creditOre: String(creditOre),
           quantity: String(qty),
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: 'true',

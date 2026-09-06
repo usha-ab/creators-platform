@@ -38,7 +38,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
 
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count")
+    .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
     .eq("listing_id", listing.id)
     .eq("booking_type", "ticket");
 

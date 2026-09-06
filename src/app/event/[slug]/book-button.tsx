@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Ticket, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
+import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
 
 interface TicketType {
   id: string;
@@ -25,6 +26,8 @@ interface Props {
    * workshopen redan vald, inte behöva hitta raden igen i dörren.
    */
   preselectTicketTypeId?: string | null;
+  /** Köparens outnyttjade välkomstavdrag i öre. 0 = inget att visa. */
+  creditOre?: number;
   /**
    * Prisrubriken ovanför väljaren. Den renderades tidigare av sidan, på
    * servern, och kunde därför bara visa grundpriset — valde man Workshop för
@@ -50,7 +53,7 @@ function soldOut(tt: TicketType) {
   return tt.capacity != null && tt.tickets_sold >= tt.capacity;
 }
 
-export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header, preselectTicketTypeId }: Props) {
+export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], header, preselectTicketTypeId, creditOre = 0 }: Props) {
   const { toast } = useToast();
   const t = useTranslations("eventPage");
   const [loading, setLoading] = useState(false);
@@ -82,7 +85,12 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
     });
   const attendeeNames = Array.from({ length: qty }, (_, i) => names[i] ?? "");
   const total = effectivePrice * qty;
-  const label = isFree ? t("freeTicket") : t("buyTicket", { price: total });
+  // Avdraget räknas i ören men visas i kronor, och gäller bara över gränsen.
+  const credit = applicableCredit({ creditOre, subtotalOre: total * 100 });
+  const totalAfterCredit = total - credit / 100;
+  const label = isFree
+    ? t("freeTicket")
+    : t("buyTicket", { price: credit > 0 ? totalAfterCredit : total });
 
   async function checkout(endpoint: string, payload: Record<string, unknown>) {
     setLoading(true);
@@ -208,6 +216,22 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
     </div>
   ) : null;
 
+  // Avdraget måste synas innan man trycker, annars är det ingen anledning att
+  // trycka. Står det bara i Stripe har köparen redan bestämt sig.
+  const creditNote =
+    credit > 0 ? (
+      <p className="mb-2 text-center text-xs font-medium text-green-400">
+        {t("creditApplied", { amount: credit / 100 })}
+      </p>
+    ) : creditOre > 0 && !isFree ? (
+      <p className="mb-2 text-center text-[11px] text-[var(--usha-muted)]">
+        {t("creditMinSpend", {
+          amount: creditOre / 100,
+          min: SIGNUP_CREDIT_MIN_SPEND_ORE / 100,
+        })}
+      </p>
+    ) : null;
+
   // Logged-in: existing ticket checkout (uses the account).
   if (isLoggedIn) {
     return (
@@ -216,6 +240,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], hea
         {picker}
         {qtyStepper}
         {nameInputs}
+        {creditNote}
         <button
           onClick={() => checkout("/api/stripe/ticket-checkout", { listingId, ticketTypeId: selectedTypeId || undefined, quantity: qty, attendeeNames })}
           disabled={loading || typeSoldOut}

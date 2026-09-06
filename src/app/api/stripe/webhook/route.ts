@@ -434,6 +434,11 @@ export async function POST(req: NextRequest) {
 
           // Create confirmed booking
           const ticketQty = clampQuantity(session.metadata?.quantity);
+          // Välkomstavdraget som Usha stod för. Sparas på bokningen därför att
+          // amount_paid ensamt inte kan skilja "köparen betalade 150" från
+          // "biljetten kostade 150" — och partnerns andel ska räknas på det
+          // senare.
+          const creditOre = Number(session.metadata?.creditOre) || 0;
           const { data: acctBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
@@ -443,11 +448,23 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            credit_applied_ore: creditOre,
             platform_fee_amount: Number(session.metadata?.platformFeeOre) || 0,
             guest_count: ticketQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
           }).select("id").single();
+
+          // Förbruka avdraget. Villkoret `used_at is null` gör skrivningen till
+          // spärren: två samtidiga köp kan båda ha fått avdraget beräknat i
+          // kassan, men bara den som kommer först hit får märka det som använt.
+          if (creditOre > 0 && userId) {
+            await getSupabaseAdmin()
+              .from("account_credits")
+              .update({ used_at: new Date().toISOString(), used_booking_id: acctBooking?.id ?? null })
+              .eq("user_id", userId)
+              .is("used_at", null);
+          }
 
           // One scannable attendee per seat (only for multi-ticket orders).
           if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));

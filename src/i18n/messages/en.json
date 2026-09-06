@@ -2116,7 +2116,9 @@
     "quantity": "Quantity",
     "attendeeNamePlaceholder": "Name of guest {n} (optional)",
     "mapHeading": "Getting there",
-    "openInMaps": "Open in Maps"
+    "openInMaps": "Open in Maps",
+    "creditApplied": "Your {amount} kr welcome credit is applied",
+    "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",

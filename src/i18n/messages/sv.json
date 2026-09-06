@@ -2116,7 +2116,9 @@
     "quantity": "Antal",
     "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)",
     "mapHeading": "Hitta hit",
-    "openInMaps": "Öppna i Maps"
+    "openInMaps": "Öppna i Maps",
+    "creditApplied": "Ditt välkomstavdrag på {amount} kr är avräknat",
+    "creditMinSpend": "Du har {amount} kr i välkomstavdrag — gäller köp från {min} kr"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",

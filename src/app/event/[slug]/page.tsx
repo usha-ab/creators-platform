@@ -260,6 +260,24 @@ export default async function EventPage(props: Params) {
   // typen förvald, så att första skärmen visar rätt pris i stället för att be
   // hen leta rätt på raden igen.
   const preselectTicketTypeId = (await props.searchParams)?.tt ?? null;
+
+  // Välkomstavdraget, om köparen har kvar sitt. Visas i biljettrutan så att
+  // det syns FÖRE kassan — ett avdrag som dyker upp först i Stripe övertygar
+  // ingen att köpa.
+  let signupCreditOre = 0;
+  {
+    const sb = await createClient();
+    const { data: { user: buyer } } = await sb.auth.getUser();
+    if (buyer) {
+      const { data: credit } = await sb
+        .from("account_credits")
+        .select("amount_ore, used_at, expires_at")
+        .eq("user_id", buyer.id)
+        .maybeSingle();
+      const gone = !!credit?.used_at || (!!credit?.expires_at && new Date(credit.expires_at) < new Date());
+      signupCreditOre = credit && !gone ? credit.amount_ore : 0;
+    }
+  }
   let data = await getListing(slug);
   if (!data) {
     const resolved = await resolveSlugToOccurrence(slug);
@@ -533,6 +551,7 @@ export default async function EventPage(props: Params) {
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
                   preselectTicketTypeId={preselectTicketTypeId}
+                  creditOre={signupCreditOre}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,
