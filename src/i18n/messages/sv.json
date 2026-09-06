@@ -3698,7 +3698,17 @@
     "trialWarning": "Om du inte uppgraderar återgår ditt konto till gratisplanen och du förlorar tillgång till Premium-funktioner som lägre kommission, toppsynlighet och dedikerad support.",
     "trialCta": "Uppgradera nu",
     "broadcastFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform.",
-    "broadcastUnsubscribe": "Avregistrera dig"
+    "broadcastUnsubscribe": "Avregistrera dig",
+    "creditSubject": "Du har {amount} kr att använda",
+    "creditGreeting": "Hej {name},",
+    "creditIntro": "Vi har lagt ett välkomstavdrag på ditt konto. Du behöver ingen kod — det dras av automatiskt i kassan.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "på ditt konto",
+    "creditHowHeading": "Så funkar det",
+    "creditHowAutomatic": "Dras automatiskt vid köp på minst {min} kr.",
+    "creditHowOneOff": "Gäller ett köp, inte flera.",
+    "creditHowValid": "Ligger kvar till {date}.",
+    "creditCta": "Se vad som är på gång"
   },
   "adminPage": {
     "heading": "Admin",

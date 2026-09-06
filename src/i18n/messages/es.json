@@ -3698,7 +3698,17 @@
     "trialWarning": "Si no mejoras tu plan, tu cuenta vuelve al plan gratuito y pierdes el acceso a funciones Premium como una comisión más baja, visibilidad destacada y soporte dedicado.",
     "trialCta": "Mejorar ahora",
     "broadcastFooter": "Recibes este correo porque te apuntaste a la lista de espera en Usha Platform.",
-    "broadcastUnsubscribe": "Darse de baja"
+    "broadcastUnsubscribe": "Darse de baja",
+    "creditSubject": "Tienes {amount} kr para usar",
+    "creditGreeting": "Hola {name}:",
+    "creditIntro": "Hemos añadido un saldo de bienvenida a tu cuenta. No necesitas ningún código: se descuenta automáticamente al pagar.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "en tu cuenta",
+    "creditHowHeading": "Cómo funciona",
+    "creditHowAutomatic": "Se descuenta automáticamente en compras de {min} kr o más.",
+    "creditHowOneOff": "Vale para una compra, no para varias.",
+    "creditHowValid": "Disponible hasta el {date}.",
+    "creditCta": "Mira lo que viene"
   },
   "adminPage": {
     "heading": "Admin",

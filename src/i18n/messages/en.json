@@ -3698,7 +3698,17 @@
     "trialWarning": "If you don't upgrade, your account returns to the free plan and you lose access to Premium features such as lower commission, top visibility and dedicated support.",
     "trialCta": "Upgrade now",
     "broadcastFooter": "You're getting this email because you joined the waitlist on Usha Platform.",
-    "broadcastUnsubscribe": "Unsubscribe"
+    "broadcastUnsubscribe": "Unsubscribe",
+    "creditSubject": "You have {amount} kr to spend",
+    "creditGreeting": "Hi {name},",
+    "creditIntro": "We have added a welcome credit to your account. No code needed — it comes off automatically at checkout.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "on your account",
+    "creditHowHeading": "How it works",
+    "creditHowAutomatic": "Applied automatically on purchases of {min} kr or more.",
+    "creditHowOneOff": "Good for one purchase, not several.",
+    "creditHowValid": "Yours until {date}.",
+    "creditCta": "See what is coming up"
   },
   "adminPage": {
     "heading": "Admin",

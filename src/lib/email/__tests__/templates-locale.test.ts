@@ -16,6 +16,7 @@ import GoldMemberWelcome, { getGoldWelcomeSubject } from "@/components/emails/Go
 import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage";
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import TrialEnding, { getTrialEndingSubject } from "@/components/emails/TrialEnding";
+import WelcomeCredit, { getWelcomeCreditSubject } from "@/components/emails/WelcomeCredit";
 
 const LOCALES = ["sv", "en", "es"] as const;
 const MESSAGES_DIR = join(process.cwd(), "src/i18n/messages");
@@ -73,6 +74,9 @@ function templates(t: Translate, locale: Locale) {
     TrialEnding: createElement(TrialEnding, {
       memberName: "Pau", trialEndDate: WHEN, daysLeft: 3, t, locale,
     }),
+    WelcomeCredit: createElement(WelcomeCredit, {
+      recipientName: "Pau", amount: 50, minSpend: 150, expiresAt: WHEN, t, locale,
+    }),
   };
 }
 
@@ -118,6 +122,7 @@ describe("email templates render in the reader's language", () => {
         getPayoutSubject(t, "batch", 1234),
         getPayoutSubject(t, "instant", 1234),
         getTrialEndingSubject(t, 1),
+        getWelcomeCreditSubject(t, 50),
         getTrialEndingSubject(t, 5),
       ];
     };
