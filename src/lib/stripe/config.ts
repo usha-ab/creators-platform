@@ -158,10 +158,35 @@ export const GRATIS_PLAN = {
   ],
 };
 
+/** Grundarpartnerns variant av gratisplanen.
+ *
+ * Statusen ges till tidiga kreatörer i regioner där vi inte finns ännu. De
+ * betalar självkostnad — bara Stripes avgift — och har inget tak på antal
+ * utbud. Texten måste säga samma sak som verkligheten: lovar prissidan tre
+ * event medan kontot tillåter nio, är det texten som är buggen.
+ */
+export const GRUNDARPARTNER_PLAN = {
+  ...GRATIS_PLAN,
+  name: "Grundarpartner",
+  description: "För dig som är först på din ort",
+  features: [
+    "Skapa profil + obegränsat antal tjänster/events",
+    "Synlig på marknadsplatsen",
+    "Ingen provision – du betalar bara Stripes avgift",
+    "Grundläggande statistik",
+  ],
+};
+
 /** Role-aware Gratis plan. Publik doesn't pay commission and doesn't
  * create listings, so the feature list is reframed for that role.
+ *
+ * `foundingPartner` byter ut planen helt för kreatörer och venues — se
+ * lib/partners/founding.ts för vem som har statusen.
  */
-export function getGratisPlan(role: MemberRole) {
+export function getGratisPlan(role: MemberRole, foundingPartner = false) {
+  if (foundingPartner && role !== "customer") {
+    return GRUNDARPARTNER_PLAN;
+  }
   if (role === "customer") {
     return {
       ...GRATIS_PLAN,
