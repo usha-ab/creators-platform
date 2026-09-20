@@ -23,12 +23,14 @@ import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
 import { ShareEventButton } from "@/components/share-event-button";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { readShareToken, shareTokenMatches } from "@/lib/profiles/share-link";
 import { isAdminById } from "@/lib/admin/check";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function isUUID(str: string) {
@@ -98,7 +100,7 @@ export default async function CreatorProfilePage(props: Props) {
     createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug, is_public"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug, is_public, share_token"
       )
       .eq(column, params.id)
       .maybeSingle(),
@@ -106,7 +108,14 @@ export default async function CreatorProfilePage(props: Props) {
   ]);
 
   if (!profile) notFound();
-  const canPreview = !!user && (user.id === profile.id || (await isAdminById(user.id)));
+  // Tre vägar in till en opublik profil: ägaren, admin, eller en giltig
+  // delningstoken i länken. Token gör det möjligt att visa sig för utvalda
+  // utan att synas på marknadsplatsen — profilen ligger kvar utanför sök och
+  // listningar, den är bara nåbar för den som fått adressen.
+  const sharedToken = readShareToken(await props.searchParams);
+  const viaShareLink = shareTokenMatches(profile.share_token, sharedToken);
+  const canPreview =
+    viaShareLink || (!!user && (user.id === profile.id || (await isAdminById(user.id))));
   if (!profile.is_public && !canPreview) notFound();
   const isPreviewOfUnpublished = !profile.is_public;
 
