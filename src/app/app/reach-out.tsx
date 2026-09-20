@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { useTranslations } from "next-intl";
+import { profileShareUrl } from "@/lib/profiles/share-link";
 import { Check, Copy, Download, Link2, Palette, QrCode } from "lucide-react";
 
 /**
@@ -23,11 +24,14 @@ export function ReachOut({
   slug,
   isPublic,
   whitelabelEnabled,
+  shareToken = null,
 }: {
   profileId: string;
   slug: string | null;
   isPublic: boolean;
   whitelabelEnabled: boolean;
+  /** Dold profil: länken bär token, QR:en ritas inte. */
+  shareToken?: string | null;
 }) {
   const t = useTranslations("reachOut");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,8 +42,14 @@ export function ReachOut({
   // sig själv — den gamla utskriften slutar dock fungera, vilket är skälet att
   // be om adressen FÖRE man trycker flygblad.
   const path = slug || profileId;
-  const url = `https://usha.se/creators/${path}`;
-  const visning = slug ? `usha.se/${slug}` : `usha.se/creators/${profileId.slice(0, 8)}…`;
+  // Dold profil delas med token — den rena adressen är en 404 för mottagaren.
+  // QR:en förblir avstängd i det läget: en hemlig nyckel på en affisch är
+  // ingen hemlighet (se effekten nedan, som redan avbryter när !isPublic).
+  const url = profileShareUrl("https://usha.se", path, { isPublic, shareToken });
+  const rentVisningsnamn = slug ? `usha.se/${slug}` : `usha.se/creators/${profileId.slice(0, 8)}…`;
+  // Dold profil: säg att länken bär en nyckel, annars ser den ut som den rena
+  // adressen och någon klipper bort frågesträngen i tron att den är skräp.
+  const visning = isPublic ? rentVisningsnamn : `${rentVisningsnamn} + nyckel`;
 
   useEffect(() => {
     if (!isPublic) return;
@@ -69,7 +79,11 @@ export function ReachOut({
     };
   }, [url, isPublic]);
 
-  if (!isPublic) return null;
+  // Publik profil: panelen som förut. Dold profil MED delningstoken: samma
+  // panel, men bara länken — det är hela poängen med att kunna visa sig för
+  // utvalda. Dold UTAN token: inget att sprida, alltså inget att visa.
+  if (!isPublic && !shareToken) return null;
+  const visaQr = isPublic;
 
   function laddaNer() {
     if (!dataUrl) return;
@@ -102,6 +116,7 @@ export function ReachOut({
       <p className="mt-0.5 text-xs text-[var(--usha-muted)]">{t("intro")}</p>
 
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-start">
+        {visaQr && (
         <div className="flex shrink-0 flex-col items-center gap-2">
           <span className="rounded-lg bg-white p-2">
             <canvas ref={canvasRef} aria-label={t("qrAlt")} />
@@ -116,6 +131,7 @@ export function ReachOut({
             {t("download")}
           </button>
         </div>
+        )}
 
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex items-center gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2.5">

@@ -4,6 +4,8 @@ import {
   readShareToken,
   buildShareUrl,
   SHARE_TOKEN_PARAM,
+  profileShareUrl,
+  mayRenderQr,
 } from "@/lib/profiles/share-link";
 
 const TOKEN = "3f2b8c1a-9d4e-4f7a-b2c1-5e6d7a8b9c0d";
@@ -66,5 +68,38 @@ describe("buildShareUrl", () => {
     expect(buildShareUrl("https://usha.se/", "pablo", TOKEN)).toBe(
       `https://usha.se/creators/pablo?k=${TOKEN}`
     );
+  });
+});
+
+describe("profileShareUrl", () => {
+  it("lämnar en publik profil på sin rena adress", () => {
+    expect(
+      profileShareUrl("https://usha.se", "pablo", { isPublic: true, shareToken: TOKEN })
+    ).toBe("https://usha.se/creators/pablo");
+  });
+
+  it("hänger på token när profilen är dold", () => {
+    expect(
+      profileShareUrl("https://usha.se", "pablo", { isPublic: false, shareToken: TOKEN })
+    ).toBe(`https://usha.se/creators/pablo?k=${TOKEN}`);
+  });
+
+  it("ger den rena adressen när dold profil saknar token", () => {
+    expect(
+      profileShareUrl("https://usha.se", "pablo", { isPublic: false, shareToken: null })
+    ).toBe("https://usha.se/creators/pablo");
+  });
+});
+
+describe("mayRenderQr", () => {
+  it("tillåter QR för publik profil", () => {
+    expect(mayRenderQr({ isPublic: true, shareToken: null })).toBe(true);
+  });
+
+  it("nekar QR för dold profil — även med token", () => {
+    // En QR-kod sätts upp på väggar. Bär den en hemlig nyckel är den ingen
+    // hemlighet längre, så token får ALDRIG göra QR:en tillåten.
+    expect(mayRenderQr({ isPublic: false, shareToken: TOKEN })).toBe(false);
+    expect(mayRenderQr({ isPublic: false, shareToken: null })).toBe(false);
   });
 });

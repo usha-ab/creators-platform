@@ -1579,7 +1579,8 @@
       "preview": "Vista previa",
       "download": "Descargar como PNG",
       "generateError": "No se pudo generar el código QR",
-      "copyError": "No se pudo copiar el enlace"
+      "copyError": "No se pudo copiar el enlace",
+      "hiddenNoQr": "El código QR está desactivado mientras tu perfil está oculto. El enlace de abajo contiene una clave secreta: compártelo con personas, no en carteles."
     },
     "instagram": {
       "title": "Importar de Instagram",

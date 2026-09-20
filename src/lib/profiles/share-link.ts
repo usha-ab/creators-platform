@@ -44,3 +44,33 @@ export function buildShareUrl(baseUrl: string, slugOrId: string, token: string):
   const base = baseUrl.replace(/\/+$/, "");
   return `${base}/creators/${slugOrId}?${SHARE_TOKEN_PARAM}=${token}`;
 }
+
+/**
+ * Adressen till en profil, med token bara när den behövs.
+ *
+ * En publik profil delas på sin rena adress — att hänga på en token där vore
+ * att sprida en hemlighet i onödan. Är profilen dold är den rena adressen
+ * däremot en 404 för mottagaren, och då är token hela poängen.
+ */
+export function profileShareUrl(
+  baseUrl: string,
+  slugOrId: string,
+  opts: { isPublic: boolean; shareToken?: string | null }
+): string {
+  const base = baseUrl.replace(/\/+$/, "");
+  if (!opts.isPublic && opts.shareToken) {
+    return buildShareUrl(base, slugOrId, opts.shareToken);
+  }
+  return `${base}/creators/${slugOrId}`;
+}
+
+/**
+ * Får adressen tryckas på en QR-kod?
+ *
+ * Nej när den bär en token. En QR-kod sätts upp på väggar och flygblad, och
+ * en hemlighet som sitter uppe offentligt är ingen hemlighet. Den som vill
+ * dela en dold profil får kopiera länken och skicka den till en person.
+ */
+export function mayRenderQr(opts: { isPublic: boolean; shareToken?: string | null }): boolean {
+  return opts.isPublic;
+}
