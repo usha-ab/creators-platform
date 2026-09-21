@@ -1579,7 +1579,8 @@
       "preview": "Preview",
       "download": "Download as PNG",
       "generateError": "Could not generate QR code",
-      "copyError": "Could not copy link"
+      "copyError": "Could not copy link",
+      "hiddenNoQr": "The QR code is off while your profile is hidden. The link below contains a secret key — share it with people, not on posters."
     },
     "instagram": {
       "title": "Instagram import",

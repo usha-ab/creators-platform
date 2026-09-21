@@ -5,15 +5,21 @@ import QRCode from "qrcode";
 import { Download, Copy, Check, ExternalLink } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useTranslations } from "next-intl";
+import { profileShareUrl, mayRenderQr } from "@/lib/profiles/share-link";
 
 export function ProfileQR({
   profileSlug,
   profileId,
   fullName,
+  isPublic = true,
+  shareToken = null,
 }: {
   profileSlug: string | null;
   profileId: string;
   fullName: string | null;
+  /** Dold profil: QR:en stängs av och länken bär token i stället. */
+  isPublic?: boolean;
+  shareToken?: string | null;
 }) {
   const t = useTranslations("dashProfile.qr");
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,9 +28,14 @@ export function ProfileQR({
   const { toast } = useToast();
 
   const slug = profileSlug || profileId;
-  const profileUrl = `https://usha.se/creators/${slug}`;
+  // Dold profil delas med token, publik profil på sin rena adress.
+  const profileUrl = profileShareUrl("https://usha.se", slug, { isPublic, shareToken });
+  // En QR-kod hamnar på väggar och flygblad. Bär den en hemlig token är den
+  // ingen hemlighet längre, så den ritas bara för en publik profil.
+  const showQr = mayRenderQr({ isPublic, shareToken });
 
   useEffect(() => {
+    if (!showQr) return;
     let cancelled = false;
     QRCode.toDataURL(profileUrl, {
       width: 512,
@@ -41,18 +52,18 @@ export function ProfileQR({
     return () => {
       cancelled = true;
     };
-  }, [profileUrl, toast, t]);
+  }, [profileUrl, toast, t, showQr]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !showQr) return;
     QRCode.toCanvas(canvas, profileUrl, {
       width: 192,
       margin: 1,
       color: { dark: "#000000", light: "#ffffff" },
       errorCorrectionLevel: "M",
     }).catch(() => {});
-  }, [profileUrl]);
+  }, [profileUrl, showQr]);
 
   function handleDownload() {
     if (!dataUrl) return;
@@ -83,10 +94,18 @@ export function ProfileQR({
         </p>
       </div>
 
+      {!showQr && (
+        <p className="rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-3 py-2.5 text-xs text-[var(--usha-muted)]">
+          {t("hiddenNoQr")}
+        </p>
+      )}
+
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-        <div className="rounded-xl bg-white p-3">
-          <canvas ref={canvasRef} aria-label={t("canvasAriaNamed", { name: fullName || t("canvasAriaFallback") })} />
-        </div>
+        {showQr && (
+          <div className="rounded-xl bg-white p-3">
+            <canvas ref={canvasRef} aria-label={t("canvasAriaNamed", { name: fullName || t("canvasAriaFallback") })} />
+          </div>
+        )}
 
         <div className="flex w-full flex-col gap-2 sm:flex-1">
           <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2.5 text-xs text-[var(--usha-muted)] break-all">
@@ -105,7 +124,7 @@ export function ProfileQR({
                 QR-kodens skull och skulle skicka dig till produktion från en
                 preview-deploy eller localhost. */}
             <a
-              href={`/creators/${slug}`}
+              href={showQr ? `/creators/${slug}` : `/creators/${slug}?k=${shareToken ?? ""}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] py-2.5 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)]"

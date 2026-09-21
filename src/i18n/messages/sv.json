@@ -1579,7 +1579,8 @@
       "preview": "Förhandsgranska",
       "download": "Ladda ner som PNG",
       "generateError": "Kunde inte generera QR-kod",
-      "copyError": "Kunde inte kopiera länk"
+      "copyError": "Kunde inte kopiera länk",
+      "hiddenNoQr": "QR-koden är avstängd medan profilen är dold. Länken nedan innehåller en hemlig nyckel — dela den med personer, inte på affischer."
     },
     "instagram": {
       "title": "Instagram-import",

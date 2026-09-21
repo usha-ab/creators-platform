@@ -680,6 +680,7 @@ function KreatorHome({
           slug={profile.slug ?? null}
           isPublic={!!profile.is_public}
           whitelabelEnabled={!!profile.whitelabel_enabled}
+          shareToken={(profile as { share_token?: string | null }).share_token ?? null}
         />
       )}
       <OnboardingChecklist
@@ -1066,6 +1067,7 @@ function UpplevelseHome({
           slug={profile.slug ?? null}
           isPublic={!!profile.is_public}
           whitelabelEnabled={!!profile.whitelabel_enabled}
+          shareToken={(profile as { share_token?: string | null }).share_token ?? null}
         />
       )}
       <OnboardingChecklist
