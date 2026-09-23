@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { totalCreditOre } from "@/lib/credits/promo-discount";
 import { passBookingFields } from "@/lib/passes/series-pass";
 import { utmBookingFields } from "@/lib/analytics/utm";
 import { recordBookingRewards } from "@/lib/affiliate/rewards";
@@ -448,7 +449,10 @@ export async function POST(req: NextRequest) {
           // amount_paid ensamt inte kan skilja "köparen betalade 150" från
           // "biljetten kostade 150" — och partnerns andel ska räknas på det
           // senare.
-          const creditOre = Number(session.metadata?.creditOre) || 0;
+          // Rabattkod och välkomstavdrag är samma sak för avräkningen: köparen
+          // betalade mindre och Usha stod för mellanskillnaden. Räknas de inte
+          // ihop här skickas halva rabatten vidare till lokalen.
+          const creditOre = totalCreditOre(session.metadata?.creditOre, session);
           const { data: acctBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
