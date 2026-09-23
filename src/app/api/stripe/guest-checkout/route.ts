@@ -294,6 +294,9 @@ export async function POST(req: NextRequest) {
         customer_email: email,
         line_items: lineItems,
         mode: "payment",
+        // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
+        // ned användningarna, så en engångskod kan inte lösas in två gånger.
+        allow_promotion_codes: true,
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
