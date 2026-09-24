@@ -2189,6 +2189,32 @@
     "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Baile",
+        "subtitle": "Encuentra pareja de baile",
+        "firstInPool": "Todavía no se ha unido nadie más que baile. Invita a tus amigos del baile y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra tu pareja de baile en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "traning": {
+        "label": "Entrenamiento",
+        "subtitle": "Encuentra compañero de entrenamiento",
+        "firstInPool": "Todavía no se ha unido nadie más que entrene. Invita a tus compañeros y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra tu compañero de entrenamiento en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "racket": {
+        "label": "Raqueta",
+        "subtitle": "Encuentra con quién jugar",
+        "firstInPool": "Todavía no se ha unido ningún otro jugador. Invita a quienes sueles jugar y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra con quién jugar en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "kropp": {
+        "label": "Cuerpo y mente",
+        "subtitle": "Encuentra con quién practicar",
+        "firstInPool": "Todavía no se ha unido nadie más. Invita a quienes sueles practicar y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra con quién practicar en Usha: ¡únete a Compañeros de entrenamiento!"
+      }
+    },
     "title": "Compañeros de entrenamiento",
     "subtitle": "Encuentra pareja de práctica de baile",
     "tabSuggestions": "Sugerencias",
@@ -2197,7 +2223,7 @@
     "bankidGateDesc": "El grupo de compañeros es para personas verificadas — más seguro cuando quedáis para practicar. Verifícate con BankID para unirte.",
     "bankidGateCta": "Verificar con BankID",
     "onboardTitle": "Cuéntanos qué y cómo quieres practicar y te emparejamos con compañeros.",
-    "onboardStyles": "Estilos de baile",
+    "onboardStyles": "Actividades",
     "onboardRole": "Tu rol",
     "onboardAvailability": "¿Cuándo puedes practicar?",
     "onboardCity": "Ubicación",
@@ -2205,7 +2231,7 @@
     "onboardBio": "Sobre ti (opcional)",
     "onboardSave": "Unirme al grupo",
     "onboardSaving": "Guardando…",
-    "needStyle": "Elige al menos un estilo de baile",
+    "needStyle": "Elige al menos una actividad",
     "adult18": "Tengo 18 años o más y entiendo que quedo con otras personas bajo mi propia responsabilidad.",
     "needAdult": "Debes confirmar que tienes 18 años o más.",
     "saveError": "Algo salió mal. Inténtalo de nuevo.",
@@ -2798,7 +2824,7 @@
     "searchLabel": "Buscar",
     "searchDesc": "Encontrar creadores",
     "trainingBuddiesLabel": "Compañeros de entrenamiento",
-    "trainingBuddiesDesc": "Encuentra un compañero de entrenamiento",
+    "trainingBuddiesDesc": "Encuentra compañero",
     "marketplaceLabel": "Mercado",
     "marketplaceDesc": "Explorar",
     "shopLabel": "Tienda",

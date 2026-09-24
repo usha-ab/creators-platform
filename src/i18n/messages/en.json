@@ -2189,6 +2189,32 @@
     "ticketTypesPoolHelp": "Should two ticket types share the same seats? Give them the same name in the Shared pool field and the same capacity."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Dance",
+        "subtitle": "Find a dance partner",
+        "firstInPool": "No other dancers have joined yet. Invite your dance friends and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find your dance partner on Usha — join Training Buddies!"
+      },
+      "traning": {
+        "label": "Training",
+        "subtitle": "Find a training buddy",
+        "firstInPool": "Nobody else training has joined yet. Invite your training friends and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find your training buddy on Usha — join Training Buddies!"
+      },
+      "racket": {
+        "label": "Racket",
+        "subtitle": "Find someone to play with",
+        "firstInPool": "No other players have joined yet. Invite the people you usually play with and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find someone to play with on Usha — join Training Buddies!"
+      },
+      "kropp": {
+        "label": "Body & mind",
+        "subtitle": "Find someone to practise with",
+        "firstInPool": "Nobody else has joined yet. Invite the people you usually practise with and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find someone to practise with on Usha — join Training Buddies!"
+      }
+    },
     "title": "Training buddies",
     "subtitle": "Find a dance practice partner",
     "tabSuggestions": "Suggestions",
@@ -2197,7 +2223,7 @@
     "bankidGateDesc": "The training-buddy pool is for verified people — safer when you meet up to practice. Verify with BankID to join.",
     "bankidGateCta": "Verify with BankID",
     "onboardTitle": "Tell us what and how you want to practice, and we'll match you with partners.",
-    "onboardStyles": "Dance styles",
+    "onboardStyles": "Activities",
     "onboardRole": "Your role",
     "onboardAvailability": "When can you practice?",
     "onboardCity": "Location",
@@ -2205,7 +2231,7 @@
     "onboardBio": "About you (optional)",
     "onboardSave": "Join the pool",
     "onboardSaving": "Saving…",
-    "needStyle": "Pick at least one dance style",
+    "needStyle": "Pick at least one activity",
     "adult18": "I am 18 or older and understand I meet others at my own risk.",
     "needAdult": "You must confirm you are 18 or older.",
     "saveError": "Something went wrong. Try again.",
