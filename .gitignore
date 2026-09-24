@@ -25,6 +25,12 @@ yarn-error.log*
 
 # local env files
 .env*.local
+# Publikt repo: allt som heter .env utom exempelfilerna. Bara .env*.local
+# ignorerades tidigare, vilket lämnade .env, .env.production och .env.sandbox
+# oskyddade — ett "cp .env.local .env" hade publicerat live-nycklar.
+.env
+.env.*
+!.env*.example
 
 # vercel
 .vercel
