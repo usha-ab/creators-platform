@@ -2998,7 +2998,7 @@
     "statusConfirmed": "Bekräftad",
     "statusPending": "Väntande",
     "availabilityDone": "Klar med tillgänglighet",
-    "availabilityMark": "Redigera tillgänglighet",
+    "availabilityMark": "Markera tillgänglighet",
     "availabilityUnmark": "Avmarkera tillgänglighet",
     "availabilityUnmarkHint": "Tryck på en grön dag för att ta bort tillgängligheten.",
     "availabilityHint": "Tryck på ett datum för att lägga till eller ta bort tillgänglighet. Grönt = tillgänglig.",

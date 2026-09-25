@@ -2998,7 +2998,7 @@
     "statusConfirmed": "Confirmada",
     "statusPending": "Pendiente",
     "availabilityDone": "Listo con la disponibilidad",
-    "availabilityMark": "Editar disponibilidad",
+    "availabilityMark": "Marcar disponibilidad",
     "availabilityUnmark": "Desmarcar disponibilidad",
     "availabilityUnmarkHint": "Toca un día verde para quitar su disponibilidad.",
     "availabilityHint": "Toca una fecha para añadir o quitar disponibilidad. Verde = disponible.",

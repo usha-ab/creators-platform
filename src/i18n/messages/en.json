@@ -2998,7 +2998,7 @@
     "statusConfirmed": "Confirmed",
     "statusPending": "Pending",
     "availabilityDone": "Done editing availability",
-    "availabilityMark": "Edit availability",
+    "availabilityMark": "Mark availability",
     "availabilityUnmark": "Unmark availability",
     "availabilityUnmarkHint": "Tap a green day to remove its availability.",
     "availabilityHint": "Tap a date to add or remove availability. Green = available.",
