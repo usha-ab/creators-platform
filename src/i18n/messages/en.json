@@ -46,6 +46,7 @@
     "switchToDark": "Switch to dark mode"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Tools",
     "favorites": "Favorites",
     "home": "Home",
@@ -141,7 +142,8 @@
     "p1": "We believe the best moments happen when people meet for real — in movement, in play, and in creating together. Usha Platform brings creators, experiences and participants together in one place, where passion meets professionalism and every booking feels safe. All creators are BankID-verified and all payments are handled securely, so you can focus on what actually matters: the experience.",
     "p2": "Usha was founded by Pablo Acosta, who works at the intersection of dance, technology and community-building. The vision is simple: to build a place where creativity can thrive, talent can be seen, and people can come closer together.",
     "roadmapTitle": "Where we're headed",
-    "p3": "We're building step by step, with real experiences from day one. This summer we start with The Kiz Lab — open dance training every week in Stockholm. From there we grow into recurring monthly parties and, further ahead, an annual festival that brings the whole community together.",
+    "p3": "We're building step by step, with real experiences from day one. The foundation is recurring nights in Stockholm — open dance training every week, where everyone is welcome regardless of level. From there we grow into monthly parties and, further ahead, an annual festival that brings the whole community together.",
+    "p3Link": "See what's on right now →",
     "closing": "This is just the beginning. Welcome to join us from the start.",
     "tagline": "Usha Platform — for human expression."
   },
@@ -307,7 +309,9 @@
     "editPrefs": "Edit preferences"
   },
   "profile": {
+    "partner": "Partner programme",
     "editProfile": "Edit Profile",
+    "viewMyPage": "View my page",
     "payouts": "Payouts",
     "language": "Language",
     "myPlan": "My plan & billing",
@@ -517,9 +521,17 @@
     "businessIndividualDesc": "I sell in my own name, without a company registration number",
     "businessCompany": "Company",
     "businessCompanyDesc": "I invoice through a company with a registration number",
-    "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later."
+    "businessTypeNote": "Companies can verify their org. number and appear as the seller with the org. number on the receipt. You can change this later.",
+    "signupCreditTitle": "{amount} kr for new accounts",
+    "signupCreditNote": "To use on a purchase from {minSpend} kr. Valid for 12 months.",
+    "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "What's on",
+      "sub": "Upcoming nights, courses and services.",
+      "seeAll": "See all"
+    },
     "meta": {
       "title": "Usha Platform — Where creators, venues and audiences meet",
       "description": "The cycle that keeps Sweden's creative life turning – creators find work, venues fill their calendar, audiences discover experiences. Safe with BankID and Stripe.",
@@ -534,7 +546,7 @@
       "marketplace": "Marketplace",
       "openApp": "Open app",
       "downloadApp": "Download app",
-      "getStarted": "Get started",
+      "getStarted": "Create account",
       "menuAriaLabel": "Menu",
       "login": "Log in",
       "forCreators": "Creators",
@@ -542,7 +554,8 @@
       "forAudience": "Audience",
       "shop": "Shop",
       "sellTickets": "Sell tickets",
-      "homeAriaLabel": "Usha Platform – home"
+      "homeAriaLabel": "Usha Platform – home",
+      "calendar": "Calendar"
     },
     "install": {
       "title": "Install Usha Platform",
@@ -569,10 +582,10 @@
       "eventsCta": "See events"
     },
     "ecosystem": {
-      "title": "Three pillars, one",
-      "titleHighlight": "ecosystem",
-      "subtitle": "BankID-verified creators build the supply. Experiences offer the venues. Customers discover and book with confidence. Everyone amplifies each other.",
-      "loopMessage": "More creators attract more customers. More customers attract more experiences. The cycle that drives growth.",
+      "title": "How it fits",
+      "titleHighlight": "together",
+      "subtitle": "BankID-verified creators make the offering. Venues open their rooms. The audience discovers and books safely. Each one strengthens the others.",
+      "loopMessage": "More creators draw more guests. More guests draw more venues. The cycle that drives growth.",
       "creators": {
         "title": "Creators",
         "desc": "Dance instructors, photographers, musicians, designers — creative talents building their business.",
@@ -582,7 +595,7 @@
         "detail4": "Secure Stripe payouts with revenue stats"
       },
       "experiences": {
-        "title": "Experiences",
+        "title": "Venues",
         "desc": "Restaurants, concert halls, spas, nightclubs and retreat centers — venues that create unforgettable moments.",
         "detail1": "Create events & sell tickets with QR codes",
         "detail2": "Scan tickets & track attendees at the door",
@@ -591,7 +604,7 @@
         "detail5": "Invite staff and hand out parts of the venue — without giving away the finances"
       },
       "customers": {
-        "title": "Customers",
+        "title": "Audience",
         "desc": "People who want to discover BankID-verified creative talents and experiences — and book them directly.",
         "detail1": "Discover BankID-verified creators & experiences",
         "detail2": "Book directly with date & time — secure Stripe payment",
@@ -780,7 +793,12 @@
       "upplevelsePremium2": "3% commission (instead of 15%)",
       "upplevelsePremium3": "Top visibility + featured",
       "upplevelsePremium4": "Facebook sync",
-      "upplevelsePremium5": "Dedicated support"
+      "upplevelsePremium5": "Dedicated support",
+      "subtitleVenue": "Host creators, fill your nights and keep the finances in one place. The venue sets the terms; the platform handles tickets, check-in and settlement.",
+      "subtitleCustomer": "Membership is for people who go out often: a discount on bookings, early access to tickets, and the whole programme in your calendar.",
+      "publikFreeDesc": "Everything you need to attend",
+      "publikGoldDesc": "For regular nights out",
+      "publikPremiumDesc": "For the ones always there"
     },
     "faq": {
       "title": "Questions &",
@@ -804,7 +822,9 @@
       "installLead": "Or install the app directly"
     },
     "footer": {
+      "partner": "Partner programme",
       "description": "Creators, experiences and customers — united on one platform.",
+      "discover": "Discover",
       "platform": "Platform",
       "marketplace": "Marketplace",
       "pricing": "Pricing",
@@ -824,6 +844,10 @@
       "venueDesc": "Fill your calendar with curated creators",
       "audienceLabel": "I want to experience",
       "audienceDesc": "Discover experiences near you"
+    },
+    "signupCta": {
+      "title": "Create an account – it's free",
+      "description": "One account covers everything: buy tickets, follow organisers, and sell your own the day you want to."
     },
     "homeCta": {
       "title": "Find your place in the cycle",
@@ -986,6 +1010,171 @@
     "followerCount": "{count} followers",
     "listingCount": "{count, plural, one {# service} other {# services}}"
   },
+  "calendar": {
+    "metaTitle": "Calendar – Usha Platform",
+    "metaDescription": "Upcoming events, classes and nights on Usha Platform – day by day.",
+    "title": "Calendar",
+    "intro": "{count, plural, one {# upcoming happening} other {# upcoming happenings}}",
+    "navFeed": "Feed",
+    "navExperiences": "Experiences",
+    "navCreateProfile": "Create profile",
+    "today": "Today",
+    "thisWeek": "This week",
+    "nextWeek": "Next week",
+    "later": "Later",
+    "every": "Every {weekday}",
+    "occurrences": "{count} dates",
+    "next": "Next {date}",
+    "free": "Free",
+    "price": "{price} kr",
+    "empty": "Nothing scheduled right now. Check back soon.",
+    "open": "Open"
+  },
+  "followUs": {
+      "heading": "Follow us",
+      "facebook": "Usha on Facebook",
+      "instagram": "Usha on Instagram",
+      "tiktok": "Usha on TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Get an email when {name} posts the next date",
+      "placeholder": "you@email.com",
+      "button": "Follow by email",
+      "pending": "Almost there – confirm in the email we just sent.",
+      "active": "You follow {name} by email.",
+      "failed": "That didn't work. Try again.",
+      "ticketQuestion": "Want an email when {name} posts the next date?",
+      "ticketExplain": "One email per new date to {email}. Unsubscribe anytime via the link in the email.",
+      "yes": "Yes, email me",
+      "no": "No thanks",
+      "unsubscribed": "You won't get emails about new dates from {name}.",
+      "change": "Change",
+      "confirmTitle": "Done – you follow {name}",
+      "confirmBody": "We'll email you when the next date is posted. Unsubscribe anytime via the link in every email.",
+      "confirmInvalidTitle": "This link is no longer valid",
+      "confirmInvalidBody": "Request a new confirmation from the event page.",
+      "unsubTitle": "You're unsubscribed",
+      "unsubBody": "No more emails about new dates. You can follow again from the event page anytime.",
+      "unsubInvalidTitle": "Link not recognised",
+      "unsubInvalidBody": "Check that the whole link from the email came through.",
+      "toProfile": "Go to {name}",
+      "metaConfirm": "Confirm follow – Usha Platform",
+      "metaUnsub": "Unsubscribe – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Partner programme – Usha Platform",
+      "title": "Partner programme",
+      "intro": "Share your link. You earn {share}% of Usha's revenue on everything your referrals buy or sell for twelve months, plus premium time and credit.",
+      "yourLink": "Your link",
+      "linkHint": "The link works on every page on usha.se – add ?ref=your code to any address, for example The Lab:",
+      "copy": "Copy",
+      "copied": "Copied",
+      "share": "Share",
+      "shareTitle": "Usha Platform",
+      "shareText": "Check out Usha Platform – classes, nights and tickets in one place.",
+      "qrHint": "The QR code points to your link. Show it at the door or on a poster.",
+      "statClicks": "Clicks",
+      "statSignups": "Sign-ups",
+      "statPurchases": "Purchases",
+      "statEarned": "Earned",
+      "statPaid": "Paid out",
+      "statPremium": "Premium time",
+      "kr": "{amount} kr",
+      "days": "{count} days",
+      "termsHeading": "How it works",
+      "terms1": "{share}% of Usha's revenue on everything your referrals buy or sell, for twelve months from sign-up.",
+      "terms2": "{days} days of premium when a creator or venue you referred publishes their first offering – and the same for them.",
+      "terms3": "{amount} kr credit when a customer you referred makes their first purchase.",
+      "terms4": "Counted when the purchase is paid. Refunded purchases are removed.",
+      "terms5": "No reward for your own purchases or your own accounts.",
+      "payoutNote": "Companies are paid out quarterly via Stripe from 200 kr, otherwise as credit. Private individuals always receive credit to spend at checkout. Shares are approved 14 days after the purchase.",
+      "rewardsHeading": "Your rewards",
+      "rewardsEmpty": "Nothing yet. Share the link and it shows up here.",
+      "kind": {
+          "credit": "Credit",
+          "premium_days": "Premium time",
+          "commission_share": "Revenue share"
+      },
+      "status": {
+          "pending": "pending",
+          "approved": "approved",
+          "paid": "paid",
+          "void": "voided"
+      }
+  },
+  "adminPartners": {
+      "colStripe": "Stripe transfer",
+      "title": "Partner programme",
+      "intro": "Who referred what, what is pending and what has been paid.",
+      "pending": "Pending",
+      "approved": "Approved",
+      "paid": "Paid",
+      "void": "Voided",
+      "premiumDays": "Premium days",
+      "runDaily": "Run daily job now",
+      "runPayout": "Run quarterly payout",
+      "runPayoutDry": "Dry-run quarterly payout",
+      "topPartners": "Partners",
+      "latestRewards": "Latest rewards",
+      "payouts": "Payouts",
+      "colPartner": "Partner",
+      "colReferred": "Referred",
+      "colRewards": "Rewards",
+      "colEarned": "Earned",
+      "colDate": "Date",
+      "colKind": "Kind",
+      "colAmount": "Amount",
+      "colStatus": "Status",
+      "colPeriod": "Period",
+      "empty": "Nothing yet.",
+      "approve": "Approve",
+      "voidAction": "Void",
+      "noticeDaily": "Daily job run: {n} rows affected.",
+      "noticePayout": "Payout run: {n} partners.",
+      "noticeDryRun": "Dry run done: {n} partners would have been paid.",
+      "noticeVoid": "The reward is voided.",
+      "noticeApproved": "The share is approved.",
+      "kind_credit": "Credit",
+      "kind_premium_days": "Premium time",
+      "kind_commission_share": "Revenue share",
+      "status_pending": "pending",
+      "status_approved": "approved",
+      "status_paid": "paid",
+      "status_void": "voided",
+      "payoutStatus_dry_run": "dry run",
+      "payoutStatus_paid": "paid",
+      "payoutStatus_credited": "as credit",
+      "payoutStatus_failed": "failed"
+  },
+  "partnerPublic": {
+      "metaTitle": "Partner programme – Usha Platform",
+      "metaDescription": "Earn from telling people about Usha: 30% of Usha's revenue on everything your referrals buy or sell for twelve months, premium time and credit.",
+      "eyebrow": "Usha Partner",
+      "title": "Tell people about Usha. Get {share}% of what we earn on it.",
+      "intro": "Your link works on every page on usha.se. Whoever clicks and signs up, or buys as a guest, is yours for twelve months. Free, no volume requirements.",
+      "cta": "Create an account and get your link",
+      "ctaLoggedIn": "Go to your partner page",
+      "step1Title": "Share your link",
+      "step1Body": "Get the link on your partner page and put it in your bio, a post or a poster. It works on every page – for example straight on a night you like.",
+      "step2Title": "{share}% of Usha's revenue",
+      "step2Body": "On everything your referrals buy or sell for twelve months: the commission on third-party sales, ten percent of the ticket price on Usha's own nights.",
+      "step3Title": "{days} days of premium",
+      "step3Body": "When a creator or venue you referred publishes their first offering, you both get a month of premium. A referred customer's first purchase gives you {amount} kr credit.",
+      "rulesHeading": "Rules",
+      "rule1": "Rewards count when the purchase is paid. Refunded purchases are removed.",
+      "rule2": "Companies are paid quarterly via Stripe from 200 kr, otherwise credit. Private individuals receive credit to spend.",
+      "rule3": "Nothing for your own purchases or accounts. Abuse is voided.",
+      "rule4": "Shares are approved 14 days after the purchase.",
+      "faqHeading": "Questions",
+      "faq1Q": "Do I have to sell something myself?",
+      "faq1A": "No. Anyone with an account can be a partner. You share a link; the rest happens on the platform.",
+      "faq2Q": "How do I get the money?",
+      "faq2A": "If you have a company with a connected Stripe account, the share is paid quarterly from 200 kr. Otherwise it becomes credit you use at checkout.",
+      "faq3Q": "What if someone I referred refunds a purchase?",
+      "faq3A": "The reward for that purchase is voided. That is why shares are approved 14 days after the purchase.",
+      "faq4Q": "I'm outside Sweden – can I join?",
+      "faq4A": "Yes, as a partner. If you also want to sell on the platform we set up your seller account personally, since publishing currently requires Swedish BankID."
+  },
   "experiences": {
     "metaTitle": "Experiences – Usha Platform",
     "metaDescription": "Explore creative experiences, events and services near you. Dance, music, photography and more.",
@@ -995,8 +1184,11 @@
     "navCreateProfile": "Create profile",
     "title": "Experiences",
     "countInSweden": "{count} experiences across Sweden",
+    "countInCity": "{count} experiences in {city}",
     "filterAll": "All",
     "allCities": "All cities",
+    "whenUpcoming": "Upcoming",
+    "whenPast": "Past",
     "sortDate": "Date",
     "sortPriceAsc": "Price (lowest)",
     "sortPriceDesc": "Price (highest)",
@@ -1009,12 +1201,31 @@
     "seoCategoryInCity": "{category} in {city}",
     "emptyCreateFirst": "Are you a creator? Create the first experience here."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Event – Usha Platform",
+    "backTo": "Back to {name}",
+    "creatorFallbackLower": "the creator",
+    "creatorFallback": "Creator",
+    "free": "Free",
+    "aboutHeading": "About this event",
+    "includedHeading": "What's included",
+    "amenitiesHeading": "Amenities",
+    "ownerPreview": "Preview — this is how visitors see the page",
+    "instructorsHeading": "Book an instructor on site",
+    "instructorFallback": "Instructor",
+    "thatIsYou": "That's you"
+  },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# more date} other {# more dates}}",
+    "book": "Book"
+  },
   "listingCard": {
     "badgePromoted": "Featured",
     "badgePopular": "Popular",
     "badgeBookings": "{count} bookings",
     "free": "Free",
     "price": "{price} kr",
+    "fromPrice": "From {price} kr",
     "carouselPromoted": "Featured",
     "carouselMoreInfo": "More info →"
   },
@@ -1032,6 +1243,7 @@
     "wellness": "Wellness"
   },
   "seoFooter": {
+    "partner": "Partner programme",
     "experiencesHeading": "Experiences",
     "creatorsHeading": "Creators",
     "categoriesHeading": "Categories",
@@ -1063,6 +1275,9 @@
   },
   "creatorProfile": {
     "metaTitleFallback": "Creator – Usha Platform",
+    "share": "Share profile",
+    "shareText": "Check out {name} on Usha",
+    "previewBanner": "Preview — this profile is not public yet. Only you and Usha's admin can see it.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} on Usha Platform",
@@ -1086,7 +1301,15 @@
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} guests"
     },
+    "coaching": {
+      "heading": "Coaching",
+      "onLab": "Coaching at The Lab",
+      "onLabHint": "Buy minutes with {name} during the next open night. Paid here, used on the spot.",
+      "nextNight": "Next session: {date}",
+      "itsYou": "This is you."
+    },
     "events": {
+      "passes": "Passes",
       "heading": "Events",
       "seeCalendar": "View calendar",
       "upcoming": "Upcoming",
@@ -1353,9 +1576,11 @@
       "canvasAriaFallback": "profile",
       "copied": "Copied",
       "copyLink": "Copy link",
+      "preview": "Preview",
       "download": "Download as PNG",
       "generateError": "Could not generate QR code",
-      "copyError": "Could not copy link"
+      "copyError": "Could not copy link",
+      "hiddenNoQr": "The QR code is off while your profile is hidden. The link below contains a secret key — share it with people, not on posters."
     },
     "instagram": {
       "title": "Instagram import",
@@ -1566,6 +1791,9 @@
     "toastEarlyBirdError": "Failed",
     "toastGenericError": "Something went wrong",
     "duplicate": "Duplicate",
+    "dragHandle": "Drag to reorder",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
     "toastDuplicated": "Copy created as a draft",
     "toastDuplicateError": "Could not duplicate",
     "seriesBadge": "Series",
@@ -1871,6 +2099,7 @@
     "date": "Date",
     "startTime": "Start time",
     "endTime": "End time",
+    "endTimeHint": "Needed so the visitor's calendar shows the right duration.",
     "recurring": "Recurring event (series)",
     "interval": "Interval",
     "intervalWeekly": "Every week",
@@ -1960,6 +2189,32 @@
     "ticketTypesPoolHelp": "Should two ticket types share the same seats? Give them the same name in the Shared pool field and the same capacity."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Dance",
+        "subtitle": "Find a dance partner",
+        "firstInPool": "No other dancers have joined yet. Invite your dance friends and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find your dance partner on Usha — join Training Buddies!"
+      },
+      "traning": {
+        "label": "Training",
+        "subtitle": "Find a training buddy",
+        "firstInPool": "Nobody else training has joined yet. Invite your training friends and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find your training buddy on Usha — join Training Buddies!"
+      },
+      "racket": {
+        "label": "Racket",
+        "subtitle": "Find someone to play with",
+        "firstInPool": "No other players have joined yet. Invite the people you usually play with and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find someone to play with on Usha — join Training Buddies!"
+      },
+      "kropp": {
+        "label": "Body & mind",
+        "subtitle": "Find someone to practise with",
+        "firstInPool": "Nobody else has joined yet. Invite the people you usually practise with and the pool fills up — they show up here as soon as they join.",
+        "invite": "Find someone to practise with on Usha — join Training Buddies!"
+      }
+    },
     "title": "Training buddies",
     "subtitle": "Find a dance practice partner",
     "tabSuggestions": "Suggestions",
@@ -1968,7 +2223,7 @@
     "bankidGateDesc": "The training-buddy pool is for verified people — safer when you meet up to practice. Verify with BankID to join.",
     "bankidGateCta": "Verify with BankID",
     "onboardTitle": "Tell us what and how you want to practice, and we'll match you with partners.",
-    "onboardStyles": "Dance styles",
+    "onboardStyles": "Activities",
     "onboardRole": "Your role",
     "onboardAvailability": "When can you practice?",
     "onboardCity": "Location",
@@ -1976,7 +2231,7 @@
     "onboardBio": "About you (optional)",
     "onboardSave": "Join the pool",
     "onboardSaving": "Saving…",
-    "needStyle": "Pick at least one dance style",
+    "needStyle": "Pick at least one activity",
     "adult18": "I am 18 or older and understand I meet others at my own risk.",
     "needAdult": "You must confirm you are 18 or older.",
     "saveError": "Something went wrong. Try again.",
@@ -2040,6 +2295,11 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Ticket for the night",
+    "passSessions": "{n} sessions",
+    "passPerSession": "{price} kr/night",
+    "passDiscount": "−{percent}% vs door price",
+    "buyPass": "Buy pass · {price} kr",
     "bankidVerified": "BankID-verified",
     "crewHeading": "Line-up",
     "dateComing": "Date to be announced",
@@ -2047,6 +2307,8 @@
     "free": "Free",
     "freeTicket": "Get free ticket",
     "buyTicket": "Buy ticket · {price} kr",
+    "ticketsFromCta": "Tickets from {price} kr",
+    "buyTicketFrom": "Tickets from {price} kr",
     "quickBuyTitle": "Confirm your purchase",
     "quickBuyConfirm": "Pay {price} kr",
     "quickBuyCancel": "Cancel",
@@ -2063,6 +2325,8 @@
     "releasesAt": "Releases {date}",
     "soldOut": "Sold out",
     "notReleased": "Not released yet",
+    "payAtVenueBadge": "Pay at the door",
+    "payAtVenueNote": "This organiser cannot take online payment yet. You are welcome anyway — pay at the venue.",
     "createAccountNote": "You will create a free Usha Platform account in the same flow",
     "waitlistLabel": "Waitlist",
     "waitlistHeading": "Secure your spot in line",
@@ -2116,7 +2380,10 @@
     "quantity": "Quantity",
     "attendeeNamePlaceholder": "Name of guest {n} (optional)",
     "mapHeading": "Getting there",
-    "openInMaps": "Open in Maps"
+    "addToCalendar": "Add to calendar",
+    "openInMaps": "Open in Maps",
+    "creditApplied": "Your {amount} kr welcome credit is applied",
+    "creditMinSpend": "You have {amount} kr in welcome credit — valid from {min} kr"
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
@@ -2286,6 +2553,8 @@
     "ctaButton": "Get started free"
   },
   "ticketPage": {
+    "passChip": "Pass · {remaining} of {total} left",
+    "passCovers": "One clip gives: {covers}",
     "walletApple": "Add to Apple Wallet",
     "walletGoogle": "Save to Google Wallet",
     "canceled": "This booking has been cancelled",
@@ -2353,6 +2622,7 @@
     "shareFormLocked": "This evening has already sold tickets. The terms cannot be changed afterwards — it would change what is owed on purchases already made."
   },
   "scanPage": {
+    "passRemaining": "{n} sessions left on the pass",
     "title": "Scan tickets",
     "subtitle": "Scan the QR code or enter the ticket code manually.",
     "gateMessage": "Upgrade to Gold or Premium to scan tickets.",
@@ -2392,7 +2662,9 @@
     "errOnlyOwnEvents": "You can only scan tickets for your own events.",
     "errCouldNotVerify": "Could not verify ticket",
     "errNetwork": "Network error. Please try again.",
-    "errNetworkShort": "Network error"
+    "errNetworkShort": "Network error",
+    "seats": "{n} seats",
+    "statusWrongDate": "Wrong date — this ticket is for {date}"
   },
   "terms": {
     "back": "Back",
@@ -2449,6 +2721,9 @@
     "s9BodyPost": "You also have the right to lodge a complaint with the Swedish Authority for Privacy Protection (IMY)."
   },
   "scanApi": {
+    "passType": "Pass · {covers} · {remaining} of {total} left",
+    "passNoEventToday": "No night in this series today – the pass can't be clipped.",
+    "passUsedUp": "All sessions on this pass are used.",
     "notLoggedIn": "You must be logged in",
     "invalidRequest": "Invalid request",
     "missingBookingId": "Missing booking ID",
@@ -2507,6 +2782,8 @@
     "inviteFriends": "Invite friends"
   },
   "toolsPage": {
+    "partnerLabel": "Partner programme",
+    "partnerDesc": "Your link, your referrals and what they earned.",
     "homeLabel": "Home",
     "toolsLabel": "Tools",
     "openGigsLabel": "Jobs",
@@ -2644,6 +2921,7 @@
     "title": "My Events",
     "statistics": "Statistics",
     "openEvents": "Open events →",
+    "orderServices": "Order services →",
     "activeCount": "{count} active",
     "emptyTitle": "No events yet",
     "emptyBody": "Create your first event to get started",
@@ -2693,7 +2971,8 @@
     "seriesCount": "{count, plural, one {# date} other {# dates}}",
     "showOccurrences": "Show {count} more",
     "hideOccurrences": "Hide",
-    "badgePast": "Past"
+    "badgePast": "Past",
+    "sellAtDoor": "Sell at the door"
   },
   "calendarPage": {
     "dayMon": "Mon",
@@ -2719,13 +2998,15 @@
     "statusConfirmed": "Confirmed",
     "statusPending": "Pending",
     "availabilityDone": "Done editing availability",
-    "availabilityMark": "Mark availability",
-    "availabilityHint": "Tap a date to add time slots. Green = available.",
+    "availabilityMark": "Edit availability",
+    "availabilityUnmark": "Unmark availability",
+    "availabilityUnmarkHint": "Tap a green day to remove its availability.",
+    "availabilityHint": "Tap a date to add or remove availability. Green = available.",
     "legendBooking": "Booking",
     "legendAvailable": "Available",
     "upcomingBookings": "Upcoming bookings",
     "noUpcomingBookings": "No upcoming bookings",
-    "allDayActive": "All day (active)",
+    "removeAllDay": "Remove availability",
     "markAllDay": "Mark all day",
     "removeAllTimes": "Remove all times",
     "startTime": "Start time",
@@ -3314,6 +3595,12 @@
     "submit": "Publish gig"
   },
   "listingForm": {
+    "passSeriesLabel": "Valid as a ticket for series",
+    "passSeriesHint": "Tick every series the pass covers — the QR is scanned at the door, one clip per night. No series ticked means the pass is redeemed by hand in the bookings list.",
+    "passCoversLabel": "One clip gives access to",
+    "passCoversPlaceholder": "e.g. Everything: practica + workshop + social",
+    "passReferencePriceLabel": "Regular price per night (optional)",
+    "passReferencePriceHint": "What one night costs on its own. Used only to show the discount as a percentage. Leave empty to compare against the ticket named in the field above.",
     "uploadFailed": "Upload failed",
     "saveFailed": "Could not save service",
     "savedToast": "Service saved",
@@ -3325,13 +3612,9 @@
     "descriptionLabel": "Description",
     "descriptionPlaceholder": "Describe what's included in the service...",
     "listingTypeLabel": "Type of service",
-    "typeDancePackage": "Dance package (prepaid — redeemed at an event)",
     "typeCoachingSession": "Coaching (private lesson with a time)",
     "typeB2bOffering": "B2B event (organizer books for an evening/event)",
     "typeService": "Other service",
-    "dancePackageHint": "The customer pays in advance and redeems the dances at an event. No specific date is required when booking.",
-    "danceCountLabel": "Number of dances in the package",
-    "danceCountPlaceholder": "e.g. 5",
     "coachingSessionHint": "The customer books a specific time based on your availability in the calendar.",
     "b2bOfferingHint": "Organizers (venues, dance halls, event companies) can book you for a specific evening or an event. The price you set is your base price — the organizer specifies date, time and venue when booking.",
     "categoryLabel": "Category",
@@ -3354,7 +3637,15 @@
     "endTimeLabel": "End time",
     "saving": "Saving...",
     "saveChanges": "Save changes",
-    "createListing": "Create service"
+    "createListing": "Create service",
+    "typePackage": "Class pass",
+    "sessionCountLabel": "Number of sessions",
+    "sessionCountHelp": "E.g. 5 or 10. The buyer redeems one session at a time.",
+    "sessionsRedeemed": "{redeemed} of {total} sessions used",
+    "redeemSession": "Redeem a session",
+    "redeemedAll": "All sessions used",
+    "packageHint": "Sell a pass with several sessions. The buyer pays once and redeems one session at a time.",
+    "sessionCountPlaceholder": "5"
   },
   "productsPage": {
     "back": "Back",
@@ -3501,6 +3792,15 @@
     "siteOgDescription": "Create events, sell tickets, scan at the door and pay your crew — all in one app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Venue – Usha Platform",
+      "metaDescription": "Experiences and events at {name}.",
+      "metaDescriptionCity": "Experiences and events at {name} in {city}.",
+      "navExperiences": "Experiences",
+      "navMarketplace": "Marketplace",
+      "empty": "No experiences at this venue right now.",
+      "seeAll": "See all experiences"
+    },
     "meta": {
       "title": "Venues – Usha Platform",
       "description": "Explore venues, studios, clubs and places where creative experiences happen.",
@@ -3588,6 +3888,7 @@
     "view": "View",
     "free": "Free",
     "priceSek": "{price} SEK",
+    "priceFromSek": "From {price} SEK",
     "creator": "Creator",
     "viewProfile": "View profile"
   },
@@ -3628,6 +3929,12 @@
     "refundedAmount": "Refunded {amount} kr"
   },
   "emails": {
+    "greetingNoName": "Hi!",
+    "creatorEventUnsubscribe": "Don't want more emails? Unsubscribe here.",
+    "followConfirmSubject": "Confirm that you want to follow {creator}",
+    "followConfirmIntro": "You asked for an email every time {creator} posts a new date on Usha Platform. Confirm with the button below.",
+    "followConfirmCta": "Yes, email me about new dates",
+    "followConfirmFooter": "Didn't ask for this? Ignore this email and nothing happens.",
     "greeting": "Hi {name},",
     "greetingExcited": "Hi {name}!",
     "labelDate": "Date: {value}",
@@ -3696,9 +4003,21 @@
     "trialWarning": "If you don't upgrade, your account returns to the free plan and you lose access to Premium features such as lower commission, top visibility and dedicated support.",
     "trialCta": "Upgrade now",
     "broadcastFooter": "You're getting this email because you joined the waitlist on Usha Platform.",
-    "broadcastUnsubscribe": "Unsubscribe"
+    "broadcastUnsubscribe": "Unsubscribe",
+    "creditSubject": "You have {amount} kr to spend",
+    "creditGreeting": "Hi {name},",
+    "creditIntro": "We have added a welcome credit to your account. No code needed — it comes off automatically at checkout.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "on your account",
+    "creditHowHeading": "How it works",
+    "creditHowAutomatic": "Applied automatically on purchases of {min} kr or more.",
+    "creditHowOneOff": "Good for one purchase, not several.",
+    "creditHowValid": "Yours until {date}.",
+    "creditCta": "See what is coming up"
   },
   "adminPage": {
+    "partnersLabel": "Partner programme",
+    "partnersDesc": "Referrals, rewards and payouts.",
     "heading": "Admin",
     "subheading": "Tools only administrators see.",
     "backToApp": "Back to the app",
@@ -3712,6 +4031,7 @@
     "accessDesc": "Give partners access to individual admin tools."
   },
   "adminCreators": {
+    "previewProfile": "Preview the profile as it looks publicly",
     "title": "Creators — private person/company",
     "intro": "Look up a creator and change whether they sell as a company (company reg. no verification + reg. no on the receipt).",
     "searchPlaceholder": "the creator's email",
@@ -3996,5 +4316,22 @@
       "title": "Stuck?",
       "body": "Write to us at pablo.acosta@usha.se and we will help. The platform is new and your feedback shapes it."
     }
+  },
+  "entrance": {
+    "title": "Door",
+    "back": "Back",
+    "pickTicket": "Pick a ticket to show the guest a QR code.",
+    "noTicketTypes": "This event has no ticket types to sell.",
+    "priceSek": "{price} kr",
+    "soldOut": "Sold out",
+    "qrAlt": "QR code for {ticket}",
+    "guestScans": "The guest scans with their own phone and pays with Apple Pay, Google Pay or card.",
+    "otherTicket": "Pick another ticket",
+    "paidHeading": "Just paid",
+    "guest": "Guest",
+    "seats": "{n} seats",
+    "noPermission": "You do not have permission to sell at the door for this event.",
+    "loadError": "Could not load the tickets.",
+    "connectionLost": "No connection to the server."
   }
 }

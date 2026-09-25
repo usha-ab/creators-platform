@@ -3,6 +3,24 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      // Kort adress till registreringen, för ytor där en query-sträng inte går
+      // att läsa: projicerad på en vägg, uppläst i en story, tryckt på ett
+      // flygblad. "usha.se/signup?role=customer" fungerar men går inte att säga
+      // högt.
+      //
+      // permanent: false (307) med flit. En 308 cachas av webbläsaren i
+      // praktiken för alltid, och den här adressen ska kunna peka någon
+      // annanstans den dag välkomstavdraget ändras eller tas bort — annars
+      // sitter besökare fast på ett erbjudande som inte finns.
+      //
+      // Redirects körs före routingen, så /join vinner över [slug] (kreatörernas
+      // egna adresser) utan att någon av dem behöver veta om den andra.
+      { source: "/join", destination: "/signup?role=customer", permanent: false },
+      { source: "/konto", destination: "/signup?role=customer", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

@@ -3,13 +3,13 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { CATEGORY_LABELS } from "@/lib/categories";
-import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { getTranslations, getLocale } from "next-intl/server";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import type { ExperienceDetails } from "@/types/database";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck } from "lucide-react";
+import { MapPin, Clock, Globe, ArrowLeft, Calendar, MessageCircle, Users, Instagram, Mail, Phone, ShieldCheck, ChevronDown } from "lucide-react";
 import BookingForm from "./booking-form";
 import { BuyTicketButton } from "@/components/buy-ticket-button";
 import { CreatorReviews } from "@/components/creator-reviews";
@@ -21,9 +21,16 @@ import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
+import { ShareEventButton } from "@/components/share-event-button";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { readShareToken, shareTokenMatches } from "@/lib/profiles/share-link";
+import { isAdminById } from "@/lib/admin/check";
+import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function isUUID(str: string) {
@@ -62,6 +69,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: t("metaTitle", { name: profile.full_name || t("creatorFallbackName") }),
     description,
     ...(isThin ? { robots: { index: false } } : {}),
+    // Profilen nås som /creators/<id>, /creators/<slug> och via kreatörens
+    // korta /<slug> (som omdirigerar hit). Sluggen är den adress vi vill ha
+    // indexerad när den finns.
+    ...indexable(`/creators/${profile.slug || profile.id}`),
     openGraph: {
       title: t("metaTitleOg", { name: profile.full_name || t("creatorFallbackName") }),
       description,
@@ -76,28 +87,57 @@ export default async function CreatorProfilePage(props: Props) {
   const params = await props.params;
   const supabase = await createClient();
   const t = await getTranslations("creatorProfile");
+  const locale = await getLocale();
+  const tCommon = await getTranslations("common");
 
   const column = isUUID(params.id) ? "id" : "slug";
+  // Hämtas med service-role och UTAN is_public-filtret, för att ägaren och
+  // admin ska kunna se en sida innan den är publik. En kreatör som bygger sin
+  // profil hade annars ingen väg att se resultatet förrän hen tryckt publicera,
+  // och admin fick rendera sidan för hand ur databasen för att följa framsteg.
+  // Alla andra möter fortfarande 404 för en opublik profil — samma som förut.
   const [{ data: profile }, { data: { user } }] = await Promise.all([
-    supabase
+    createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, slug, is_public, share_token"
       )
       .eq(column, params.id)
-      .eq("is_public", true)
-      .single(),
+      .maybeSingle(),
     supabase.auth.getUser(),
   ]);
 
   if (!profile) notFound();
+  // Tre vägar in till en opublik profil: ägaren, admin, eller en giltig
+  // delningstoken i länken. Token gör det möjligt att visa sig för utvalda
+  // utan att synas på marknadsplatsen — profilen ligger kvar utanför sök och
+  // listningar, den är bara nåbar för den som fått adressen.
+  const sharedToken = readShareToken(await props.searchParams);
+  const viaShareLink = shareTokenMatches(profile.share_token, sharedToken);
+  const canPreview =
+    viaShareLink || (!!user && (user.id === profile.id || (await isAdminById(user.id))));
+  if (!profile.is_public && !canPreview) notFound();
+  const isPreviewOfUnpublished = !profile.is_public;
+
+  // En profil med egen adress ska bo på den, inte på sitt id. Länkar byggda
+  // innan slugen fanns — en QR-kod, ett delat meddelande, en gammal bokmärkning
+  // — pekar fortfarande på UUID:t, och utan det här står den kvar i
+  // adressfältet hos den som klickar. Metadatans canonical pekar redan på
+  // slug-adressen, så utan omdirigeringen säger sidan en sak och webbläsaren
+  // en annan.
+  if (isUUID(params.id) && profile.slug) {
+    redirect(`/creators/${profile.slug}`);
+  }
 
   const { data: allListings } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details")
+    .select("id, title, image_url, description, category, price, duration_minutes, event_date, event_time, event_location, release_to_gold_at, listing_type, min_guests, max_guests, experience_details, sort_order")
     .eq("user_id", profile.id)
     .eq("is_active", true)
     .eq("is_public", true)
+    // Kreatörens egen ordning först. NULL sorteras sist, så allt som aldrig
+    // ordnats behåller exakt sitt gamla utseende — nyast först.
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   // Evenemang som ANDRA arrangerar hos den här lokalen. Det är den här sidan
@@ -116,6 +156,26 @@ export default async function CreatorProfilePage(props: Props) {
     .eq("is_public", true)
     .order("event_date", { ascending: true });
 
+  // Coaching på The Lab säljs som instruktörsminuter på ett öppet event, inte
+  // från profilen. Profilen visar därför nästa öppna kväll och låter minuterna
+  // köpas mot den. Utan en kommande öppen kväll finns inget att köpa mot, och
+  // då visas inte kortet — ett dött köp är sämre än inget.
+  const coachingOnLab = !!(profile as any).offers_coaching && ((profile as any).coaching_hourly_rate_sek ?? 0) > 0;
+  const { data: nextOpenNight } = coachingOnLab
+    ? await supabase
+        .from("listings")
+        .select("id, title, event_date, event_time")
+        .eq("user_id", profile.id)
+        .eq("listing_type", "event")
+        .eq("open_to_instructors", true)
+        .eq("is_active", true)
+        .eq("is_public", true)
+        .gte("event_date", new Date().toISOString().slice(0, 10))
+        .order("event_date", { ascending: true })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
+
   // Get visitor's tier for discount calculation + early bird filtering, and role for B2B booking gating
   let visitorTier: string | null = null;
   let visitorRole: string | null = null;
@@ -131,6 +191,18 @@ export default async function CreatorProfilePage(props: Props) {
 
   // Filter out Gold-exclusive listings for gratis users
   const listings = filterByGoldExclusivity(allListings || [], visitorTier);
+  // Ett evenemang och en tjänst renderades i samma rutnät under rubriken
+  // "Tjänster", och sedan en gång till i evenemangstidslinjen. Samma kväll två
+  // gånger på samma sida. Tjänster är det som inte har ett datum att gå till.
+  //
+  // Skiljs på datum, inte på listing_type. Fältet har skrivits av formuläret i
+  // månader utan att någon läst det, så det är inte att lita på: ett åttaveckors
+  // kostprogram låg typat som "event" utan datum och hade försvunnit från båda
+  // sektionerna. Tidslinjen längre ner går redan på datum — samma regel här.
+  const serviceListings = listings.filter((l) => !l.event_date && l.listing_type !== "package");
+  // Klippkorten saknar datum men hör till kvällarna de ger tillträde till, inte
+  // till coachingen. De hör alltså hemma under Evenemang, inte under Tjänster.
+  const passListings = listings.filter((l) => !l.event_date && l.listing_type === "package");
 
   // Fetch creator availability for current month
   const now = new Date();
@@ -261,6 +333,11 @@ export default async function CreatorProfilePage(props: Props) {
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
+        {isPreviewOfUnpublished && (
+          <div className="mb-4 rounded-xl border border-[var(--usha-gold)]/40 bg-[var(--usha-gold)]/10 px-4 py-3 text-sm text-[var(--usha-gold)]">
+            {t("previewBanner")}
+          </div>
+        )}
         <Link
           href="/marketplace"
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
@@ -313,6 +390,11 @@ export default async function CreatorProfilePage(props: Props) {
                 </span>
               ))}
             </div>
+            {profile.bio && (
+              <p className="mb-5 max-w-2xl whitespace-pre-line text-[15px] leading-relaxed text-[var(--usha-white)]">
+                {profile.bio}
+              </p>
+            )}
             {Object.keys(creatorRates).length > 0 && (
               <div className="mb-4 flex flex-wrap gap-2">
                 {Object.entries(creatorRates).map(([cat, rate]) => (
@@ -385,10 +467,24 @@ export default async function CreatorProfilePage(props: Props) {
                 )}
               </div>
             )}
-            {profile.bio && (
-              <p className="max-w-2xl whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
-                {profile.bio}
-              </p>
+            {/* Dela finns för alla — även ägaren, som når hit via "Visa min sida"
+                och vill kunna skicka sin sida vidare direkt därifrån. Absolut
+                adress: navigator.share kräver en fullständig URL.
+
+                Men inte på en opublik profil: den sidan är 404 för alla utom
+                ägaren och admin, så en delad länk hade lett mottagaren till en
+                återvändsgränd. */}
+            {!isPreviewOfUnpublished && (
+            <div className="mt-4">
+              <ShareEventButton
+                url={`https://usha.se/creators/${(profile as any).slug || profile.id}`}
+                title={profile.full_name || t("creatorFallbackName")}
+                text={t("shareText", { name: profile.full_name || t("creatorFallbackName") })}
+                label={t("share")}
+                copiedLabel={tCommon("linkCopied")}
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2 text-sm font-medium transition hover:border-[var(--usha-gold)]/30 hover:text-[var(--usha-gold)]"
+              />
+            </div>
             )}
             {!isOwnProfile && (
               <div className="mt-4 flex items-center gap-3">
@@ -454,113 +550,158 @@ export default async function CreatorProfilePage(props: Props) {
         {/* Listings */}
         <div>
           <h2 className="mb-4 text-xl font-bold">{t("services.heading")}</h2>
-          {!listings || listings.length === 0 ? (
+          {serviceListings.length === 0 ? (
             <p className="text-sm text-[var(--usha-muted)]">
               {t("services.empty")}
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
-              {listings.map((listing) => (
+              {serviceListings.map((listing) => (
                 <Link
                   key={listing.id}
                   href={`/listing/${listing.id}`}
-                  className="block rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 transition hover:border-[var(--usha-gold)]/30"
+                  className="group block overflow-hidden rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition hover:border-[var(--usha-gold)]/30"
                 >
-                  <div className="mb-2 flex items-start justify-between">
-                    <h3 className="font-semibold">{listing.title}</h3>
-                    {listing.price != null && (
-                      <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
-                        {t("services.priceSek", { price: listing.price })}
-                      </span>
-                    )}
-                  </div>
-                  {listing.description && (
-                    <p className="mb-3 line-clamp-2 text-sm text-[var(--usha-muted)]">
-                      {listing.description}
-                    </p>
+                  {/* Tjänsten säljs på bilden lika mycket som på texten. Saknas den
+                      får kortet en lugn platshållare i stället för att hoppa i höjd. */}
+                  {listing.image_url ? (
+                    <div className="aspect-video overflow-hidden">
+                      <img
+                        src={listing.image_url}
+                        alt={listing.title}
+                        className="h-full w-full object-cover transition group-hover:scale-105"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-video items-center justify-center bg-[var(--usha-gold)]/5">
+                      <Calendar size={24} className="text-[var(--usha-gold)]/30" />
+                    </div>
                   )}
-                  {/* Experience details badges */}
-                  {listing.experience_details && (() => {
-                    const details = listing.experience_details as ExperienceDetails;
-                    return details?.included?.length ? (
-                      <div className="mb-3 flex flex-wrap gap-1.5">
-                        {details.included.map((item) => (
-                          <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null;
-                  })()}
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
-                        <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
-                          {CATEGORY_LABELS[listing.category] || listing.category}
+                  <div className="p-5">
+                    <div className="mb-2 flex items-start justify-between">
+                      <h3 className="font-semibold">{listing.title}</h3>
+                      {listing.price != null && (
+                        <span className="shrink-0 font-semibold text-[var(--usha-gold)]">
+                          {t("services.priceSek", { price: listing.price })}
                         </span>
-                        {listing.duration_minutes != null && (
-                          <span className="flex items-center gap-1">
-                            <Clock size={11} />
-                            {t("services.durationMin", { minutes: listing.duration_minutes })}
-                          </span>
-                        )}
-                        {listing.max_guests && (
-                          <span className="flex items-center gap-1">
-                            <Users size={11} />
-                            {t("services.guests", { min: listing.min_guests ?? 1, max: listing.max_guests })}
-                          </span>
-                        )}
-                      </div>
-                      {(listing.event_date || listing.event_time || listing.event_location) && (
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
-                          {listing.event_date && (
-                            <span className="flex items-center gap-1">
-                              <Calendar size={11} />
-                              {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                      )}
+                    </div>
+                    {listing.description && (
+                      <p className="mb-3 line-clamp-2 text-sm text-[var(--usha-muted)]">
+                        {listing.description}
+                      </p>
+                    )}
+                    {/* Experience details badges */}
+                    {listing.experience_details && (() => {
+                      const details = listing.experience_details as ExperienceDetails;
+                      return details?.included?.length ? (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {details.included.map((item) => (
+                            <span key={item} className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
+                              {item}
                             </span>
-                          )}
-                          {listing.event_time && (
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-3 text-xs text-[var(--usha-muted)]">
+                          <span className="rounded-full border border-[var(--usha-border)] px-2 py-0.5">
+                            {CATEGORY_LABELS[listing.category] || listing.category}
+                          </span>
+                          {listing.duration_minutes != null && (
                             <span className="flex items-center gap-1">
                               <Clock size={11} />
-                              {listing.event_time.slice(0, 5)}
+                              {t("services.durationMin", { minutes: listing.duration_minutes })}
                             </span>
                           )}
-                          {listing.event_location && (
+                          {listing.max_guests && (
                             <span className="flex items-center gap-1">
-                              <MapPin size={11} />
-                              {listing.event_location}
+                              <Users size={11} />
+                              {t("services.guests", { min: listing.min_guests ?? 1, max: listing.max_guests })}
                             </span>
                           )}
                         </div>
+                        {(listing.event_date || listing.event_time || listing.event_location) && (
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--usha-muted)]">
+                            {listing.event_date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar size={11} />
+                                {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "short", year: "numeric" })}
+                              </span>
+                            )}
+                            {listing.event_time && (
+                              <span className="flex items-center gap-1">
+                                <Clock size={11} />
+                                {listing.event_time.slice(0, 5)}
+                              </span>
+                            )}
+                            {listing.event_location && (
+                              <span className="flex items-center gap-1">
+                                <MapPin size={11} />
+                                {listing.event_location}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {!isOwnProfile && (
+                        <div className="flex items-center gap-2">
+                          {/* Tickets are only for events; services are booked, not ticketed. */}
+                          {listing.listing_type === "event" &&
+                            listing.price != null &&
+                            listing.price > 0 && (
+                              <BuyTicketButton
+                                listingId={listing.id}
+                                originalPrice={listing.price}
+                                discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
+                                isLoggedIn={isLoggedIn}
+                                hasConnect={hasConnect}
+                              />
+                            )}
+                          <BookingForm
+                            listing={listing}
+                            creatorId={profile.id}
+                            isLoggedIn={isLoggedIn}
+                            hasConnect={hasConnect}
+                            payeeCanReceive={payeeCanReceive}
+                            viewerRole={visitorRole}
+                          />
+                        </div>
                       )}
                     </div>
-                    {!isOwnProfile && (
-                      <div className="flex items-center gap-2">
-                        {/* Tickets are only for events; services are booked, not ticketed. */}
-                        {listing.listing_type === "event" &&
-                          listing.price != null &&
-                          listing.price > 0 && (
-                            <BuyTicketButton
-                              listingId={listing.id}
-                              originalPrice={listing.price}
-                              discountedPrice={calculateDiscountedPrice(listing.price, visitorTier)}
-                              isLoggedIn={isLoggedIn}
-                              hasConnect={hasConnect}
-                            />
-                          )}
-                        <BookingForm
-                          listing={listing}
-                          creatorId={profile.id}
-                          isLoggedIn={isLoggedIn}
-                          hasConnect={hasConnect}
-                          payeeCanReceive={payeeCanReceive}
-                          viewerRole={visitorRole}
-                        />
-                      </div>
-                    )}
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {/* Coaching på The Lab är också en tjänst — den säljs bara på ett annat sätt:
+              minuter mot nästa öppna kväll i stället för en bokad tid. Därför står den
+              här bland tjänsterna, inte uppe i huvudet bredvid priserna. */}
+          {coachingOnLab && nextOpenNight && (
+            <div className="mt-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5">
+              <h3 className="mb-1 font-semibold">{t("coaching.onLab")}</h3>
+              <p className="mb-2 text-xs text-[var(--usha-muted)]">
+                {t("coaching.onLabHint", { name: profile.full_name || t("creatorFallbackName") })}{" "}
+                <Link href={`/listing/${nextOpenNight.id}`} className="text-[var(--usha-gold)] hover:underline">
+                  {t("coaching.nextNight", {
+                    date: [new Date(nextOpenNight.event_date + "T00:00").toLocaleDateString(locale, { day: "numeric", month: "long" }), nextOpenNight.event_time?.slice(0, 5)].filter(Boolean).join(" "),
+                  })}
+                </Link>
+              </p>
+              <InstructorMinutesCard
+                listingId={nextOpenNight.id}
+                instructorId={profile.id}
+                instructorName={profile.full_name || t("creatorFallbackName")}
+                avatarUrl={profile.avatar_url}
+                specialties={((profile as any).coaching_specialties as string[] | null) ?? []}
+                hourlyRate={(profile as any).coaching_hourly_rate_sek as number}
+                isLoggedIn={isLoggedIn}
+                disabledReason={isOwnProfile ? t("coaching.itsYou") : undefined}
+              />
             </div>
           )}
         </div>
@@ -568,7 +709,7 @@ export default async function CreatorProfilePage(props: Props) {
         {/* Event Timeline */}
         {(() => {
           const eventsWithDates = (listings || []).filter((l) => l.event_date);
-          if (eventsWithDates.length === 0) return null;
+          if (eventsWithDates.length === 0 && passListings.length === 0) return null;
           const today = new Date().toISOString().split("T")[0];
           const upcoming = eventsWithDates.filter((l) => l.event_date! >= today).sort((a, b) => a.event_date!.localeCompare(b.event_date!));
           const past = eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
@@ -580,10 +721,25 @@ export default async function CreatorProfilePage(props: Props) {
                   <Calendar size={14} /> {t("events.seeCalendar")}
                 </Link>
               </div>
+              {passListings.length > 0 && (
+                <div className="mb-6 space-y-2">
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-gold)]">{t("events.passes")}</h3>
+                  {passListings.map((p) => (
+                    <Link key={p.id} href={`/listing/${p.id}`} className="flex items-center justify-between gap-4 rounded-xl border border-[var(--usha-gold)]/25 bg-[var(--usha-gold)]/5 p-4 transition hover:border-[var(--usha-gold)]/50">
+                      <p className="min-w-0 font-medium">{p.title}</p>
+                      {p.price != null && <span className="shrink-0 font-semibold text-[var(--usha-gold)]">{t("services.priceSek", { price: p.price })}</span>}
+                    </Link>
+                  ))}
+                </div>
+              )}
               {upcoming.length > 0 && (
-                <>
-                  <h3 className="mb-3 text-sm font-semibold text-emerald-400">{t("events.upcoming")}</h3>
-                  <div className="mb-6 space-y-2">
+                <details open className="group mb-6">
+                  <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-emerald-400">
+                    <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+                    {t("events.upcoming")}
+                    <span className="font-normal text-[var(--usha-muted)]">{upcoming.length}</span>
+                  </summary>
+                  <div className="space-y-2">
                     {upcoming.map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 transition hover:border-emerald-500/40">
                         <div className="shrink-0 text-center">
@@ -605,11 +761,15 @@ export default async function CreatorProfilePage(props: Props) {
                       </Link>
                     ))}
                   </div>
-                </>
+                </details>
               )}
               {past.length > 0 && (
-                <>
-                  <h3 className="mb-3 text-sm font-semibold text-[var(--usha-muted)]">{t("events.past")}</h3>
+                <details className="group">
+                  <summary className="mb-3 flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-[var(--usha-muted)]">
+                    <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+                    {t("events.past")}
+                    <span className="font-normal">{Math.min(past.length, 10)}</span>
+                  </summary>
                   <div className="space-y-2">
                     {past.slice(0, 10).map((ev) => (
                       <Link key={ev.id} href={`/listing/${ev.id}`} className="flex items-center gap-4 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4 opacity-70 transition hover:opacity-90">
@@ -630,7 +790,7 @@ export default async function CreatorProfilePage(props: Props) {
                       </Link>
                     ))}
                   </div>
-                </>
+                </details>
               )}
             </div>
           );

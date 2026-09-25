@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
+import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { notFound } from "next/navigation";
 import { safeJsonLd } from "@/lib/json-ld";
 import type { Metadata } from "next";
@@ -7,6 +9,7 @@ import { MapPin, ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -21,11 +24,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq("id", params.id)
     .single();
 
-  if (!venue) return { title: "Plats – Usha Platform" };
+  const tMeta = await getTranslations("platserPage");
+  if (!venue) return { title: tMeta("detail.metaFallbackTitle") };
 
   return {
+    ...indexable(`/platser/${params.id}`),
     title: `${venue.name} – Usha Platform`,
-    description: `Upplevelser och events på ${venue.name}${venue.city ? ` i ${venue.city}` : ""}.`,
+    description: venue.city
+      ? tMeta("detail.metaDescriptionCity", { name: venue.name, city: venue.city })
+      : tMeta("detail.metaDescription", { name: venue.name }),
     openGraph: {
       title: `${venue.name} – Usha Platform`,
       description: `Se vad som händer på ${venue.name}.`,
@@ -44,15 +51,18 @@ export default async function VenueDetailPage(props: Props) {
     .single();
 
   if (!venue) notFound();
+  const t = await getTranslations("platserPage");
 
   // Fetch listings at this venue
   let listings: any[] = [];
   if (venue.place_id) {
     const { data } = await supabase
       .from("listings")
-      .select("id, title, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until, slug")
+      .select("id, title, price, event_date, event_location, category, image_url, listing_type, is_promoted, promoted_until, slug, ticket_types(price)")
       .eq("is_active", true)
+      .eq("is_public", true)
       .eq("event_place_id", venue.place_id)
+      .or(upcomingOrUndated())
       .order("event_date", { ascending: true, nullsFirst: false });
 
     listings = data || [];
@@ -81,9 +91,9 @@ export default async function VenueDetailPage(props: Props) {
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <Link href="/" className="text-lg font-bold text-gradient">Usha Platform</Link>
           <nav className="flex items-center gap-4">
-            <Link href="/platser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Platser</Link>
-            <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Upplevelser</Link>
-            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">Marketplace</Link>
+            <Link href="/platser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("title")}</Link>
+            <Link href="/upplevelser" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("detail.navExperiences")}</Link>
+            <Link href="/marketplace" className="text-sm text-[var(--usha-muted)] hover:text-[var(--usha-white)]">{t("detail.navMarketplace")}</Link>
           </nav>
         </div>
       </header>
@@ -124,9 +134,9 @@ export default async function VenueDetailPage(props: Props) {
           </div>
         ) : (
           <div className="mt-12 text-center">
-            <p className="text-sm text-[var(--usha-muted)]">Inga upplevelser på denna plats just nu.</p>
+            <p className="text-sm text-[var(--usha-muted)]">{t("detail.empty")}</p>
             <Link href="/upplevelser" className="mt-2 inline-block text-sm text-[var(--usha-gold)] hover:underline">
-              Se alla upplevelser
+              {t("detail.seeAll")}
             </Link>
           </div>
         )}

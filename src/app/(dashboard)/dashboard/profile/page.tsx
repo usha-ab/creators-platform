@@ -42,7 +42,7 @@ export default async function ProfilePage() {
     // org_number är kolumn-låst för authenticated — egen rad via service-role.
     createAdminClient()
       .from("profiles")
-      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, terms_url, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name, org_number, company_name, company_verified_at, is_company")
+      .select("id, full_name, slug, avatar_url, bio, website, category, location, hourly_rate, is_public, share_token, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, terms_url, role, tier, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, creator_subcategory, dance_styles, dance_languages, dance_experience_years, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_bio, bankid_verified_at, bankid_name, org_number, company_name, company_verified_at, is_company")
       .eq("id", user.id)
       .single(),
     supabase
@@ -130,6 +130,8 @@ export default async function ProfilePage() {
               profileSlug={(profile as { slug?: string | null }).slug ?? null}
               profileId={profile.id}
               fullName={profile.full_name}
+              isPublic={!!profile.is_public}
+              shareToken={(profile as { share_token?: string | null }).share_token ?? null}
             />
           </div>
           {/* Ett utgånget token såg tidigare exakt ut som ett färskt här, så

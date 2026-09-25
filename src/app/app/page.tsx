@@ -9,7 +9,7 @@ import { venuesUserHasCapability } from "@/lib/venues/members";
 
 /** Kolumnerna startsidan behöver av en egen listing. */
 const OWN_LISTING_COLUMNS =
-  "id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time, image_url, slug";
+  "id, user_id, title, category, price, duration_minutes, is_active, created_at, event_date, event_time, image_url, slug, listing_type";
 
 interface Profile {
   id: string;

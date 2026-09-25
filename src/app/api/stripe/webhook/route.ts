@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { totalCreditOre } from "@/lib/credits/promo-discount";
+import { passBookingFields } from "@/lib/passes/series-pass";
+import { utmBookingFields } from "@/lib/analytics/utm";
+import { recordBookingRewards } from "@/lib/affiliate/rewards";
+import { ROLES, normalizeRole } from "@/lib/roles";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
@@ -131,18 +136,21 @@ function extractTierFromPlan(plan: string): MemberTier {
  * Extracts role from plan metadata or plan key.
  */
 function extractRoleFromPlan(plan: string, metadataRole?: string): string {
-  if (metadataRole) return metadataRole;
+  // Rollistan bor i lib/roles — en lokal kopia här gled isär från triggern.
+  // normalizeRole tar även gamla stavningar, så ett äldre plan-metadata med
+  // "experience" landar som venue i stället för att skrivas rakt in.
+  const fromMetadata = normalizeRole(metadataRole);
+  if (fromMetadata) return fromMetadata;
 
   // Try to extract from new format plan key
   const parts = plan.split('_');
-  if (parts.length === 2 && ['customer', 'creator', 'venue'].includes(parts[0])) {
-    return parts[0];
-  }
+  const fromPlan = parts.length === 2 ? normalizeRole(parts[0]) : null;
+  if (fromPlan) return fromPlan;
 
   // Legacy plans were creator-focused
-  if (plan.startsWith('creator_')) return 'creator';
+  if (plan.startsWith('creator_')) return ROLES.CREATOR;
 
-  return 'customer';
+  return ROLES.CUSTOMER;
 }
 
 export async function POST(req: NextRequest) {
@@ -223,10 +231,13 @@ export async function POST(req: NextRequest) {
             guest_count: guestQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
+            ...passBookingFields(session.metadata?.sessionsTotal),
+            ...utmBookingFields(session.metadata),
           }).select("id").single();
 
           // One scannable attendee per seat (only for multi-ticket orders).
           if (guestBooking?.id) await createTicketAttendees(getSupabaseAdmin(), guestBooking.id, guestQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
+          if (guestBooking?.id) await recordAffiliateFromSession(session, guestBooking.id, null);
 
           // Count the sold tickets for capacity — UNLESS the checkout already
           // reserved them up front (reserved='true'), in which case the seats
@@ -434,6 +445,14 @@ export async function POST(req: NextRequest) {
 
           // Create confirmed booking
           const ticketQty = clampQuantity(session.metadata?.quantity);
+          // Välkomstavdraget som Usha stod för. Sparas på bokningen därför att
+          // amount_paid ensamt inte kan skilja "köparen betalade 150" från
+          // "biljetten kostade 150" — och partnerns andel ska räknas på det
+          // senare.
+          // Rabattkod och välkomstavdrag är samma sak för avräkningen: köparen
+          // betalade mindre och Usha stod för mellanskillnaden. Räknas de inte
+          // ihop här skickas halva rabatten vidare till lokalen.
+          const creditOre = totalCreditOre(session.metadata?.creditOre, session);
           const { data: acctBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
@@ -443,11 +462,36 @@ export async function POST(req: NextRequest) {
             booking_type: "ticket",
             stripe_payment_id: paymentIntentId,
             amount_paid: amountPaid,
+            credit_applied_ore: creditOre,
             platform_fee_amount: Number(session.metadata?.platformFeeOre) || 0,
             guest_count: ticketQty,
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
+            ...passBookingFields(session.metadata?.sessionsTotal),
+            ...utmBookingFields(session.metadata),
           }).select("id").single();
+
+          if (acctBooking?.id) await recordAffiliateFromSession(session, acctBooking.id, userId ?? null);
+
+          // Förbruka avdraget. Villkoret `used_at is null` gör skrivningen till
+          // spärren: två samtidiga köp kan båda ha fått avdraget beräknat i
+          // kassan, men bara den som kommer först hit får märka det som använt.
+          // Välkomstavdraget (engångs) och intjänad kredit (ledger) förbrukas var
+          // för sig. Äldre sessioner saknar de nya nycklarna: då är allt välkomstavdrag.
+          const welcomeCreditOre = session.metadata?.welcomeCreditOre != null ? Number(session.metadata.welcomeCreditOre) || 0 : creditOre;
+          const ledgerCreditOre = Number(session.metadata?.ledgerCreditOre) || 0;
+          if (welcomeCreditOre > 0 && userId) {
+            await getSupabaseAdmin()
+              .from("account_credits")
+              .update({ used_at: new Date().toISOString(), used_booking_id: acctBooking?.id ?? null })
+              .eq("user_id", userId)
+              .is("used_at", null);
+          }
+          if (ledgerCreditOre > 0 && userId && acctBooking?.id) {
+            await getSupabaseAdmin()
+              .from("credit_ledger")
+              .upsert({ profile_id: userId, delta_ore: -ledgerCreditOre, reason: "booking", ref: `booking:${acctBooking.id}` }, { onConflict: "ref", ignoreDuplicates: true });
+          }
 
           // One scannable attendee per seat (only for multi-ticket orders).
           if (acctBooking?.id) await createTicketAttendees(getSupabaseAdmin(), acctBooking.id, ticketQty, attendeeNamesFromMeta(session.metadata?.attendeeNames));
@@ -590,7 +634,7 @@ export async function POST(req: NextRequest) {
           // Payment already succeeded → auto-confirm the booking (no manual
           // creator confirmation step). The creator is notified below and can
           // still cancel (→ refund) if the proposed time doesn't work.
-          await getSupabaseAdmin().from("bookings").insert({
+          const { data: paidBooking } = await getSupabaseAdmin().from("bookings").insert({
             listing_id: listingId,
             creator_id: creatorId,
             customer_id: userId,
@@ -603,8 +647,10 @@ export async function POST(req: NextRequest) {
             special_requests: specialRequests,
             attendees,
             notes,
-            ...(danceCount && danceCount > 0 ? { dances_total: danceCount, dances_redeemed: 0 } : {}),
-          });
+            ...(danceCount && danceCount > 0 ? { sessions_total: danceCount, sessions_redeemed: 0 } : {}),
+            ...utmBookingFields(session.metadata),
+          }).select("id").single();
+          if (paidBooking?.id) await recordAffiliateFromSession(session, paidBooking.id, userId ?? null);
 
           // Notify the creator of the new paid, confirmed booking.
           if (creatorId) {
@@ -1204,4 +1250,30 @@ async function sendTrialEndingEmail(
     daysLeft,
     memberId: userId,
   });
+}
+
+/**
+ * Partnerprogrammet: kassan la partnerns id i metadata (affiliateId). Här,
+ * när pengarna faktiskt kommit in, skrivs bokningens referred_by och
+ * belöningarna (idempotent på ref, så en omkörd webhook ger inga dubbletter).
+ */
+async function recordAffiliateFromSession(
+  session: Stripe.Checkout.Session,
+  bookingId: string,
+  customerId: string | null
+) {
+  const affiliateId = session.metadata?.affiliateId;
+  if (!affiliateId) return;
+  try {
+    await recordBookingRewards(getSupabaseAdmin(), {
+      bookingId,
+      affiliateId,
+      customerId,
+      flow: session.metadata?.flow,
+      platformFeeOre: Number(session.metadata?.platformFeeOre) || 0,
+      amountOre: session.amount_total ?? 0,
+    });
+  } catch (err) {
+    console.error("affiliate reward failed:", err);
+  }
 }

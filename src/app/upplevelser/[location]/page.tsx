@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { BROWSABLE_TYPES } from "@/lib/listings/browse";
+import { upcomingOrUndated } from "@/lib/listings/time-window";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/categories";
 import { safeJsonLd } from "@/lib/json-ld";
 import type { Metadata } from "next";
@@ -7,6 +9,7 @@ import { MapPin, Calendar, ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
 import { ListingCard } from "@/components/listing-card";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ location: string }>;
@@ -27,12 +30,15 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .select("id", { count: "exact", head: true })
     .eq("is_active", true)
     .eq("is_public", true)
-    .ilike("event_city", `%${city}%`);
+    .or(BROWSABLE_TYPES)
+    .ilike("event_city", `%${city}%`)
+    .or(upcomingOrUndated());
 
   return {
     title: `Upplevelser i ${city} – Usha Platform`,
     description: `Hitta kreativa events, tjänster och upplevelser i ${city}. Dans, musik, fotografi och mer.`,
     ...(!count ? { robots: { index: false } } : {}),
+    ...indexable(`/upplevelser/${params.location}`),
     openGraph: {
       title: `Upplevelser i ${city} – Usha Platform`,
       description: `Hitta kreativa events och upplevelser i ${city}.`,
@@ -48,10 +54,12 @@ export default async function LocationPage(props: Props) {
 
   const { data: rawListings } = await supabase
     .from("listings")
-    .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until")
+    .select("id, title, description, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, is_promoted, promoted_until, ticket_types(price)")
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .ilike("event_city", `%${city}%`)
+    .or(upcomingOrUndated())
     .order("event_date", { ascending: true, nullsFirst: false })
     .limit(50);
 

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { normalizeEmail } from "@/lib/email/normalize";
+import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
+import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
+import { passBookingFields } from "@/lib/passes/series-pass";
 import type Stripe from "stripe";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
@@ -30,7 +33,8 @@ export async function POST(req: NextRequest) {
     // Sparas den som den skrevs slutar `guest_email = user.email` matcha så
     // fort någon råkar få en versal med sig från tangentbordet.
     const email = normalizeEmail(rawEmail);
-    const qty = clampQuantity(quantity);
+    // let, inte const: main justerar antalet nedåt när potten inte räcker.
+    let qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
       return NextResponse.json(
@@ -44,7 +48,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -59,7 +63,10 @@ export async function POST(req: NextRequest) {
     // Optional ticket type (price tier) — overrides price + capacity, validated
     // to belong to this listing.
     let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
-    if (ticketTypeId) {
+    // Klippkort: ett åt gången, ingen biljettyp — kortet är typen.
+    const isPass = listing.listing_type === "package" && (listing.session_count ?? 0) > 0;
+    if (isPass) qty = 1;
+    if (ticketTypeId && !isPass) {
       const { data: tt } = await supabase
         .from("ticket_types")
         .select("id, name, price, capacity, tickets_sold")
@@ -141,6 +148,7 @@ export async function POST(req: NextRequest) {
           status: "confirmed",
           scheduled_at: scheduledAt,
           booking_type: "ticket",
+        ...passBookingFields(isPass ? listing.session_count : null),
           amount_paid: 0,
           is_free: true,
           guest_count: qty,
@@ -205,6 +213,10 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
+    // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
+    const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: null, refCookie: req.cookies.get(REF_COOKIE)?.value });
+    // Kanalen köpet kom ifrån, från landningscookien.
+    const utm = parseUtm(req.cookies.get(UTM_COOKIE)?.value);
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -277,7 +289,7 @@ export async function POST(req: NextRequest) {
       flow,
       payee,
       applicationFeeOre: applicationFee * qty + serviceFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
     const stripeLocale = await getStripeLocale();
@@ -288,13 +300,19 @@ export async function POST(req: NextRequest) {
         customer_email: email,
         line_items: lineItems,
         mode: "payment",
+        // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
+        // ned användningarna, så en engångskod kan inte lösas in två gånger.
+        allow_promotion_codes: true,
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
         automatic_tax: { enabled: true },
         // Clear confirmation screen for guests (no account) — the ticket QR is
         // emailed; landing on the feed left buyers unsure the purchase worked.
-        success_url: `${baseUrl}/biljett/klar`,
+        // Sessions-id:t följer med så kvittosidan kan slå upp den bokning som
+        // faktiskt skapades och rapportera köpet med rätt belopp — gästen har
+        // inget konto att läsa historik från.
+        success_url: `${baseUrl}/biljett/klar?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${baseUrl}/flode`,
         metadata: {
           type: "guest_ticket",
@@ -309,6 +327,9 @@ export async function POST(req: NextRequest) {
           ticketTypeId: ticketType?.id ?? "",
           ticketTypeName: ticketType?.name ?? "",
           quantity: String(qty),
+          affiliateId: affiliateId ?? "",
+          ...utmMetadata(utm),
+          sessionsTotal: isPass ? String(listing.session_count) : "",
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: "true",
           eventDate: listing.event_date || "",

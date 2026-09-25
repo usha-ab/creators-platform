@@ -56,8 +56,10 @@ interface CalendarEvent {
   title: string;
   dateStr: string; // YYYY-MM-DD (event-local)
   timeStr?: string | null; // HH:MM (event-local); omit for all-day
+  endTimeStr?: string | null; // HH:MM (event-local); utan den gissar kalendern
   location?: string | null;
   description?: string | null;
+  url?: string | null;
 }
 
 // Multi-event subscribable calendar feed. Event date/time are stored without a
@@ -78,12 +80,26 @@ export function buildEventsCalendarIcs(calendarName: string, events: CalendarEve
     lines.push("BEGIN:VEVENT", `UID:${e.uid}`, `DTSTAMP:${stamp}`);
     if (e.timeStr) {
       lines.push(`DTSTART:${d}T${e.timeStr.replace(":", "")}00`);
+      // Utan DTEND gissar kalenderappen — Google lägger på en timme, Apple gör
+      // posten punktformig. En kväll 17–23 ska synas som sex timmar.
+      // Sluttid före starttid betyder passering över midnatt, alltså nästa dag.
+      if (e.endTimeStr) {
+        const slutDag =
+          e.endTimeStr <= e.timeStr
+            ? new Date(`${e.dateStr}T12:00:00Z`).getTime() + 86400000
+            : null;
+        const dSlut = slutDag
+          ? new Date(slutDag).toISOString().slice(0, 10).replace(/-/g, "")
+          : d;
+        lines.push(`DTEND:${dSlut}T${e.endTimeStr.replace(":", "")}00`);
+      }
     } else {
       lines.push(`DTSTART;VALUE=DATE:${d}`);
     }
     lines.push(`SUMMARY:${esc(e.title)}`);
     if (e.description) lines.push(`DESCRIPTION:${esc(e.description)}`);
     if (e.location) lines.push(`LOCATION:${esc(e.location)}`);
+    if (e.url) lines.push(`URL:${esc(e.url)}`);
     lines.push("END:VEVENT");
   }
   lines.push("END:VCALENDAR");

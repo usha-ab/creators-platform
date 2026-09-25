@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { Calendar, Clock, MapPin, CheckCircle2, XCircle } from "lucide-react";
@@ -7,6 +8,10 @@ import VenueConsentCard from "./venue-consent-card";
 import { consentIdentity, consentState, shouldAskConsent } from "@/lib/venues/consent";
 import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
+import EmailFollowCard from "./email-follow-card";
+import { FollowButton } from "@/components/follow-button";
+import { emailFollowState, findEmailFollow } from "@/lib/follows/email-follow";
 import { ShareEventButton } from "@/components/share-event-button";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 
@@ -40,7 +45,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, guest_count, sessions_total, sessions_redeemed")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -48,7 +53,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at")
+      .select("title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -57,6 +62,14 @@ export default async function GuestTicketPage({
       .eq("id", booking.creator_id)
       .maybeSingle(),
   ]);
+
+  // Klippkort på en serie: biljetten visar seriens nästa kväll (eller kvällens),
+  // inte köpögonblicket, och hur många klipp som är kvar.
+  const isPass = isPassBooking(booking);
+  const passSeries = passSeriesIds(listing);
+  const passShown = isPass && passSeries.length > 0
+    ? (({ today, next }) => today ?? next)(pickOccurrence(await seriesOccurrences(admin, passSeries)))
+    : null;
 
   let attendee: string | null = booking.guest_name;
   if (!attendee && booking.customer_id) {
@@ -128,6 +141,22 @@ export default async function GuestTicketPage({
       );
 
   const locale = await getLocale();
+
+  // "Följ oss" efter köpet. Gästen (utan konto) får en fråga med aktivt ja;
+  // kontoinnehavaren får den vanliga följ-knappen. Frågan ställs här och inte
+  // i kassan av samma skäl som lokalens samtycke: svaret påverkar inget köp.
+  const followedId = booking.creator_id;
+  const { data: { user: viewer } } = await (await createClient()).auth.getUser();
+  const guestEmail = !booking.customer_id ? booking.guest_email : null;
+  const emailFollow = guestEmail && followedId ? await findEmailFollow(admin, guestEmail, followedId) : null;
+  const [{ count: organizerFollowerCount }, { data: viewerFollow }] = await Promise.all([
+    admin.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", followedId),
+    viewer && followedId
+      ? admin.from("follows").select("id").eq("follower_id", viewer.id).eq("followed_id", followedId).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const tFollow = await getTranslations("emailFollow");
+  const organizerName = creator?.full_name || t("eventFallback");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
   const code = `USH-${booking.id.slice(0, 8).toUpperCase()}`;
   const verifyUrl = `${appUrl}/api/tickets/verify?code=${code}&id=${booking.id}`;
@@ -163,8 +192,9 @@ export default async function GuestTicketPage({
   // event doesn't render as 12:00. event_time (when set) is already Swedish
   // wall-clock, so it's shown verbatim.
   const scheduled = new Date(booking.scheduled_at);
-  const dateLabel = listing?.event_date
-    ? new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", {
+  const dateSource = passShown?.event_date ?? listing?.event_date ?? null;
+  const dateLabel = dateSource
+    ? new Date(dateSource + "T00:00").toLocaleDateString("sv-SE", {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -172,8 +202,9 @@ export default async function GuestTicketPage({
         timeZone: "Europe/Stockholm",
       })
     : scheduled.toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" });
-  const timeLabel = listing?.event_time
-    ? listing.event_time.slice(0, 5)
+  const timeSource = passShown?.event_time ?? listing?.event_time ?? null;
+  const timeLabel = timeSource
+    ? timeSource.slice(0, 5)
     : scheduled.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" });
 
   const canceled = booking.status === "canceled";
@@ -217,9 +248,11 @@ export default async function GuestTicketPage({
         <div className="space-y-4 p-6">
           <div className="text-center">
             <h1 className="text-xl font-semibold">{listing?.title ?? t("eventFallback")}</h1>
-            {booking.ticket_type_name && (
+            {(isPass || booking.ticket_type_name) && (
               <p className="mt-1 inline-block rounded-full bg-[var(--usha-gold)]/10 px-2.5 py-0.5 text-xs font-medium text-[var(--usha-gold)]">
-                {booking.ticket_type_name}
+                {isPass
+                  ? t("passChip", { remaining: passRemaining(booking), total: booking.sessions_total ?? 0 })
+                  : booking.ticket_type_name}
               </p>
             )}
             {attendee && (
@@ -298,6 +331,9 @@ export default async function GuestTicketPage({
             {creator?.full_name && (
               <p className="pt-1 text-xs text-[var(--usha-muted)]">{t("organizer", { name: creator.full_name })}</p>
             )}
+            {isPass && listing?.pass_covers && (
+              <p className="pt-1 text-xs text-[var(--usha-muted)]">{t("passCovers", { covers: listing.pass_covers })}</p>
+            )}
           </div>
 
           {!canceled && !used && (
@@ -323,6 +359,39 @@ export default async function GuestTicketPage({
                 failed: t("venueConsent.failed"),
               }}
             />
+          )}
+
+          {!canceled && followedId && guestEmail && (
+            <EmailFollowCard
+              bookingId={booking.id}
+              email={guestEmail}
+              followedId={followedId}
+              locale={locale}
+              initialState={emailFollowState(emailFollow)}
+              labels={{
+                question: tFollow("ticketQuestion", { name: organizerName }),
+                explain: tFollow("ticketExplain", { email: guestEmail }),
+                yes: tFollow("yes"),
+                no: tFollow("no"),
+                active: tFollow("active", { name: organizerName }),
+                unsubscribed: tFollow("unsubscribed", { name: organizerName }),
+                change: tFollow("change"),
+                failed: tFollow("failed"),
+              }}
+            />
+          )}
+          {!canceled && followedId && !guestEmail && viewer?.id !== followedId && (
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-4">
+              <p className="text-sm">{tFollow("ticketQuestion", { name: organizerName })}</p>
+              <FollowButton
+                creatorId={followedId}
+                initialFollowing={!!viewerFollow}
+                followerCount={organizerFollowerCount ?? 0}
+                isLoggedIn={!!viewer}
+                returnTo={`/biljett/${booking.id}`}
+                size="sm"
+              />
+            </div>
           )}
 
           {addOns.length > 0 && (

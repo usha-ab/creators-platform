@@ -12,6 +12,7 @@ interface Recommendation {
   id: string;
   title: string;
   price: number;
+  image_url: string | null;
   creator: { id: string; name: string | null; avatar: string | null };
   category: string;
   eventTier: string;
@@ -186,12 +187,21 @@ function EventCard({ event }: { event: Recommendation }) {
 
   return (
     <div className="group rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] overflow-hidden hover:border-[var(--usha-gold)]/30 transition-colors">
-      <div className="relative h-36 bg-gradient-to-br from-[var(--usha-card-hover)] to-[var(--usha-border)]">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg className="w-10 h-10 text-[var(--usha-muted)]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
+      <div className="relative h-36 overflow-hidden bg-gradient-to-br from-[var(--usha-card-hover)] to-[var(--usha-border)]">
+        {event.image_url ? (
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="h-full w-full object-cover transition group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <svg className="w-10 h-10 text-[var(--usha-muted)]/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+        )}
         {event.eventTier && (
           <span className="absolute top-2 right-2 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-black/50 text-[var(--usha-gold)]">
             {t('tier', { tier: event.eventTier.toUpperCase() })}

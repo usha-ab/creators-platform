@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { PerspectiveHero } from "@/components/landing/perspective-hero";
 import { Onboarding } from "@/components/landing/onboarding";
 import { Features } from "@/components/landing/features";
@@ -27,11 +27,11 @@ export default function ForCreatorsPage() {
   return (
     <main>
       <RedirectIfAuthed />
-      <Nav />
-      <PerspectiveHero ns="forCreators" ctaHref="/signup" />
+      <SiteNav />
+      <PerspectiveHero ns="forCreators" ctaHref="/signup?role=creator" />
       <Onboarding />
       <Features />
-      <Pricing />
+      <Pricing role="creator" />
       <LoopSection ns="forCreators" />
       <PerspectiveLinks exclude="creators" />
       <Trust />

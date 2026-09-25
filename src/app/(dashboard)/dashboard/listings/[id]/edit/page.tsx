@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { creatorSeriesOptions } from "@/lib/passes/series-options";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ScanLine, Users, Radio, BarChart3 } from "lucide-react";
@@ -20,7 +21,7 @@ export default async function EditListingPage(
 
   const { data: listing } = await supabase
     .from("listings")
-    .select("id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, listing_type, dance_count")
+    .select("id, title, description, category, price, duration_minutes, image_url, event_date, event_time, event_end_time, event_location, event_lat, event_lng, event_place_id, listing_type, session_count, pass_series_id, pass_series_ids, pass_covers, pass_reference_price")
     .eq("id", params.id)
     .eq("user_id", user.id)
     .single();
@@ -35,6 +36,8 @@ export default async function EditListingPage(
   const creatorSubcategory = (profile as { creator_subcategory?: string | null } | null)?.creator_subcategory ?? null;
 
   const updateWithId = updateListing.bind(null, listing.id);
+
+  const seriesOptions = user ? await creatorSeriesOptions(supabase, user.id) : [];
 
   return (
     <>
@@ -81,7 +84,7 @@ export default async function EditListingPage(
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ListingForm listing={listing} action={updateWithId} creatorSubcategory={creatorSubcategory} />
+        <ListingForm listing={listing} action={updateWithId} creatorSubcategory={creatorSubcategory} seriesOptions={seriesOptions} />
       </div>
     </>
   );

@@ -205,7 +205,7 @@ describe("adminytan är läsbar för en partner som inte kan svenska", () => {
 
   it("varje adminnamnrymd finns fylld på alla tre språk", () => {
     const NAMESPACES = [
-      "adminPage", "adminAccess", "adminCreators", "adminPromo", "adminPromoForm", "adminPromoTable",
+      "adminPage", "adminAccess", "adminCreators", "adminPromo", "adminPromoForm", "adminPromoTable", "adminPartners",
     ];
     const problems: string[] = [];
     for (const locale of LOCALES) {

@@ -86,6 +86,8 @@ export function buildPaymentMetadata(args: {
   eventId?: string | null;
   eventDate?: string | null;
   termsUrl?: string | null;
+  /** Serien kvällen tillhör, t.ex. "brazilian-zouk-tisdag". */
+  seriesSlug?: string | null;
 }): Record<string, string> {
   const seller = receiptSeller(args.flow, args.payee);
   return {
@@ -93,6 +95,11 @@ export function buildPaymentMetadata(args: {
     event_date: args.eventDate ?? "",
     organizer_org_nr: seller.orgNumber ?? "",
     event_id: args.eventId ?? "",
+    // Vilken serie pengarna hör till. Utan den går två klubbkvällar som båda
+    // säljs på plattformskontot inte att skilja åt i Stripe annat än genom att
+    // slå upp varje event_id — och de har olika ägare bakom kulisserna även
+    // när Usha är säljare mot köparen.
+    series_slug: args.seriesSlug ?? "",
     // Consent record: which purchase terms the buyer accepted at checkout.
     terms_url: args.termsUrl ?? "",
   };

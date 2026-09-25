@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { createClient } from "@/lib/supabase/server";
+import { ShareEventButton } from "@/components/share-event-button";
 import { CATEGORIES } from "@/lib/categories";
 import { SELLER_ROLE_VALUES } from "@/lib/roles";
 import type { Metadata } from "next";
@@ -450,11 +451,26 @@ export default async function MarketplacePage(
               const isNew = creator.created_at && (Date.now() - new Date(creator.created_at).getTime()) < 14 * 24 * 60 * 60 * 1000;
 
               return (
-                <Link
+                /* Kortet är en wrapper, inte en länk. Delaknappen måste ligga
+                   UTANFÖR <Link> — inuti hade ett klick både delat och
+                   navigerat bort från sidan. */
+                <div
                   key={creator.id}
-                  href={`/creators/${(creator as any).slug || creator.id}`}
-                  className="group overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-all hover:border-[var(--usha-gold)]/20"
+                  className="group relative overflow-hidden rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] transition-all hover:border-[var(--usha-gold)]/20"
                 >
+                  <ShareEventButton
+                    iconOnly
+                    url={`https://usha.se/creators/${(creator as any).slug || creator.id}`}
+                    title={creator.full_name || t("marketplace.fallbackCreatorName")}
+                    text={t("creatorProfile.shareText", { name: creator.full_name || t("marketplace.fallbackCreatorName") })}
+                    label={t("creatorProfile.share")}
+                    copiedLabel={t("common.linkCopied")}
+                    className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/55 text-white backdrop-blur transition hover:border-[var(--usha-gold)]/60 hover:text-[var(--usha-gold)]"
+                  />
+                  <Link
+                    href={`/creators/${(creator as any).slug || creator.id}`}
+                    className="block"
+                  >
                   {/* Hero image */}
                   <div className="relative aspect-[16/9] overflow-hidden bg-[var(--usha-gold)]/5">
                     {heroImg ? (
@@ -574,7 +590,8 @@ export default async function MarketplacePage(
                       </span>
                     </div>
                   </div>
-                </Link>
+                  </Link>
+                </div>
               );
             })}
           </div>

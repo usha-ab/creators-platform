@@ -14,7 +14,7 @@ import { NoBookings } from "@/components/ui/empty-state";
 import { ReviewForm } from "@/components/review-form";
 import { BookingsViewToggle } from "./bookings-view-toggle";
 import { PayB2BButton } from "./pay-b2b-button";
-import { RedeemDanceButton, DanceCounter } from "./redeem-dance-button";
+import { RedeemSessionButton, DanceCounter } from "./redeem-session-button";
 import { RedeemMinutesButton, MinutesCounter } from "./redeem-minutes-button";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 
@@ -38,7 +38,7 @@ export default async function BookingsPage() {
   const { data: incoming } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, stripe_payment_id, is_free, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, customer_id, guest_count, special_requests, amount_paid, stripe_payment_id, is_free, sessions_total, sessions_redeemed, minutes_total, minutes_redeemed, agreed_price"
     )
     .eq("creator_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -47,7 +47,7 @@ export default async function BookingsPage() {
   const { data: outgoing } = await supabase
     .from("bookings")
     .select(
-      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, amount_paid, dances_total, dances_redeemed, minutes_total, minutes_redeemed, agreed_price"
+      "id, status, scheduled_at, notes, created_at, listing_id, creator_id, guest_count, special_requests, stripe_payment_id, amount_paid, sessions_total, sessions_redeemed, minutes_total, minutes_redeemed, agreed_price"
     )
     .eq("customer_id", user.id)
     .order("scheduled_at", { ascending: true });
@@ -224,11 +224,11 @@ export default async function BookingsPage() {
                           {t("paidBadge")}
                         </span>
                       )}
-                      {(booking as { dances_total?: number | null }).dances_total != null &&
-                        (booking as { dances_total?: number | null }).dances_total! > 0 && (
+                      {(booking as { sessions_total?: number | null }).sessions_total != null &&
+                        (booking as { sessions_total?: number | null }).sessions_total! > 0 && (
                           <DanceCounter
-                            redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
-                            total={(booking as { dances_total?: number | null }).dances_total!}
+                            redeemed={(booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? 0}
+                            total={(booking as { sessions_total?: number | null }).sessions_total!}
                           />
                         )}
                       {(booking as { minutes_total?: number | null }).minutes_total != null &&
@@ -281,12 +281,12 @@ export default async function BookingsPage() {
                     )}
                     {booking.status === "confirmed" && (
                       <>
-                        {(booking as { dances_total?: number | null }).dances_total != null &&
-                          (booking as { dances_total?: number | null }).dances_total! > 0 && (
-                            <RedeemDanceButton
+                        {(booking as { sessions_total?: number | null }).sessions_total != null &&
+                          (booking as { sessions_total?: number | null }).sessions_total! > 0 && (
+                            <RedeemSessionButton
                               bookingId={booking.id}
-                              redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
-                              total={(booking as { dances_total?: number | null }).dances_total!}
+                              redeemed={(booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? 0}
+                              total={(booking as { sessions_total?: number | null }).sessions_total!}
                             />
                           )}
                         {(booking as { minutes_total?: number | null }).minutes_total != null &&
@@ -353,11 +353,11 @@ export default async function BookingsPage() {
                       >
                         {t(status.labelKey)}
                       </span>
-                      {(booking as { dances_total?: number | null }).dances_total != null &&
-                        (booking as { dances_total?: number | null }).dances_total! > 0 && (
+                      {(booking as { sessions_total?: number | null }).sessions_total != null &&
+                        (booking as { sessions_total?: number | null }).sessions_total! > 0 && (
                           <DanceCounter
-                            redeemed={(booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0}
-                            total={(booking as { dances_total?: number | null }).dances_total!}
+                            redeemed={(booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? 0}
+                            total={(booking as { sessions_total?: number | null }).sessions_total!}
                           />
                         )}
                       {(booking as { minutes_total?: number | null }).minutes_total != null &&

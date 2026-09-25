@@ -664,7 +664,10 @@ function KreatorHome({
   // Egna listningar, de tre närmaste. Raden renderas av OwnListingRow — den
   // fick tidigare en tillplattad kopia utan bild, pris eller status, vilket var
   // hela anledningen till att listan såg ofullständig ut.
-  const todaysListings = ownServices.slice(0, 3);
+  // "Dina tjänster" visade även evenemangen, som redan har en egen flik.
+  // Samma Lab-kväll dök upp på två ställen och rubriken blev meningslös.
+  // Skiljs på datum, inte listing_type — se serviceListings på profilsidan.
+  const todaysListings = ownServices.filter((l) => !l.event_date).slice(0, 3);
 
   const userListings = ownServices.map((l) => ({ id: l.id, title: l.title }));
 
@@ -677,6 +680,7 @@ function KreatorHome({
           slug={profile.slug ?? null}
           isPublic={!!profile.is_public}
           whitelabelEnabled={!!profile.whitelabel_enabled}
+          shareToken={(profile as { share_token?: string | null }).share_token ?? null}
         />
       )}
       <OnboardingChecklist
@@ -1063,6 +1067,7 @@ function UpplevelseHome({
           slug={profile.slug ?? null}
           isPublic={!!profile.is_public}
           whitelabelEnabled={!!profile.whitelabel_enabled}
+          shareToken={(profile as { share_token?: string | null }).share_token ?? null}
         />
       )}
       <OnboardingChecklist

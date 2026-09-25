@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, ScanLine } from "lucide-react";
 import ListingRow, { type Listing } from "./listing-row";
+import { SortableServices } from "./sortable-services";
 import SeriesCard from "./series-card";
 import { NoListings } from "@/components/ui/empty-state";
 import { groupListingsBySeries } from "@/lib/listings/group";
@@ -21,6 +22,9 @@ export default async function ListingsPage() {
     .from("listings")
     .select("*")
     .eq("user_id", user.id)
+    // Samma ordning som publiken ser, annars flyttar man ett kort i listan och
+    // ser ingen skillnad på sin egen sida.
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   // Group occurrences that share a series_id so a series renders as one
@@ -69,9 +73,14 @@ export default async function ListingsPage() {
           {series.map((occ) => (
             <SeriesCard key={`series-${occ[0].series_id}`} occurrences={occ} />
           ))}
-          {standalone.map((listing) => (
-            <ListingRow key={listing.id} listing={listing} />
-          ))}
+          {/* Tjänsterna är sorterbara, evenemangen inte. Ett evenemang har
+              datum, och ett datum är en bättre ordning än en handpåläggning. */}
+          <SortableServices tjanster={standalone.filter((l) => !l.event_date)} />
+          {standalone
+            .filter((l) => l.event_date)
+            .map((listing) => (
+              <ListingRow key={listing.id} listing={listing} />
+            ))}
         </div>
       )}
     </>

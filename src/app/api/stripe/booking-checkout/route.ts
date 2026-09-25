@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
+import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest) {
     // Get listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type, dance_count")
+      .select("id, title, price, user_id, is_active, min_guests, max_guests, listing_type, session_count")
       .eq("id", listingId)
       .single();
 
@@ -86,9 +88,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // For dance_package listings, scheduled_at represents the moment of purchase
+    // For package (klippkort) listings, scheduled_at represents the moment of purchase
     // (no specific event datetime). Override any client-supplied value.
-    const scheduledAt = listing.listing_type === "dance_package"
+    const scheduledAt = listing.listing_type === "package"
       ? new Date().toISOString()
       : requestedScheduledAt;
 
@@ -136,6 +138,10 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
+    // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
+    const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: user.id, refCookie: req.cookies.get(REF_COOKIE)?.value });
+    // Kanalen köpet kom ifrån, från landningscookien.
+    const utm = parseUtm(req.cookies.get(UTM_COOKIE)?.value);
 
     if (flow === "third_party") {
       if (!creator.stripe_account_id) {
@@ -224,6 +230,9 @@ export async function POST(req: NextRequest) {
         scheduledAt,
         notes: notes || "",
         guestCount: String(guests),
+        affiliateId: affiliateId ?? "",
+        ...utmMetadata(utm),
+        platformFeeOre: String(finalFee),
         specialRequests: specialRequests || "",
         attendees: (() => {
           const json = attendees ? JSON.stringify(attendees) : "[]";
@@ -231,8 +240,8 @@ export async function POST(req: NextRequest) {
         })(),
         originalPrice: String(originalPrice),
         discountedPrice: String(discountedPrice),
-        ...(listing.listing_type === "dance_package" && (listing as { dance_count?: number | null }).dance_count
-          ? { danceCount: String((listing as { dance_count?: number | null }).dance_count) }
+        ...(listing.listing_type === "package" && (listing as { session_count?: number | null }).session_count
+          ? { danceCount: String((listing as { session_count?: number | null }).session_count) }
           : {}),
         ...(promoCodeId && { promoCodeId }),
         ...(promoDiscountAmount && {

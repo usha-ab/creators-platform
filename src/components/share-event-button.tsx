@@ -16,6 +16,7 @@ export function ShareEventButton({
   label,
   copiedLabel,
   className,
+  iconOnly,
 }: {
   url: string;
   title: string;
@@ -23,6 +24,8 @@ export function ShareEventButton({
   label: string;
   copiedLabel: string;
   className?: string;
+  /** Bara ikonen — label blir aria-label och title. För kort där text inte får plats. */
+  iconOnly?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -49,13 +52,15 @@ export function ShareEventButton({
     <button
       type="button"
       onClick={handleShare}
+      aria-label={iconOnly ? label : undefined}
+      title={iconOnly ? label : undefined}
       className={
         className ??
         "inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--usha-border)] px-4 py-2.5 text-sm font-medium transition hover:border-[var(--usha-gold)]/40"
       }
     >
       {copied ? <Check size={15} /> : <Share2 size={15} />}
-      {copied ? copiedLabel : label}
+      {!iconOnly && (copied ? copiedLabel : label)}
     </button>
   );
 }

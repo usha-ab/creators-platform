@@ -5,11 +5,11 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, MapPin, AlertCircle } from "lucide-react";
 import { JoinEventButton } from "../join-event-button";
+import { isCreatorRole } from "@/lib/roles";
 
 export const dynamic = "force-dynamic";
 
 const INSTRUCTOR_TIERS = ["guld", "premium"];
-const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 export default async function OpenEventsPage() {
   const t = await getTranslations("openEvents");
@@ -42,7 +42,7 @@ export default async function OpenEventsPage() {
 
   // Eligibility — what's blocking the user from offering services (if anything).
   const missing: { label: string; href: string }[] = [];
-  if (!profile || !INSTRUCTOR_ROLES.includes(profile.role)) {
+  if (!profile || !isCreatorRole(profile.role)) {
     missing.push({ label: t("missingCreator"), href: "/dashboard/profile" });
   }
   if (!profile || !INSTRUCTOR_TIERS.includes(profile.tier)) {

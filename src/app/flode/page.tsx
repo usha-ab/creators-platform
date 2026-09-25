@@ -4,10 +4,12 @@ import { Feed } from "@/components/feed/feed";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("flodePage");
   return {
+    ...indexable("/flode"),
     title: t("metaTitle"),
     description: t("metaDescription"),
     openGraph: {

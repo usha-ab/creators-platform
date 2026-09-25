@@ -1,6 +1,7 @@
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations, getLocale } from "next-intl/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -22,6 +23,7 @@ import { EventMap } from "@/components/event-map";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -43,7 +45,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .single();
 
   // Not found / inactive / archived → not indexable (the page itself 404s).
-  if (!listing) return { title: "Event – Usha Platform", robots: { index: false } };
+  const tMeta = await getTranslations("listingPage");
+  if (!listing) return { title: tMeta("metaFallbackTitle"), robots: { index: false } };
 
   const description = listing.description?.slice(0, 160) || `${listing.title} på Usha Platform`;
   const url = `https://usha.se/listing/${listing.slug || listing.id}`;
@@ -54,6 +57,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: `${listing.title} – Usha Platform`,
     description,
     ...(isThin ? { robots: { index: false } } : {}),
+    ...indexable(`/listing/${listing.slug ?? listing.id}`),
     openGraph: {
       title: `${listing.title} – Usha Platform`,
       description,
@@ -69,6 +73,13 @@ export default async function ListingDetailPage(props: Props) {
   const supabase = await createClient();
 
   const column = isUUID(params.id) ? "id" : "slug";
+  const t = await getTranslations("listingPage");
+  const tEvent = await getTranslations("eventPage");
+  // Datumet följde hårdkodat sv-SE och gav svensk veckodag och månad även på
+  // en engelsk sida. Samma karta som listing-card använder.
+  const dateLocale = ({ sv: "sv-SE", en: "en-GB", es: "es-ES" } as Record<string, string>)[
+    await getLocale()
+  ] ?? "en-GB";
   const [{ data: listing }, { data: { user } }] = await Promise.all([
     supabase
       .from("listings")
@@ -94,6 +105,19 @@ export default async function ListingDetailPage(props: Props) {
       if (seriesMatch && seriesMatch.length > 0) redirect(`/series/${params.id}`);
     }
     notFound();
+  }
+
+  // Ett daterat evenemang har en riktig eventsida. Den här sidan var en andra,
+  // svagare variant av samma sak: ingen delaknapp, inga biljettpriser utöver
+  // grundpriset, och all text hårdkodad på svenska. Profilen länkade hit medan
+  // marknadsplatsen länkade till /event, så vilken sida en besökare mötte
+  // berodde på var hen kom ifrån.
+  //
+  // Omdirigeringen sitter här i stället för att länkarna rättas på sex ställen,
+  // eftersom den också fångar /listing-adresser som redan delats.
+  // /event/[slug] slår upp både slug och rått id.
+  if (listing.event_date) {
+    redirect(`/event/${listing.slug || listing.id}`);
   }
 
   // Fetch creator profile
@@ -242,12 +266,17 @@ export default async function ListingDetailPage(props: Props) {
           className="mb-6 inline-flex items-center gap-1.5 text-sm text-[var(--usha-muted)] transition-colors hover:text-[var(--usha-white)]"
         >
           <ArrowLeft size={14} />
-          Tillbaka till {creator.full_name || "kreatören"}
+          {t("backTo", { name: creator.full_name || t("creatorFallbackLower") })}
         </Link>
 
+        {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
+            innehålls min-content-bredd, och ett enda obrytbart stycke drar ut
+            spåret förbi skärmkanten — då hamnar kartan och biljettrutan utanför
+            till höger på mobil, medan texten ovanför ser ok ut. Samma fix som
+            redan gjorts på /event/[slug]. */}
         <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
           {/* Main content */}
-          <div>
+          <div className="min-w-0">
             {/* Event image */}
             {listing.image_url && (
               <div className="mb-6 overflow-hidden rounded-2xl">
@@ -267,7 +296,7 @@ export default async function ListingDetailPage(props: Props) {
                 </span>
                 {listing.price != null && (
                   <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-0.5 text-xs font-semibold text-[var(--usha-gold)]">
-                    {listing.price > 0 ? `${listing.price} SEK` : "Gratis"}
+                    {listing.price > 0 ? `${listing.price} SEK` : t("free")}
                   </span>
                 )}
               </div>
@@ -280,7 +309,7 @@ export default async function ListingDetailPage(props: Props) {
                 {listing.event_date && (
                   <span className="flex items-center gap-1.5">
                     <Calendar size={14} className="text-[var(--usha-gold)]" />
-                    {new Date(listing.event_date + "T00:00").toLocaleDateString("sv-SE", {
+                    {new Date(listing.event_date + "T00:00").toLocaleDateString(dateLocale, {
                       weekday: "long",
                       day: "numeric",
                       month: "long",
@@ -330,8 +359,11 @@ export default async function ListingDetailPage(props: Props) {
             {/* Description */}
             {listing.description && (
               <div className="mb-6">
-                <h2 className="mb-2 text-lg font-semibold">Om evenemanget</h2>
-                <p className="whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
+                <h2 className="mb-2 text-lg font-semibold">{t("aboutHeading")}</h2>
+                {/* min-w-0 låter spåret krympa, men en obrytbar sträng — en
+                    lång adress, eller dekorativa tecken utan mellanrum — spränger
+                    ändå sin egen ruta. Samma skydd som /event/[slug] har. */}
+                <p className="whitespace-pre-line [overflow-wrap:anywhere] text-sm leading-relaxed text-[var(--usha-muted)]">
                   {listing.description}
                 </p>
               </div>
@@ -340,7 +372,7 @@ export default async function ListingDetailPage(props: Props) {
             {/* Experience details */}
             {details?.included?.length ? (
               <div className="mb-6">
-                <h2 className="mb-2 text-lg font-semibold">Vad ingår</h2>
+                <h2 className="mb-2 text-lg font-semibold">{t("includedHeading")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {details.included.map((item) => (
                     <span
@@ -356,7 +388,7 @@ export default async function ListingDetailPage(props: Props) {
 
             {details?.amenities?.length ? (
               <div className="mb-6">
-                <h2 className="mb-2 text-lg font-semibold">Bekvämligheter</h2>
+                <h2 className="mb-2 text-lg font-semibold">{t("amenitiesHeading")}</h2>
                 <div className="flex flex-wrap gap-2">
                   {details.amenities.map((item) => (
                     <span
@@ -378,24 +410,24 @@ export default async function ListingDetailPage(props: Props) {
               placeId={listing.event_place_id}
               location={listing.event_location}
               city="Stockholm"
-              heading="Karta"
-              linkLabel="Öppna i Google Maps"
+              heading={tEvent("mapHeading")}
+              linkLabel={tEvent("openInMaps")}
             />
           </div>
 
           {/* Sidebar — booking + creator */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {/* Booking card */}
             <div className="space-y-4 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-5 sm:p-6 lg:sticky lg:top-6">
               {isOwner && (
                 <p className="text-center text-xs text-[var(--usha-muted)]">
-                  Förhandsvisning — så ser besökare sidan
+                  {t("ownerPreview")}
                 </p>
               )}
               <div className="text-center">
                 {listing.price != null && (
                   <p className="text-2xl font-bold text-[var(--usha-gold)]">
-                    {listing.price > 0 ? `${listing.price} SEK` : "Gratis"}
+                    {listing.price > 0 ? `${listing.price} SEK` : t("free")}
                   </p>
                 )}
               </div>
@@ -445,7 +477,7 @@ export default async function ListingDetailPage(props: Props) {
                 </div>
               )}
               <div>
-                <p className="font-semibold">{creator.full_name || "Kreatör"}</p>
+                <p className="font-semibold">{creator.full_name || t("creatorFallback")}</p>
                 <p className="text-xs text-[var(--usha-muted)]">
                   {CATEGORY_LABELS[creator.category] || creator.category} · Visa profil
                 </p>
@@ -455,18 +487,18 @@ export default async function ListingDetailPage(props: Props) {
             {/* Instructors offering paid mini-sessions at this event */}
             {eventInstructors.length > 0 && (
               <div className="space-y-3">
-                <h2 className="text-sm font-semibold">Boka en instruktör på plats</h2>
+                <h2 className="text-sm font-semibold">{t("instructorsHeading")}</h2>
                 {eventInstructors.map((ins) => (
                   <InstructorMinutesCard
                     key={ins.id}
                     listingId={listing.id}
                     instructorId={ins.id}
-                    instructorName={ins.full_name || "Instruktör"}
+                    instructorName={ins.full_name || t("instructorFallback")}
                     avatarUrl={ins.avatar_url}
                     specialties={ins.coaching_specialties ?? []}
                     hourlyRate={ins.coaching_hourly_rate_sek as number}
                     isLoggedIn={isLoggedIn}
-                    disabledReason={user?.id === ins.id ? "Det här är du" : undefined}
+                    disabledReason={user?.id === ins.id ? t("thatIsYou") : undefined}
                   />
                 ))}
               </div>

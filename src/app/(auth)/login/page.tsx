@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { purgeAuthCookies } from "@/lib/supabase/auth-cookies";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { authUrlWithNext, callbackUrlWithNext } from "@/lib/auth/next-path";
@@ -54,7 +55,11 @@ export default function LoginPage() {
   // it — scope "local" clears storage WITHOUT a network call (so it can't hit the
   // rate limit) and stops the auto-refresh ticker. Safe here: you're logging in.
   useEffect(() => {
+    // signOut raderar bara cookien i den domänvariant ssr känner till; en
+    // äldre host-only-kopia från före domänbytet (2026-07-10) överlever och
+    // skuggar varje ny inloggning. purgeAuthCookies tar båda, utan nätverk.
     supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    purgeAuthCookies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -110,6 +115,7 @@ export default function LoginPage() {
       // "local" — it purges local storage WITHOUT a network call, so it can't hit
       // the auth rate limit, and swallow any lock error so it never aborts login.
       await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      purgeAuthCookies();
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
@@ -156,6 +162,7 @@ export default function LoginPage() {
     // Purge any stale/revoked session first (see handleLogin) so its background
     // token refresh doesn't hold the auth lock and block the OAuth redirect.
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    purgeAuthCookies();
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -167,6 +174,7 @@ export default function LoginPage() {
 
   async function handleFacebookLogin() {
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    purgeAuthCookies();
     await supabase.auth.signInWithOAuth({
       provider: "facebook",
       options: { redirectTo: callbackUrlWithNext(window.location.origin, rawNext) },

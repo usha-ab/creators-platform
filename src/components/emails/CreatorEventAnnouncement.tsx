@@ -9,6 +9,8 @@ interface CreatorEventAnnouncementProps {
   eventDate?: Date;
   location?: string;
   eventUrl: string;
+  /** Avslutalänk för följare utan konto. Kontoföljare styr i inställningarna. */
+  unsubscribeUrl?: string;
   /** Translator for the `emails` namespace, in the recipient's language. */
   t: Translate;
   locale: Locale;
@@ -37,6 +39,7 @@ export default function CreatorEventAnnouncement({
   eventUrl,
   t,
   locale,
+  unsubscribeUrl,
 }: CreatorEventAnnouncementProps) {
   return (
     <html>
@@ -66,7 +69,7 @@ export default function CreatorEventAnnouncement({
                         padding: "32px 28px",
                       }}>
                         <p style={{ fontSize: 18, fontWeight: 600, color: "#fafaf9", margin: "0 0 8px" }}>
-                          {t("greetingExcited", { name: followerName })}
+                          {followerName ? t("greetingExcited", { name: followerName }) : t("greetingNoName")}
                         </p>
                         <p style={{ fontSize: 14, color: "#6b6b6b", margin: "0 0 24px", lineHeight: 1.6 }}>
                           {t("creatorEventIntro", { creator: creatorName })}
@@ -122,7 +125,7 @@ export default function CreatorEventAnnouncement({
                     <tr>
                       <td style={{ padding: "24px 0", textAlign: "center" }}>
                         <p style={{ fontSize: 11, color: "#3f3f3f", margin: 0 }}>
-                          {t("creatorEventFooter", { creator: creatorName })}
+                          {t("creatorEventFooter", { creator: creatorName })}{unsubscribeUrl ? <>{" "}<a href={unsubscribeUrl} style={{ color: "#c8a445" }}>{t("creatorEventUnsubscribe")}</a></> : null}
                         </p>
                       </td>
                     </tr>

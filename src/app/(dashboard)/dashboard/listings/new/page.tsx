@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { creatorSeriesOptions } from "@/lib/passes/series-options";
 import { ArrowLeft } from "lucide-react";
 import { redirect } from "next/navigation";
 import ListingForm from "../listing-form";
@@ -29,6 +30,8 @@ export default async function NewListingPage() {
     : { data: null };
   const creatorSubcategory = (profile as { creator_subcategory?: string | null } | null)?.creator_subcategory ?? null;
 
+  const seriesOptions = user ? await creatorSeriesOptions(supabase, user.id) : [];
+
   return (
     <>
       <div className="mb-8">
@@ -46,7 +49,7 @@ export default async function NewListingPage() {
       </div>
 
       <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 sm:p-8">
-        <ListingForm action={createListing} creatorSubcategory={creatorSubcategory} />
+        <ListingForm action={createListing} creatorSubcategory={creatorSubcategory} seriesOptions={seriesOptions} />
       </div>
     </>
   );

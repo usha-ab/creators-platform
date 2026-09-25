@@ -1,7 +1,10 @@
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 
+import { privatePage } from "@/lib/seo/metadata";
+
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Radering av data — Usha Platform", ...privatePage() };
 
 export default async function DataDeletionStatusPage({
   params,

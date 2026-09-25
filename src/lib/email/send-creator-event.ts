@@ -15,6 +15,10 @@ interface SendCreatorEventParams {
   eventUrl: string;
   /** Follower's account, so the mail matches the language they read the app in. */
   followerId?: string | null;
+  /** Följare utan konto: avslutalänk i mejlet. */
+  unsubscribeUrl?: string;
+  /** Språk sparat vid följningen (följare utan konto). */
+  preferredLocale?: string | null;
 }
 
 export async function sendCreatorEventEmail({
@@ -26,12 +30,14 @@ export async function sendCreatorEventEmail({
   location,
   eventUrl,
   followerId,
+  unsubscribeUrl,
+  preferredLocale,
 }: SendCreatorEventParams): Promise<void> {
   try {
     const resend = getResend();
-    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: followerId, email: to }));
+    const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: followerId, email: to, preferred: preferredLocale }));
     const html = await renderEmailToHtml(
-      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl, t, locale })
+      createElement(CreatorEventAnnouncement, { followerName, creatorName, eventTitle, eventDate, location, eventUrl, unsubscribeUrl, t, locale })
     );
 
     const { error } = await resend.emails.send({

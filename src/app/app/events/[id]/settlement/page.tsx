@@ -7,6 +7,7 @@ import { ArrowLeft, Receipt } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getCreatorCommissionRate } from "@/lib/stripe/commission";
 import { aggregateEventBookings } from "@/lib/settlements/aggregate";
+import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { splitEventRevenue } from "@/lib/settlements/split";
 
 // Organizer settlement / payout report for one event. Read-only: it reconciles
@@ -38,12 +39,16 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
 
   const { data: bookings } = await supabase
     .from("bookings")
-    .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count")
+    .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
     .eq("listing_id", listing.id)
     .eq("booking_type", "ticket");
 
+  // Inlösta klipp på seriekort räknas som biljetter värda 1/N av kortet, så
+  // att kvällens delning med lokalen inte missar dem.
+  const passRows = await passRedemptionRows(createAdminClient(), listing.id);
+
   const { ticketsSold, grossOre, platformFeeOre, refundedOre, refundedCount } =
-    aggregateEventBookings(bookings ?? [], commissionRate);
+    aggregateEventBookings([...(bookings ?? []), ...passRows], commissionRate);
 
   // Avtalad delning med en samarbetspartner, om evenemanget har en. De allra
   // flesta har ingen, och då ser sidan ut precis som förut.

@@ -252,7 +252,7 @@ export default function BookingForm({
   const [attendees, setAttendees] = useState<{ name: string; dietary: string }[]>([]);
   // If listing has a fixed date/time, use it directly (no calendar needed)
   const hasFixedDate = !!listing.event_date;
-  const isDancePackage = listing.listing_type === "dance_package";
+  const isPackage = listing.listing_type === "package";
   const isB2BOffering = listing.listing_type === "b2b_offering";
   const [selectedDate, setSelectedDate] = useState<string | null>(listing.event_date ?? null);
   const [selectedTime, setSelectedTime] = useState<string | null>(
@@ -288,9 +288,9 @@ export default function BookingForm({
   const maxGuests = listing.max_guests ?? 99;
 
   // Build scheduled_at:
-  // - dance_package: no specific datetime — use purchase moment
+  // - package (klippkort): no specific datetime — use purchase moment
   // - everything else: from selected date + time (if both chosen)
-  const scheduledAt = isDancePackage
+  const scheduledAt = isPackage
     ? new Date().toISOString()
     : selectedDate && selectedTime
       ? new Date(`${selectedDate}T${selectedTime}`).toISOString()
@@ -431,7 +431,7 @@ export default function BookingForm({
     });
   }
 
-  const hasDateTime = hasFixedDate || isDancePackage ? true : (selectedDate && selectedTime);
+  const hasDateTime = hasFixedDate || isPackage ? true : (selectedDate && selectedTime);
 
   return (
     <>
@@ -549,7 +549,7 @@ export default function BookingForm({
                       </div>
                     </div>
                   </div>
-                ) : isDancePackage ? (
+                ) : isPackage ? (
                   <div className="rounded-xl border border-[var(--usha-gold)]/20 bg-[var(--usha-gold)]/5 p-4 text-sm">
                     <p className="font-semibold">{t("booking.dancePackageTitle")}</p>
                     <p className="mt-1 text-xs text-[var(--usha-muted)]">

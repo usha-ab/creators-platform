@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import { Calendar, MapPin, Clock, QrCode, X, Ticket, User, CheckCircle2, Maximize2, ScanLine } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { useSubscription } from "@/lib/subscription/context";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackPurchase } from "@/lib/analytics";
+import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import Image from "next/image";
 import QRCode from "qrcode";
 import { ShareEventButton } from "@/components/share-event-button";
@@ -223,7 +224,31 @@ export function TicketsContent({ bookings, appleWallet, googleWallet, canScan }:
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast.success(t("toastPurchasedTitle"), t("toastPurchasedBody"));
-      trackEvent("booking_complete", { source: "ticket-checkout" });
+      // Köpet rapporteras från bokningen som faktiskt skapades, inte från
+      // adressen: beloppet blir det betalda och transaction_id blir bokningens
+      // id, så en omladdning av sidan inte räknas som ett andra köp.
+      const senaste = [...bookings].sort(
+        (a, b) => new Date(b.scheduled_at).getTime() - new Date(a.scheduled_at).getTime()
+      )[0];
+      if (senaste) {
+        trackPurchase({
+          transaction_id: senaste.id,
+          value: (senaste.amount_paid ?? 0) / 100,
+          currency: "SEK",
+          items: [
+            {
+              item_id: senaste.listing_id ?? senaste.id,
+              item_name: senaste.listings?.title ?? t("bookingFallback"),
+              item_category: senaste.listings?.listing_type === "package" ? "pass" : "ticket",
+              price: (senaste.amount_paid ?? 0) / 100,
+              quantity: senaste.guest_count ?? 1,
+            },
+          ],
+        });
+        if (senaste.listings?.listing_type === "package") {
+          trackEvent(ANALYTICS_EVENTS.passPurchase, { listing: senaste.listing_id ?? "" });
+        }
+      }
       window.history.replaceState({}, "", "/app/tickets");
     }
     // Deep-link straight to a ticket's QR (e.g. after purchase): /app/tickets?show=<id>

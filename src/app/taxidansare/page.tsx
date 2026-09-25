@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Music, ShieldCheck, Wallet, Calendar, GraduationCap, MapPin } from "lucide-react";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -26,7 +26,7 @@ export default async function TaxiDancerLandingPage() {
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
-      <Nav />
+      <SiteNav />
 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[var(--usha-border)]">

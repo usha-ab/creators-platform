@@ -28,6 +28,7 @@ export function BuyTicketCta({
   price,
   isLoggedIn = false,
   hasTicketTypes,
+  fromPrice = false,
   className,
 }: {
   listingId: string;
@@ -36,6 +37,8 @@ export function BuyTicketCta({
   isLoggedIn?: boolean;
   /** Whether the event has price tiers. Only `false` (known single-price) enables the fast path. */
   hasTicketTypes?: boolean;
+  /** Priset är det lägsta av flera — knappen ska säga "från", inte lova ett pris. */
+  fromPrice?: boolean;
   className?: string;
 }) {
   const router = useRouter();
@@ -107,7 +110,9 @@ export function BuyTicketCta({
         }
       >
         <Ticket size={13} />
-        {isFree ? t("freeTicket") : t("buyTicket", { price: price! })}
+        {isFree
+          ? t("freeTicket")
+          : t(fromPrice ? "buyTicketFrom" : "buyTicket", { price: price! })}
       </button>
 
       {sheet && (

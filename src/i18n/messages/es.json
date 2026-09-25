@@ -46,6 +46,7 @@
     "switchToDark": "Cambiar a modo oscuro"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Herramientas",
     "favorites": "Favoritos",
     "home": "Inicio",
@@ -141,7 +142,8 @@
     "p1": "Creemos que los mejores momentos ocurren cuando las personas se encuentran de verdad — en el movimiento, en el juego y al crear juntas. Usha Platform reúne a creadores, experiencias y participantes en un solo lugar, donde la pasión se une a la profesionalidad y cada reserva se siente segura. Todos los creadores están verificados con BankID y todos los pagos se gestionan de forma segura, para que puedas centrarte en lo que de verdad importa: la experiencia.",
     "p2": "Usha fue fundada por Pablo Acosta, que trabaja en la intersección entre el baile, la tecnología y la creación de comunidad. La visión es sencilla: construir un lugar donde la creatividad pueda florecer, el talento pueda verse y las personas puedan acercarse.",
     "roadmapTitle": "Hacia dónde nos dirigimos",
-    "p3": "Estamos construyendo paso a paso, con experiencias reales desde el primer día. Este verano empezamos con The Kiz Lab — entrenamiento de baile abierto cada semana en Estocolmo. A partir de ahí crecemos hacia fiestas mensuales recurrentes y, más adelante, un festival anual que reúna a toda la comunidad.",
+    "p3": "Estamos construyendo paso a paso, con experiencias reales desde el primer día. La base son noches recurrentes en Estocolmo — entrenamiento de baile abierto cada semana, donde todos son bienvenidos sin importar el nivel. A partir de ahí crecemos hacia fiestas mensuales y, más adelante, un festival anual que reúna a toda la comunidad.",
+    "p3Link": "Mira qué está pasando ahora →",
     "closing": "Esto es solo el principio. Te damos la bienvenida a acompañarnos desde el comienzo.",
     "tagline": "Usha Platform — para la expresión humana."
   },
@@ -307,7 +309,9 @@
     "editPrefs": "Editar preferencias"
   },
   "profile": {
+    "partner": "Programa de partners",
     "editProfile": "Editar perfil",
+    "viewMyPage": "Ver mi página",
     "payouts": "Pagos",
     "language": "Idioma",
     "myPlan": "Mi plan y facturación",
@@ -517,9 +521,17 @@
     "businessIndividualDesc": "Vendo en mi propio nombre, sin número de organización",
     "businessCompany": "Empresa",
     "businessCompanyDesc": "Facturo a través de una empresa con número de organización",
-    "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde."
+    "businessTypeNote": "Las empresas pueden verificar su nº de organización y aparecer como vendedor con el número en el recibo. Puedes cambiarlo más tarde.",
+    "signupCreditTitle": "{amount} kr para cuentas nuevas",
+    "signupCreditNote": "Para usar en una compra desde {minSpend} kr. Válido durante 12 meses.",
+    "marketingConsent": "Sí, quiero recibir correos sobre ofertas y novedades de Usha. Puedes cambiarlo cuando quieras en los ajustes."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "Qué pasa",
+      "sub": "Próximas noches, cursos y servicios.",
+      "seeAll": "Ver todo"
+    },
     "meta": {
       "title": "Usha Platform — Donde se encuentran creadores, espacios y público",
       "description": "El ciclo que mantiene en marcha la vida creativa de Suecia: los creadores encuentran trabajo, los espacios llenan su calendario y el público descubre experiencias. Con la seguridad de BankID y Stripe.",
@@ -534,7 +546,7 @@
       "marketplace": "Marketplace",
       "openApp": "Abrir app",
       "downloadApp": "Descargar app",
-      "getStarted": "Empezar",
+      "getStarted": "Crear cuenta",
       "menuAriaLabel": "Menú",
       "login": "Iniciar sesión",
       "forCreators": "Creadores",
@@ -542,7 +554,8 @@
       "forAudience": "Público",
       "shop": "Tienda",
       "sellTickets": "Vender entradas",
-      "homeAriaLabel": "Usha Platform – inicio"
+      "homeAriaLabel": "Usha Platform – inicio",
+      "calendar": "Calendario"
     },
     "install": {
       "title": "Instala Usha Platform",
@@ -569,10 +582,10 @@
       "eventsCta": "Ver eventos"
     },
     "ecosystem": {
-      "title": "Tres pilares, un",
-      "titleHighlight": "ecosistema",
-      "subtitle": "Los creadores verificados con BankID construyen la oferta. Las experiencias ofrecen los espacios. Los clientes descubren y reservan con confianza. Todos se impulsan mutuamente.",
-      "loopMessage": "Más creadores atraen más clientes. Más clientes atraen más experiencias. El ciclo que impulsa el crecimiento.",
+      "title": "Cómo encaja",
+      "titleHighlight": "todo",
+      "subtitle": "Creadores verificados con BankID crean la oferta. Los espacios ceden sus salas. El público descubre y reserva con seguridad. Cada parte refuerza a las demás.",
+      "loopMessage": "Más creadores atraen a más público. Más público atrae a más espacios. El ciclo que impulsa el crecimiento.",
       "creators": {
         "title": "Creadores",
         "desc": "Instructores de baile, fotógrafos, músicos, diseñadores: talentos creativos que construyen su negocio.",
@@ -582,7 +595,7 @@
         "detail4": "Pagos seguros con Stripe y estadísticas de ingresos"
       },
       "experiences": {
-        "title": "Experiencias",
+        "title": "Espacios",
         "desc": "Restaurantes, salas de conciertos, spas, discotecas y centros de retiro: espacios que crean momentos inolvidables.",
         "detail1": "Crea eventos y vende entradas con códigos QR",
         "detail2": "Escanea entradas y controla la asistencia en la entrada",
@@ -591,7 +604,7 @@
         "detail5": "Invita a tu personal y reparte partes del local — sin ceder las finanzas"
       },
       "customers": {
-        "title": "Clientes",
+        "title": "Público",
         "desc": "Personas que quieren descubrir talentos creativos y experiencias verificados con BankID, y reservarlos directamente.",
         "detail1": "Descubre creadores y experiencias verificados con BankID",
         "detail2": "Reserva directamente con fecha y hora: pago seguro con Stripe",
@@ -780,7 +793,12 @@
       "upplevelsePremium2": "3 % de comisión (en lugar del 15 %)",
       "upplevelsePremium3": "Máxima visibilidad + destacado",
       "upplevelsePremium4": "Sincronización con Facebook",
-      "upplevelsePremium5": "Soporte dedicado"
+      "upplevelsePremium5": "Soporte dedicado",
+      "subtitleVenue": "Recibe a creadores, llena tus noches y mantén las cuentas en un solo sitio. El local pone las condiciones; la plataforma se encarga de las entradas, el registro y la liquidación.",
+      "subtitleCustomer": "La membresía es para quien sale a menudo: descuento en las reservas, acceso anticipado a las entradas y todo el programa en tu calendario.",
+      "publikFreeDesc": "Todo lo necesario para asistir",
+      "publikGoldDesc": "Para quien sale a menudo",
+      "publikPremiumDesc": "Para quien nunca se lo pierde"
     },
     "faq": {
       "title": "Preguntas y",
@@ -804,7 +822,9 @@
       "installLead": "O instala la app directamente"
     },
     "footer": {
+      "partner": "Programa de partners",
       "description": "Creadores, experiencias y clientes, unidos en una sola plataforma.",
+      "discover": "Descubrir",
       "platform": "Plataforma",
       "marketplace": "Marketplace",
       "pricing": "Precios",
@@ -824,6 +844,10 @@
       "venueDesc": "Llena tu calendario con creadores seleccionados",
       "audienceLabel": "Quiero vivir experiencias",
       "audienceDesc": "Descubre experiencias cerca de ti"
+    },
+    "signupCta": {
+      "title": "Crea una cuenta: es gratis",
+      "description": "Una cuenta sirve para todo: comprar entradas, seguir a organizadores y vender lo tuyo cuando quieras."
     },
     "homeCta": {
       "title": "Encuentra tu lugar en el ciclo",
@@ -986,6 +1010,171 @@
     "followerCount": "{count} seguidores",
     "listingCount": "{count, plural, one {# servicio} other {# servicios}}"
   },
+  "calendar": {
+    "metaTitle": "Calendario – Usha Platform",
+    "metaDescription": "Próximos eventos, clases y noches en Usha Platform, día a día.",
+    "title": "Calendario",
+    "intro": "{count, plural, one {# evento próximo} other {# eventos próximos}}",
+    "navFeed": "Feed",
+    "navExperiences": "Experiencias",
+    "navCreateProfile": "Crear perfil",
+    "today": "Hoy",
+    "thisWeek": "Esta semana",
+    "nextWeek": "La próxima semana",
+    "later": "Más adelante",
+    "every": "Cada {weekday}",
+    "occurrences": "{count} fechas",
+    "next": "Próximo {date}",
+    "free": "Gratis",
+    "price": "{price} kr",
+    "empty": "Nada programado por ahora. Vuelve pronto.",
+    "open": "Abrir"
+  },
+  "followUs": {
+      "heading": "Síguenos",
+      "facebook": "Usha en Facebook",
+      "instagram": "Usha en Instagram",
+      "tiktok": "Usha en TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Recibe un correo cuando {name} publique la próxima fecha",
+      "placeholder": "tu@correo.com",
+      "button": "Seguir por correo",
+      "pending": "Casi listo: confirma en el correo que acabamos de enviar.",
+      "active": "Sigues a {name} por correo.",
+      "failed": "No funcionó. Inténtalo de nuevo.",
+      "ticketQuestion": "¿Quieres un correo cuando {name} publique la próxima fecha?",
+      "ticketExplain": "Un correo por cada fecha nueva a {email}. Cancela cuando quieras desde el enlace del correo.",
+      "yes": "Sí, escríbeme",
+      "no": "No, gracias",
+      "unsubscribed": "No recibirás correos sobre nuevas fechas de {name}.",
+      "change": "Cambiar",
+      "confirmTitle": "Listo: sigues a {name}",
+      "confirmBody": "Te escribiremos cuando se publique la próxima fecha. Cancela cuando quieras desde el enlace de cada correo.",
+      "confirmInvalidTitle": "Este enlace ya no es válido",
+      "confirmInvalidBody": "Pide una nueva confirmación desde la página del evento.",
+      "unsubTitle": "Te has dado de baja",
+      "unsubBody": "No más correos sobre nuevas fechas. Puedes volver a seguir desde la página del evento cuando quieras.",
+      "unsubInvalidTitle": "Enlace no reconocido",
+      "unsubInvalidBody": "Comprueba que el enlace completo del correo llegó bien.",
+      "toProfile": "Ir a {name}",
+      "metaConfirm": "Confirmar seguimiento – Usha Platform",
+      "metaUnsub": "Darse de baja – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Programa de partners – Usha Platform",
+      "title": "Programa de partners",
+      "intro": "Comparte tu enlace. Ganas el {share} % de los ingresos de Usha por todo lo que tus referidos compren o vendan durante doce meses, más tiempo premium y crédito.",
+      "yourLink": "Tu enlace",
+      "linkHint": "El enlace funciona en todas las páginas de usha.se: añade ?ref=tu código a cualquier dirección, por ejemplo The Lab:",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "share": "Compartir",
+      "shareTitle": "Usha Platform",
+      "shareText": "Descubre Usha Platform: clases, noches y entradas en un solo lugar.",
+      "qrHint": "El código QR apunta a tu enlace. Muéstralo en la puerta o en un cartel.",
+      "statClicks": "Clics",
+      "statSignups": "Registros",
+      "statPurchases": "Compras",
+      "statEarned": "Ganado",
+      "statPaid": "Pagado",
+      "statPremium": "Tiempo premium",
+      "kr": "{amount} kr",
+      "days": "{count} días",
+      "termsHeading": "Cómo funciona",
+      "terms1": "El {share} % de los ingresos de Usha por todo lo que tus referidos compren o vendan, durante doce meses desde el registro.",
+      "terms2": "{days} días de premium cuando un creador o sala que referiste publica su primera oferta, y lo mismo para esa persona.",
+      "terms3": "{amount} kr de crédito cuando un cliente que referiste hace su primera compra.",
+      "terms4": "Se cuenta cuando la compra está pagada. Las compras reembolsadas se descuentan.",
+      "terms5": "Sin recompensa por tus propias compras o tus propias cuentas.",
+      "payoutNote": "Las empresas cobran trimestralmente por Stripe a partir de 200 kr; si no, en crédito. Los particulares reciben siempre crédito para gastar en la caja. Las partes se aprueban 14 días después de la compra.",
+      "rewardsHeading": "Tus recompensas",
+      "rewardsEmpty": "Nada todavía. Comparte el enlace y aparecerá aquí.",
+      "kind": {
+          "credit": "Crédito",
+          "premium_days": "Tiempo premium",
+          "commission_share": "Parte de ingresos"
+      },
+      "status": {
+          "pending": "pendiente",
+          "approved": "aprobada",
+          "paid": "pagada",
+          "void": "anulada"
+      }
+  },
+  "adminPartners": {
+      "colStripe": "Transferencia Stripe",
+      "title": "Programa de partners",
+      "intro": "Quién ha referido qué, qué está pendiente y qué se ha pagado.",
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "paid": "Pagado",
+      "void": "Anulado",
+      "premiumDays": "Días premium",
+      "runDaily": "Ejecutar el trabajo diario ahora",
+      "runPayout": "Ejecutar pago trimestral",
+      "runPayoutDry": "Simular pago trimestral",
+      "topPartners": "Partners",
+      "latestRewards": "Últimas recompensas",
+      "payouts": "Pagos",
+      "colPartner": "Partner",
+      "colReferred": "Referidos",
+      "colRewards": "Recompensas",
+      "colEarned": "Ganado",
+      "colDate": "Fecha",
+      "colKind": "Tipo",
+      "colAmount": "Importe",
+      "colStatus": "Estado",
+      "colPeriod": "Periodo",
+      "empty": "Nada todavía.",
+      "approve": "Aprobar",
+      "voidAction": "Anular",
+      "noticeDaily": "Trabajo diario ejecutado: {n} filas afectadas.",
+      "noticePayout": "Pago ejecutado: {n} partners.",
+      "noticeDryRun": "Simulación hecha: {n} partners habrían cobrado.",
+      "noticeVoid": "La recompensa está anulada.",
+      "noticeApproved": "La parte está aprobada.",
+      "kind_credit": "Crédito",
+      "kind_premium_days": "Tiempo premium",
+      "kind_commission_share": "Parte de ingresos",
+      "status_pending": "pendiente",
+      "status_approved": "aprobada",
+      "status_paid": "pagada",
+      "status_void": "anulada",
+      "payoutStatus_dry_run": "simulación",
+      "payoutStatus_paid": "pagado",
+      "payoutStatus_credited": "como crédito",
+      "payoutStatus_failed": "fallido"
+  },
+  "partnerPublic": {
+      "metaTitle": "Programa de partners – Usha Platform",
+      "metaDescription": "Gana hablando de Usha: el 30 % de los ingresos de Usha por todo lo que tus referidos compren o vendan durante doce meses, tiempo premium y crédito.",
+      "eyebrow": "Usha Partner",
+      "title": "Habla de Usha. Llévate el {share} % de lo que ganamos con ello.",
+      "intro": "Tu enlace funciona en todas las páginas de usha.se. Quien haga clic y se registre, o compre como invitado, es tuyo durante doce meses. Gratis, sin mínimos.",
+      "cta": "Crea una cuenta y consigue tu enlace",
+      "ctaLoggedIn": "Ir a tu página de partner",
+      "step1Title": "Comparte tu enlace",
+      "step1Body": "Consigue el enlace en tu página de partner y ponlo en tu bio, en una publicación o en un cartel. Funciona en todas las páginas, por ejemplo directamente en una noche que te guste.",
+      "step2Title": "El {share} % de los ingresos de Usha",
+      "step2Body": "Por todo lo que tus referidos compren o vendan durante doce meses: la comisión en ventas de terceros, el diez por ciento del precio de la entrada en las noches propias de Usha.",
+      "step3Title": "{days} días de premium",
+      "step3Body": "Cuando un creador o sala que referiste publica su primera oferta, los dos recibís un mes de premium. La primera compra de un cliente referido te da {amount} kr de crédito.",
+      "rulesHeading": "Reglas",
+      "rule1": "Las recompensas cuentan cuando la compra está pagada. Los reembolsos se descuentan.",
+      "rule2": "Las empresas cobran trimestralmente por Stripe a partir de 200 kr; si no, crédito. Los particulares reciben crédito para gastar.",
+      "rule3": "Nada por tus propias compras o cuentas. El abuso se anula.",
+      "rule4": "Las partes se aprueban 14 días después de la compra.",
+      "faqHeading": "Preguntas",
+      "faq1Q": "¿Tengo que vender algo yo?",
+      "faq1A": "No. Cualquiera con cuenta puede ser partner. Compartes un enlace; el resto ocurre en la plataforma.",
+      "faq2Q": "¿Cómo cobro?",
+      "faq2A": "Si tienes una empresa con cuenta de Stripe conectada, la parte se paga trimestralmente a partir de 200 kr. Si no, se convierte en crédito que usas en la caja.",
+      "faq3Q": "¿Y si alguien que referí devuelve una compra?",
+      "faq3A": "La recompensa de esa compra se anula. Por eso las partes se aprueban 14 días después de la compra.",
+      "faq4Q": "Estoy fuera de Suecia, ¿puedo participar?",
+      "faq4A": "Sí, como partner. Si además quieres vender en la plataforma, configuramos tu cuenta de vendedor personalmente, ya que publicar requiere hoy BankID sueco."
+  },
   "experiences": {
     "metaTitle": "Experiencias – Usha Platform",
     "metaDescription": "Explora experiencias creativas, eventos y servicios cerca de ti. Baile, música, fotografía y más.",
@@ -995,8 +1184,11 @@
     "navCreateProfile": "Crear perfil",
     "title": "Experiencias",
     "countInSweden": "{count} experiencias por toda Suecia",
+    "countInCity": "{count} experiencias en {city}",
     "filterAll": "Todas",
     "allCities": "Todas las ciudades",
+    "whenUpcoming": "Próximas",
+    "whenPast": "Anteriores",
     "sortDate": "Fecha",
     "sortPriceAsc": "Precio (más bajo)",
     "sortPriceDesc": "Precio (más alto)",
@@ -1009,12 +1201,31 @@
     "seoCategoryInCity": "{category} en {city}",
     "emptyCreateFirst": "¿Eres creador? Crea aquí la primera experiencia."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Evento – Usha Platform",
+    "backTo": "Volver a {name}",
+    "creatorFallbackLower": "el creador",
+    "creatorFallback": "Creador",
+    "free": "Gratis",
+    "aboutHeading": "Sobre el evento",
+    "includedHeading": "Qué incluye",
+    "amenitiesHeading": "Comodidades",
+    "ownerPreview": "Vista previa — así ven la página los visitantes",
+    "instructorsHeading": "Reserva un instructor en el lugar",
+    "instructorFallback": "Instructor",
+    "thatIsYou": "Eres tú"
+  },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# fecha más} other {# fechas más}}",
+    "book": "Reservar"
+  },
   "listingCard": {
     "badgePromoted": "Destacado",
     "badgePopular": "Popular",
     "badgeBookings": "{count} reservas",
     "free": "Gratis",
     "price": "{price} kr",
+    "fromPrice": "Desde {price} kr",
     "carouselPromoted": "Destacado",
     "carouselMoreInfo": "Más información →"
   },
@@ -1032,6 +1243,7 @@
     "wellness": "Bienestar"
   },
   "seoFooter": {
+    "partner": "Programa de partners",
     "experiencesHeading": "Experiencias",
     "creatorsHeading": "Creadores",
     "categoriesHeading": "Categorías",
@@ -1063,6 +1275,9 @@
   },
   "creatorProfile": {
     "metaTitleFallback": "Creador – Usha Platform",
+    "share": "Compartir perfil",
+    "shareText": "Mira a {name} en Usha",
+    "previewBanner": "Vista previa — este perfil aún no es público. Solo tú y el administrador de Usha podéis verlo.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} en Usha Platform",
@@ -1086,7 +1301,15 @@
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} invitados"
     },
+    "coaching": {
+      "heading": "Coaching",
+      "onLab": "Coaching en The Lab",
+      "onLabHint": "Compra minutos con {name} durante la próxima noche abierta. Se paga aquí, se usa en el lugar.",
+      "nextNight": "Próxima sesión: {date}",
+      "itsYou": "Este eres tú."
+    },
     "events": {
+      "passes": "Bonos",
       "heading": "Eventos",
       "seeCalendar": "Ver calendario",
       "upcoming": "Próximos",
@@ -1353,9 +1576,11 @@
       "canvasAriaFallback": "perfil",
       "copied": "Copiado",
       "copyLink": "Copiar enlace",
+      "preview": "Vista previa",
       "download": "Descargar como PNG",
       "generateError": "No se pudo generar el código QR",
-      "copyError": "No se pudo copiar el enlace"
+      "copyError": "No se pudo copiar el enlace",
+      "hiddenNoQr": "El código QR está desactivado mientras tu perfil está oculto. El enlace de abajo contiene una clave secreta: compártelo con personas, no en carteles."
     },
     "instagram": {
       "title": "Importar de Instagram",
@@ -1566,6 +1791,9 @@
     "toastEarlyBirdError": "Falló",
     "toastGenericError": "Algo salió mal",
     "duplicate": "Duplicar",
+    "dragHandle": "Arrastra para reordenar",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
     "toastDuplicated": "Copia creada como borrador",
     "toastDuplicateError": "No se pudo duplicar",
     "seriesBadge": "Serie",
@@ -1871,6 +2099,7 @@
     "date": "Fecha",
     "startTime": "Hora de inicio",
     "endTime": "Hora de finalización",
+    "endTimeHint": "Necesaria para que el calendario del visitante muestre la duración correcta.",
     "recurring": "Evento recurrente (serie)",
     "interval": "Intervalo",
     "intervalWeekly": "Cada semana",
@@ -1960,6 +2189,32 @@
     "ticketTypesPoolHelp": "¿Deben dos tipos de entrada compartir las mismas plazas? Dales el mismo nombre en el campo Grupo compartido y el mismo aforo."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Baile",
+        "subtitle": "Encuentra pareja de baile",
+        "firstInPool": "Todavía no se ha unido nadie más que baile. Invita a tus amigos del baile y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra tu pareja de baile en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "traning": {
+        "label": "Entrenamiento",
+        "subtitle": "Encuentra compañero de entrenamiento",
+        "firstInPool": "Todavía no se ha unido nadie más que entrene. Invita a tus compañeros y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra tu compañero de entrenamiento en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "racket": {
+        "label": "Raqueta",
+        "subtitle": "Encuentra con quién jugar",
+        "firstInPool": "Todavía no se ha unido ningún otro jugador. Invita a quienes sueles jugar y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra con quién jugar en Usha: ¡únete a Compañeros de entrenamiento!"
+      },
+      "kropp": {
+        "label": "Cuerpo y mente",
+        "subtitle": "Encuentra con quién practicar",
+        "firstInPool": "Todavía no se ha unido nadie más. Invita a quienes sueles practicar y la lista se llenará: aparecerán aquí en cuanto se unan.",
+        "invite": "Encuentra con quién practicar en Usha: ¡únete a Compañeros de entrenamiento!"
+      }
+    },
     "title": "Compañeros de entrenamiento",
     "subtitle": "Encuentra pareja de práctica de baile",
     "tabSuggestions": "Sugerencias",
@@ -1968,7 +2223,7 @@
     "bankidGateDesc": "El grupo de compañeros es para personas verificadas — más seguro cuando quedáis para practicar. Verifícate con BankID para unirte.",
     "bankidGateCta": "Verificar con BankID",
     "onboardTitle": "Cuéntanos qué y cómo quieres practicar y te emparejamos con compañeros.",
-    "onboardStyles": "Estilos de baile",
+    "onboardStyles": "Actividades",
     "onboardRole": "Tu rol",
     "onboardAvailability": "¿Cuándo puedes practicar?",
     "onboardCity": "Ubicación",
@@ -1976,7 +2231,7 @@
     "onboardBio": "Sobre ti (opcional)",
     "onboardSave": "Unirme al grupo",
     "onboardSaving": "Guardando…",
-    "needStyle": "Elige al menos un estilo de baile",
+    "needStyle": "Elige al menos una actividad",
     "adult18": "Tengo 18 años o más y entiendo que quedo con otras personas bajo mi propia responsabilidad.",
     "needAdult": "Debes confirmar que tienes 18 años o más.",
     "saveError": "Algo salió mal. Inténtalo de nuevo.",
@@ -2040,6 +2295,11 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Entrada para la noche",
+    "passSessions": "{n} sesiones",
+    "passPerSession": "{price} kr/noche",
+    "passDiscount": "−{percent}% frente a taquilla",
+    "buyPass": "Comprar bono · {price} kr",
     "bankidVerified": "Verificado con BankID",
     "crewHeading": "Participantes",
     "dateComing": "Fecha por confirmar",
@@ -2047,6 +2307,8 @@
     "free": "Gratis",
     "freeTicket": "Consigue entrada gratis",
     "buyTicket": "Comprar entrada · {price} kr",
+    "ticketsFromCta": "Entradas desde {price} kr",
+    "buyTicketFrom": "Entradas desde {price} kr",
     "quickBuyTitle": "Confirma tu compra",
     "quickBuyConfirm": "Pagar {price} kr",
     "quickBuyCancel": "Cancelar",
@@ -2063,6 +2325,8 @@
     "releasesAt": "Disponible el {date}",
     "soldOut": "Agotado",
     "notReleased": "Aún no disponible",
+    "payAtVenueBadge": "Pago en la puerta",
+    "payAtVenueNote": "Este organizador aún no acepta pago en línea. Ven igualmente — paga en el lugar.",
     "createAccountNote": "Crearás una cuenta gratuita de Usha Platform en el mismo proceso",
     "waitlistLabel": "Lista de espera",
     "waitlistHeading": "Asegura tu lugar en la fila",
@@ -2116,7 +2380,10 @@
     "quantity": "Cantidad",
     "attendeeNamePlaceholder": "Nombre del invitado {n} (opcional)",
     "mapHeading": "Cómo llegar",
-    "openInMaps": "Abrir en Maps"
+    "addToCalendar": "Añadir al calendario",
+    "openInMaps": "Abrir en Maps",
+    "creditApplied": "Tu saldo de bienvenida de {amount} kr está aplicado",
+    "creditMinSpend": "Tienes {amount} kr de saldo de bienvenida — válido desde {min} kr"
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
@@ -2286,6 +2553,8 @@
     "ctaButton": "Empieza gratis"
   },
   "ticketPage": {
+    "passChip": "Bono · quedan {remaining} de {total}",
+    "passCovers": "Cada uso da acceso a: {covers}",
     "walletApple": "Añadir a Apple Wallet",
     "walletGoogle": "Guardar en Google Wallet",
     "canceled": "Esta reserva ha sido cancelada",
@@ -2353,6 +2622,7 @@
     "shareFormLocked": "Esta noche ya ha vendido entradas. Las condiciones no se pueden cambiar después — cambiaría lo que se debe por compras ya realizadas."
   },
   "scanPage": {
+    "passRemaining": "Quedan {n} sesiones en el bono",
     "title": "Escanear entradas",
     "subtitle": "Escanea el código QR o introduce el código de la entrada manualmente.",
     "gateMessage": "Mejora a Gold o Premium para escanear entradas.",
@@ -2392,7 +2662,9 @@
     "errOnlyOwnEvents": "Solo puedes escanear entradas de tus propios eventos.",
     "errCouldNotVerify": "No se pudo verificar la entrada",
     "errNetwork": "Error de red. Inténtalo de nuevo.",
-    "errNetworkShort": "Error de red"
+    "errNetworkShort": "Error de red",
+    "seats": "{n} plazas",
+    "statusWrongDate": "Fecha incorrecta: la entrada es para el {date}"
   },
   "terms": {
     "back": "Atrás",
@@ -2449,6 +2721,9 @@
     "s9BodyPost": "También tienes derecho a presentar una reclamación ante la Autoridad Sueca de Protección de la Privacidad (IMY)."
   },
   "scanApi": {
+    "passType": "Bono · {covers} · quedan {remaining} de {total}",
+    "passNoEventToday": "Hoy no hay noche de esta serie: el bono no se puede usar.",
+    "passUsedUp": "Todas las sesiones del bono están usadas.",
     "notLoggedIn": "Debes iniciar sesión",
     "invalidRequest": "Solicitud no válida",
     "missingBookingId": "Falta el ID de la reserva",
@@ -2507,6 +2782,8 @@
     "inviteFriends": "Invitar a amigos"
   },
   "toolsPage": {
+    "partnerLabel": "Programa de partners",
+    "partnerDesc": "Tu enlace, tus referidos y lo que han generado.",
     "homeLabel": "Inicio",
     "toolsLabel": "Herramientas",
     "openGigsLabel": "Trabajos",
@@ -2547,7 +2824,7 @@
     "searchLabel": "Buscar",
     "searchDesc": "Encontrar creadores",
     "trainingBuddiesLabel": "Compañeros de entrenamiento",
-    "trainingBuddiesDesc": "Encuentra un compañero de entrenamiento",
+    "trainingBuddiesDesc": "Encuentra compañero",
     "marketplaceLabel": "Mercado",
     "marketplaceDesc": "Explorar",
     "shopLabel": "Tienda",
@@ -2644,6 +2921,7 @@
     "title": "Mis Eventos",
     "statistics": "Estadísticas",
     "openEvents": "Eventos abiertos →",
+    "orderServices": "Ordenar servicios →",
     "activeCount": "{count} activos",
     "emptyTitle": "Aún no hay eventos",
     "emptyBody": "Crea tu primer evento para empezar",
@@ -2693,7 +2971,8 @@
     "seriesCount": "{count, plural, one {# fecha} other {# fechas}}",
     "showOccurrences": "Ver {count} más",
     "hideOccurrences": "Ocultar",
-    "badgePast": "Pasado"
+    "badgePast": "Pasado",
+    "sellAtDoor": "Vender en la entrada"
   },
   "calendarPage": {
     "dayMon": "Lun",
@@ -2719,13 +2998,15 @@
     "statusConfirmed": "Confirmada",
     "statusPending": "Pendiente",
     "availabilityDone": "Listo con la disponibilidad",
-    "availabilityMark": "Marcar disponibilidad",
-    "availabilityHint": "Toca una fecha para añadir franjas horarias. Verde = disponible.",
+    "availabilityMark": "Editar disponibilidad",
+    "availabilityUnmark": "Desmarcar disponibilidad",
+    "availabilityUnmarkHint": "Toca un día verde para quitar su disponibilidad.",
+    "availabilityHint": "Toca una fecha para añadir o quitar disponibilidad. Verde = disponible.",
     "legendBooking": "Reserva",
     "legendAvailable": "Disponible",
     "upcomingBookings": "Próximas reservas",
     "noUpcomingBookings": "No hay próximas reservas",
-    "allDayActive": "Todo el día (activo)",
+    "removeAllDay": "Quitar la disponibilidad",
     "markAllDay": "Marcar todo el día",
     "removeAllTimes": "Quitar todas las horas",
     "startTime": "Hora de inicio",
@@ -3314,6 +3595,12 @@
     "submit": "Publicar evento"
   },
   "listingForm": {
+    "passSeriesLabel": "Válido como entrada para la serie",
+    "passSeriesHint": "Marca cada serie que cubre el bono: el QR se escanea en la puerta, un uso por noche. Sin ninguna serie marcada, el bono se canjea a mano en la lista de reservas.",
+    "passCoversLabel": "Cada uso da acceso a",
+    "passCoversPlaceholder": "p. ej. Todo: practica + taller + social",
+    "passReferencePriceLabel": "Precio normal por noche (opcional)",
+    "passReferencePriceHint": "Lo que cuesta una noche suelta. Solo se usa para mostrar el descuento en porcentaje. Déjalo vacío para comparar con la entrada que se llama igual que el campo de arriba.",
     "uploadFailed": "Error al subir",
     "saveFailed": "No se pudo guardar el servicio",
     "savedToast": "Servicio guardado",
@@ -3325,13 +3612,9 @@
     "descriptionLabel": "Descripción",
     "descriptionPlaceholder": "Describe lo que incluye el servicio...",
     "listingTypeLabel": "Tipo de servicio",
-    "typeDancePackage": "Paquete de bailes (prepago — se canjea en un evento)",
     "typeCoachingSession": "Coaching (clase privada con horario)",
     "typeB2bOffering": "Evento B2B (el organizador reserva para una noche/evento)",
     "typeService": "Otro servicio",
-    "dancePackageHint": "El cliente paga por adelantado y canjea los bailes en un evento. No se requiere una fecha específica al reservar.",
-    "danceCountLabel": "Número de bailes en el paquete",
-    "danceCountPlaceholder": "p. ej. 5",
     "coachingSessionHint": "El cliente reserva un horario específico según tu disponibilidad en el calendario.",
     "b2bOfferingHint": "Los organizadores (locales, salones de baile, empresas de eventos) pueden reservarte para una noche o un evento específico. El precio que indiques es tu precio base — el organizador indica la fecha, la hora y el local al reservar.",
     "categoryLabel": "Categoría",
@@ -3354,7 +3637,15 @@
     "endTimeLabel": "Hora de fin",
     "saving": "Guardando...",
     "saveChanges": "Guardar cambios",
-    "createListing": "Crear servicio"
+    "createListing": "Crear servicio",
+    "typePackage": "Bono de sesiones",
+    "sessionCountLabel": "Número de sesiones",
+    "sessionCountHelp": "Por ejemplo 5 o 10. El comprador canjea una sesión cada vez.",
+    "sessionsRedeemed": "{redeemed} de {total} sesiones usadas",
+    "redeemSession": "Canjear una sesión",
+    "redeemedAll": "Todas las sesiones usadas",
+    "packageHint": "Vende un bono de varias sesiones. El comprador paga una vez y canjea una sesión cada vez.",
+    "sessionCountPlaceholder": "5"
   },
   "productsPage": {
     "back": "Volver",
@@ -3501,6 +3792,15 @@
     "siteOgDescription": "Crea eventos, vende entradas, escanea en la puerta y paga a tu equipo, todo en una app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Lugar – Usha Platform",
+      "metaDescription": "Experiencias y eventos en {name}.",
+      "metaDescriptionCity": "Experiencias y eventos en {name}, {city}.",
+      "navExperiences": "Experiencias",
+      "navMarketplace": "Marketplace",
+      "empty": "No hay experiencias en este lugar ahora mismo.",
+      "seeAll": "Ver todas las experiencias"
+    },
     "meta": {
       "title": "Espacios – Usha Platform",
       "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
@@ -3588,6 +3888,7 @@
     "view": "Ver",
     "free": "Gratis",
     "priceSek": "{price} SEK",
+    "priceFromSek": "Desde {price} SEK",
     "creator": "Creador",
     "viewProfile": "Ver perfil"
   },
@@ -3628,6 +3929,12 @@
     "refundedAmount": "Reembolsada {amount} kr"
   },
   "emails": {
+    "greetingNoName": "¡Hola!",
+    "creatorEventUnsubscribe": "¿No quieres más correos? Date de baja aquí.",
+    "followConfirmSubject": "Confirma que quieres seguir a {creator}",
+    "followConfirmIntro": "Pediste un correo cada vez que {creator} publique una nueva fecha en Usha Platform. Confirma con el botón de abajo.",
+    "followConfirmCta": "Sí, avísame de nuevas fechas",
+    "followConfirmFooter": "¿No lo pediste? Ignora este correo y no pasará nada.",
     "greeting": "Hola {name}:",
     "greetingExcited": "¡Hola {name}!",
     "labelDate": "Fecha: {value}",
@@ -3696,9 +4003,21 @@
     "trialWarning": "Si no mejoras tu plan, tu cuenta vuelve al plan gratuito y pierdes el acceso a funciones Premium como una comisión más baja, visibilidad destacada y soporte dedicado.",
     "trialCta": "Mejorar ahora",
     "broadcastFooter": "Recibes este correo porque te apuntaste a la lista de espera en Usha Platform.",
-    "broadcastUnsubscribe": "Darse de baja"
+    "broadcastUnsubscribe": "Darse de baja",
+    "creditSubject": "Tienes {amount} kr para usar",
+    "creditGreeting": "Hola {name}:",
+    "creditIntro": "Hemos añadido un saldo de bienvenida a tu cuenta. No necesitas ningún código: se descuenta automáticamente al pagar.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "en tu cuenta",
+    "creditHowHeading": "Cómo funciona",
+    "creditHowAutomatic": "Se descuenta automáticamente en compras de {min} kr o más.",
+    "creditHowOneOff": "Vale para una compra, no para varias.",
+    "creditHowValid": "Disponible hasta el {date}.",
+    "creditCta": "Mira lo que viene"
   },
   "adminPage": {
+    "partnersLabel": "Programa de partners",
+    "partnersDesc": "Referidos, recompensas y pagos.",
     "heading": "Admin",
     "subheading": "Herramientas que solo ven los administradores.",
     "backToApp": "Volver a la app",
@@ -3712,6 +4031,7 @@
     "accessDesc": "Da a los socios acceso a herramientas concretas."
   },
   "adminCreators": {
+    "previewProfile": "Ver el perfil tal como se muestra públicamente",
     "title": "Creadores: particular/empresa",
     "intro": "Busca a un creador y cambia si vende como empresa (verificación del n.º de empresa + n.º en el recibo).",
     "searchPlaceholder": "correo del creador",
@@ -3996,5 +4316,22 @@
       "title": "¿Te has atascado?",
       "body": "Escríbenos a pablo.acosta@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
     }
+  },
+  "entrance": {
+    "title": "Entrada",
+    "back": "Volver",
+    "pickTicket": "Elige una entrada para mostrar un código QR al invitado.",
+    "noTicketTypes": "Este evento no tiene entradas a la venta.",
+    "priceSek": "{price} kr",
+    "soldOut": "Agotado",
+    "qrAlt": "Código QR para {ticket}",
+    "guestScans": "El invitado escanea con su propio móvil y paga con Apple Pay, Google Pay o tarjeta.",
+    "otherTicket": "Elegir otra entrada",
+    "paidHeading": "Recién pagado",
+    "guest": "Invitado",
+    "seats": "{n} plazas",
+    "noPermission": "No tienes permiso para vender en la entrada de este evento.",
+    "loadError": "No se pudieron cargar las entradas.",
+    "connectionLost": "Sin conexión con el servidor."
   }
 }

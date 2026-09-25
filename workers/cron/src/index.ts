@@ -25,7 +25,38 @@ interface Env {
   APP_URL?: string;
 }
 
-/** Jobben, i den ordning de körs. Namnet används i larmmejlet. */
+/**
+ * Timmen i svensk lokaltid just nu.
+ *
+ * Workern kör i UTC, men "varje morgon kl. 08" betyder åtta på klockan i
+ * Stockholm — inte 08 UTC, och inte en timme som glider en gång i halvåret när
+ * sommartiden slår om. Genom att läsa lokal timme här i stället för att lägga
+ * en cron-trigger på 06:00 UTC blir jobbet rätt året runt utan att någon
+ * behöver komma ihåg att flytta det i oktober och mars.
+ */
+function svenskTimme(): number {
+  return Number(
+    new Intl.DateTimeFormat("sv-SE", {
+      timeZone: "Europe/Stockholm",
+      hour: "numeric",
+      hour12: false,
+    }).format(new Date())
+  );
+}
+
+/** Dag i månaden, svensk tid – för jobb som ska gå en gång per månad/kvartal. */
+function svenskDagIManaden(): number {
+  return Number(
+    new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Stockholm", day: "numeric" }).format(new Date())
+  );
+}
+
+/**
+ * Jobben, i den ordning de körs. Namnet används i larmmejlet.
+ *
+ * `atHour` betyder "bara den här timmen, svensk tid". Utan den körs jobbet
+ * varje hel timme som förut. `onDayOfMonth` begränsar dessutom till en dag.
+ */
 const JOBS = [
   { name: "booking-reminders-soon", desc: 'Påminnelse "börjar snart" (T-2h)' },
   { name: "creator-event-notify", desc: "Notis till följare om nya evenemang" },
@@ -37,6 +68,28 @@ const JOBS = [
   // det gör det inte om jobbet kör vid lunch. Körningen är idempotent
   // (UNIQUE(listing_id)), så att båda schemana pingar den är ofarligt.
   { name: "settlement-payouts", desc: "Avräkning mot partner för kvällar som varit" },
+  // Betanivåerna delades ut utan betalning och med slutdatum 2099. De bär
+  // påhittade Stripe-id, så ingen webhook kan nedgradera dem — utan det här
+  // jobbet löper de vidare efter betan utan att någon valt att betala. En gång
+  // per dygn räcker: en dags fördröjning på en nedgradering skadar ingen.
+  { name: "expire-comp-subscriptions", desc: "Nedgradering av gratis nivåer som gått ut", atHour: 4 },
+  // Nästa försäljning är det första riktiga testet av tvåflödesbygget: landar
+  // Ushas egna event verkligen direkt på plattformskontot? En gång per morgon
+  // räcker — larmet ska ge besked, inte pipa i realtid. Rutten samlar ihop allt
+  // sedan förra körningen, så inget missas av att den kör en gång per dygn.
+  // Första körningen sätter bara markören och skickar ingenting.
+  { name: "platform-sale-alert", desc: "Larm när en betalning landar på plattformskontot", atHour: 8 },
+  // Partnerprogrammet: kredit och premium-tid delas ut, andelar godkänns efter
+  // ångerfönstret, utgången premium återställs. En gång per natt räcker.
+  { name: "affiliate", desc: "Partnerprogrammets dagliga jobb (kredit, premium, godkännande)", atHour: 4 },
+  // Kvartalsutbetalningen: första dagen i kvartalet kl 05. Idempotent per
+  // partner och period, så att den råkar köra fler dagar är ofarligt.
+  { name: "affiliate?task=payout", desc: "Partnerprogrammets kvartalsutbetalning", atHour: 5, onDayOfMonth: 1 },
+  // Skyddsnät för det arvet inte fångar: en kväll som kopplas till lokalen
+  // efter att den skapats, eller vars avräkning ändras för hand. Går kl 06 så
+  // att beskedet finns innan avräkningen betalar ut dagens kvällar. Mejlar
+  // bara när något avviker.
+  { name: "settlement-gaps", desc: "Kvällar som inte följer en stående regel", atHour: 6 },
 ] as const;
 
 async function runJob(env: Env, path: string): Promise<{ ok: boolean; detail: string }> {
@@ -89,7 +142,13 @@ export default {
     ctx.waitUntil(
       (async () => {
         const failures: { name: string; desc: string; detail: string }[] = [];
+        const timme = svenskTimme();
+        const dagIManaden = svenskDagIManaden();
         for (const job of JOBS) {
+          const atHour = "atHour" in job ? job.atHour : undefined;
+          if (atHour !== undefined && atHour !== timme) continue;
+          const onDay = "onDayOfMonth" in job ? job.onDayOfMonth : undefined;
+          if (onDay !== undefined && onDay !== dagIManaden) continue;
           const res = await runJob(env, job.name);
           if (res.ok) console.log(`${job.name}: ${res.detail}`);
           else failures.push({ name: job.name, desc: job.desc, detail: res.detail });
@@ -102,6 +161,9 @@ export default {
   /**
    * Manuell körning för felsökning, skyddad av samma hemlighet som jobben.
    * Utan den kan man bara vänta på nästa hela timme för att se om schemat lever.
+   *
+   * Kör medvetet ALLA jobb, även de som är låsta till en viss timme. Poängen med
+   * den här vägen är att kunna prova ett jobb nu, inte att härma schemat.
    */
   async fetch(req: Request, env: Env): Promise<Response> {
     const auth = req.headers.get("authorization");

@@ -3,10 +3,12 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("about");
   return {
+    ...indexable("/om"),
     title: t("metaTitle"),
     description: t("metaDescription"),
     openGraph: {
@@ -44,7 +46,12 @@ export default async function AboutPage() {
 
           <section className="pt-2">
             <h2 className="mb-3 text-lg font-semibold text-[var(--usha-white)]">{t("roadmapTitle")}</h2>
-            <p>{t("p3")}</p>
+            <p>
+              {t("p3")}{" "}
+              <Link href="/upplevelser" className="text-[var(--usha-gold)] hover:underline">
+                {t("p3Link")}
+              </Link>
+            </p>
           </section>
 
           <p className="text-[var(--usha-white)]">{t("closing")}</p>

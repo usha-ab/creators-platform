@@ -1,5 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { sharedCookieOptions } from "./cookie-options";
+import { purgeAuthCookies } from "./auth-cookies";
 
 function makeClient() {
   return createBrowserClient(
@@ -21,5 +22,16 @@ let browserClient: ReturnType<typeof makeClient> | undefined;
 // the session, leaving the browser stuck retrying an invalid refresh token
 // (the /token 429 loop that locked users out).
 export function createClient() {
-  return (browserClient ??= makeClient());
+  if (!browserClient) {
+    browserClient = makeClient();
+    // När supabase-js ger upp en refresh (400 refresh_token_not_found) loggar
+    // den ut och raderar cookien — men bara i den domänvariant den känner
+    // till. En äldre host-only-kopia med samma namn överlever, läses först
+    // nästa varv, och loopen börjar om. Rensa båda varianterna här, utan
+    // nätverk, så att ett SIGNED_OUT faktiskt betyder utloggad.
+    browserClient.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") purgeAuthCookies();
+    });
+  }
+  return browserClient;
 }

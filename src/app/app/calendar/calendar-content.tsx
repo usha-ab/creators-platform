@@ -1,9 +1,9 @@
 "use client";
 
 import TimeSelect from "@/components/time-select";
-import { useState, useTransition, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Clock, Calendar, Check, Plus, Trash2, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/components/mobile/role-context";
 import { toggleAvailability, getAvailability, addTimeSlot, removeTimeSlot } from "./actions";
@@ -47,12 +47,15 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [availableSet, setAvailableSet] = useState<Set<string>>(new Set(initialAvailableDates));
   const [slotsMap, setSlotsMap] = useState<Record<string, { id: string; start_time: string | null; end_time: string | null }[]>>({});
-  const [editMode, setEditMode] = useState(false);
+  // Två lägen i stället för ett: "markera" väljer dagar och öppnar tidspanelen,
+  // "avmarkera" tar bort tillgängligheten direkt på den dag man trycker på.
+  // Borttagning låg tidigare gömd i panelen och hittades inte.
+  const [mode, setMode] = useState<"mark" | "unmark" | null>(null);
+  const editMode = mode !== null;
   // Flera datum kan redigeras samtidigt: att lägga samma tid på hela veckan
   // var annars ett klick per dag. Ett ensamt valt datum beter sig exakt som
   // förut, så den vanliga vägen blir inte krångligare av att flera är möjliga.
   const [editingDates, setEditingDates] = useState<string[]>([]);
-  const [isPending, startTransition] = useTransition();
 
   const showCreatorTools = isCreator || role === "creator" || role === "venue";
 
@@ -129,7 +132,22 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
   function handleDayClick(day: number) {
     const dateKey = getDateKey(day);
 
-    if (editMode && showCreatorTools && !isPast(day)) {
+    if (mode === "unmark" && showCreatorTools && !isPast(day)) {
+      if (!availableSet.has(dateKey)) return;
+      // Optimistiskt: dagen bleknar direkt, servern får hinna ikapp. Misslyckas
+      // den kommer dagen tillbaka när månaden läses om.
+      setAvailableSet((prev) => {
+        const next = new Set(prev);
+        next.delete(dateKey);
+        return next;
+      });
+      void (async () => {
+        await toggleAvailability(dateKey);
+        const res = await getAvailability(year, month + 1);
+        setSlotsMap(res.slots || {});
+        setAvailableSet(new Set(res.dates));
+      })();
+    } else if (mode === "mark" && showCreatorTools && !isPast(day)) {
       // Toggle this date in the selection
       setEditingDates((prev) =>
         prev.includes(dateKey) ? prev.filter((d) => d !== dateKey) : [...prev, dateKey]
@@ -195,23 +213,45 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
     <div className="space-y-6">
       {/* Availability toggle for creators */}
       {showCreatorTools && (
-        <button
-          onClick={() => setEditMode(!editMode)}
-          className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
-            editMode
-              ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-[var(--usha-white)]"
-          }`}
-        >
-          <Check size={16} />
-          {editMode ? t("availabilityDone") : t("availabilityMark")}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => {
+              setEditingDates([]);
+              setMode(mode === "mark" ? null : "mark");
+            }}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+              mode === "mark"
+                ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30"
+                : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-[var(--usha-white)]"
+            }`}
+          >
+            <Check size={16} />
+            {mode === "mark" ? t("availabilityDone") : t("availabilityMark")}
+          </button>
+          <button
+            onClick={() => {
+              setEditingDates([]);
+              setMode(mode === "unmark" ? null : "unmark");
+            }}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+              mode === "unmark"
+                ? "bg-red-500/20 text-red-400 ring-1 ring-red-500/30"
+                : "bg-[var(--usha-card)] text-[var(--usha-muted)] ring-1 ring-[var(--usha-border)] hover:text-[var(--usha-white)]"
+            }`}
+          >
+            <X size={16} />
+            {mode === "unmark" ? t("availabilityDone") : t("availabilityUnmark")}
+          </button>
+        </div>
       )}
 
-      {editMode && (
+      {mode === "mark" && (
         <p className="text-xs text-emerald-400/70">
           {t("availabilityHint")} {t("availabilityHintMulti")}
         </p>
+      )}
+      {mode === "unmark" && (
+        <p className="text-xs text-red-400/80">{t("availabilityUnmarkHint")}</p>
       )}
 
       {/* Calendar */}
@@ -253,7 +293,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
               <button
                 key={day}
                 onClick={() => handleDayClick(day)}
-                disabled={editMode && past}
+                disabled={editMode && (past || (mode === "unmark" && !isAvailable))}
                 className={`relative flex h-10 flex-col items-center justify-center rounded-lg text-sm transition-all ${
                   isEditing
                     ? "bg-emerald-500/30 font-bold text-emerald-200 ring-2 ring-emerald-400"
@@ -263,7 +303,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
                       ? "bg-emerald-500/15 font-medium text-emerald-400 ring-1 ring-emerald-500/25"
                       : todayDay
                         ? "bg-[var(--usha-gold)]/10 font-semibold text-[var(--usha-gold)]"
-                        : past && editMode
+                        : editMode && (past || mode === "unmark")
                           ? "text-[var(--usha-muted)]/30 cursor-not-allowed"
                           : "hover:bg-[var(--usha-card-hover)]"
                 }`}
@@ -281,7 +321,7 @@ export function CalendarContent({ bookings, initialAvailableDates = [], isCreato
         </div>
 
         {/* Time Slot Editor */}
-        {editMode && editingDates.length > 0 && (
+        {mode === "mark" && editingDates.length > 0 && (
           <TimeSlotEditor
             dateKeys={editingDates}
             slots={editingDates.length === 1 ? slotsMap[editingDates[0]] || [] : []}
@@ -450,19 +490,19 @@ function TimeSlotEditor({
         )}
       </div>
 
-      {/* All-day toggle */}
+      {/* All-day toggle. Knappen säger vad den GÖR, inte vilket läge dagen är i:
+          "Hela dagen (aktiv)" läste som en statusetikett, så den enda vägen att
+          avmarkera en grön dag såg ut att vara ur funktion. */}
       <button
         onClick={onToggleAllDay}
         className={`mb-3 flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-          isAllDay
-            ? "bg-emerald-500/20 text-emerald-400"
-            : !isAvailable
-              ? "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-emerald-400"
-              : "bg-[var(--usha-card)] text-[var(--usha-muted)]"
+          isAvailable
+            ? "bg-red-500/10 text-red-400 hover:bg-red-500/20"
+            : "bg-[var(--usha-card)] text-[var(--usha-muted)] hover:text-emerald-400"
         }`}
       >
-        <Check size={12} />
-        {isAllDay ? t("allDayActive") : !isAvailable ? t("markAllDay") : t("removeAllTimes")}
+        {isAvailable ? <X size={12} /> : <Check size={12} />}
+        {!isAvailable ? t("markAllDay") : isAllDay ? t("removeAllDay") : t("removeAllTimes")}
       </button>
 
       {/* Existing slots */}

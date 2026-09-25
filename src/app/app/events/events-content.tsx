@@ -16,7 +16,9 @@ import {
   ToggleRight,
   Radio,
   ScanLine,
+  QrCode,
   BarChart3,
+  Package,
   Copy,
   Users,
   X as XIcon,
@@ -106,6 +108,11 @@ export function EventsContent({
     (a, b) => listings.indexOf(a[0]) - listings.indexOf(b[0])
   );
 
+  // Tjänster utan datum ligger i samma tabell och listas här, men ordningen
+  // sätts på tjänstesidan. Osvaldo hittade inte dit: den låg bakom Mer → Utbud
+  // → Tjänster, medan Evenemang är fliken man faktiskt öppnar.
+  const hasServices = listings.some((l) => !l.event_date);
+
   const kommande = listings
     .filter((l) => l.event_date && l.event_date >= today)
     .sort((a, b) => (a.event_date! < b.event_date! ? -1 : 1));
@@ -146,6 +153,15 @@ export function EventsContent({
           >
             {t("openEvents")}
           </Link>
+          {hasServices && (
+            <Link
+              href="/dashboard/listings"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--usha-gold)] underline-offset-2 hover:underline"
+            >
+              <Package size={13} />
+              {t("orderServices")}
+            </Link>
+          )}
           <span className="rounded-full bg-[var(--usha-gold)]/10 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
             {t("activeCount", { count: activeCount })}
           </span>
@@ -286,18 +302,24 @@ function EventCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-xl border bg-[var(--usha-card)] transition-opacity ${
+      className={`relative rounded-xl border bg-[var(--usha-card)] transition-opacity ${
         isActive ? "border-[var(--usha-border)]" : "border-[var(--usha-border)] opacity-60"
       } ${isPending ? "pointer-events-none opacity-50" : ""}`}
     >
-      {/* Bilden bär länken, men träffytan är hela kortet.
-          `after:absolute after:inset-0` lägger en osynlig platta över kortets
-          rot — den som råkar trycka på datumraden, platsen eller den tomma
-          ytan bredvid priset hamnar också rätt. Knapparna nedanför lyfts över
-          plattan med z-10, annars skulle länken sluka dem. */}
+      {/* Bilden bär den synliga länken. Träffytan för resten av kortet ligger
+          i en egen platta längst ned i det här blocket — se kommentaren där.
+
+          Plattan satt tidigare som ett ::after på den här länken, men länken är
+          `relative`, så `inset-0` mätte mot BILDEN och inte mot kortet. Hela
+          kortet såg alltså ut att vara en knapp i koden medan bara bilden gick
+          att trycka på. */}
+      {/* overflow-hidden ligger på bilden, inte på kortet. Låg den på kortet
+          klipptes ⋮-menyn, som öppnas uppåt, vid kortets överkant — de tre
+          översta posterna (Skanna, Sälj i entrén, Bokningar) fanns men syntes
+          aldrig på en telefon. Bilden behöver bara själv runda sina hörn. */}
       <Link
         href={`/app/events/${listing.id}/edit`}
-        className="relative block aspect-[1.91/1] after:absolute after:inset-0 after:z-0 after:content-['']"
+        className="relative block aspect-[1.91/1] overflow-hidden rounded-t-xl"
       >
         <img src={image} alt={listing.title} className="h-full w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -405,6 +427,17 @@ function EventCard({
                   >
                     <ScanLine size={12} />
                     {t("scanTickets")}
+                  </Link>
+                  {/* Direkt under scanningen: det är samma person, i samma dörr,
+                      i samma stund. Den som skannar biljetter är också den som
+                      möter spontanbesökaren utan biljett. */}
+                  <Link
+                    href={`/app/events/${listing.id}/entre`}
+                    className="flex w-full items-center gap-2 px-4 py-2 text-xs font-medium text-[var(--usha-gold)] hover:bg-[var(--usha-card-hover)]"
+                    onClick={() => setShowMenu(false)}
+                  >
+                    <QrCode size={12} />
+                    {t("sellAtDoor")}
                   </Link>
                   {/* Bokningar först: det är hit man går för att se vem som
                       köpt och för att betala tillbaka. Återbetalning låg
@@ -521,6 +554,20 @@ function EventCard({
           />
         </div>
       </div>
+
+      {/* Träffytan för hela kortet.
+          Ligger sist och mäter mot kortets rot (som är `relative`), så den
+          täcker även datumraden, platsen och den tomma ytan bredvid priset.
+          z-0 räcker: den är positionerad och målas därför över den statiska
+          texten, medan knapparna lyfts förbi den med `relative z-10`.
+          aria-hidden + tabIndex -1 gör att den inte dyker upp som ytterligare
+          en länk för skärmläsare eller tangentbord — bilden bär den riktiga. */}
+      <Link
+        href={`/app/events/${listing.id}/edit`}
+        aria-hidden
+        tabIndex={-1}
+        className="absolute inset-0 z-0"
+      />
 
       {showCloneModal && (
         <CloneModal

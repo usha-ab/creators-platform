@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import type { ActivityDomain } from "@/lib/matching/activity-domains";
 import {
   Users, Heart, X, MessageCircle, ShieldCheck, MapPin, Sparkles,
   Loader2, MoreVertical, Flag, Ban, Check, SlidersHorizontal, Share2,
@@ -63,6 +64,16 @@ export function TrainingBuddiesContent() {
   const [tab, setTab] = useState<"suggestions" | "matches">("suggestions");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [poolSize, setPoolSize] = useState<number | null>(null);
+  // Domänerna användaren själv tillhör, och den valda. Med bara en domän visas
+  // ingen växlare — den som bara dansar ska inte behöva välja "Dans" varje gång.
+  const [domains, setDomains] = useState<ActivityDomain[]>([]);
+  const [domain, setDomain] = useState<ActivityDomain | null>(null);
+
+  // Texten följer domänen: en löpare ska inte läsa "inga andra dansare".
+  // Utan vald domän används den första man tillhör, annars dans som förr.
+  const textDomain: ActivityDomain = domain ?? domains[0] ?? "dans";
+  const td = (key: "subtitle" | "firstInPool" | "invite") =>
+    t(`domains.${textDomain}.${key}`);
   const [matches, setMatches] = useState<Match[]>([]);
   const [matchModal, setMatchModal] = useState<Candidate | null>(null);
   const matchDialogRef = useRef<HTMLDivElement>(null);
@@ -100,22 +111,33 @@ export function TrainingBuddiesContent() {
     }
   }, []);
 
-  const loadFeed = useCallback(async () => {
+  const loadFeed = useCallback(async (forDomain?: ActivityDomain | null) => {
+    const qs = forDomain ? `?domain=${encodeURIComponent(forDomain)}` : "";
     const [c, m] = await Promise.all([
-      fetch("/api/training-buddies").then((r) => (r.ok ? r.json() : { buddies: [] })),
+      fetch(`/api/training-buddies${qs}`).then((r) => (r.ok ? r.json() : { buddies: [] })),
       fetch("/api/training-buddies/matches").then((r) => (r.ok ? r.json() : { matches: [] })),
     ]);
     setCandidates(c.buddies ?? []);
     setPoolSize(typeof c.poolSize === "number" ? c.poolSize : null);
+    const mine: ActivityDomain[] = Array.isArray(c.domains) ? c.domains : [];
+    setDomains(mine);
+    // Servern bestämmer vilken domän som gäller — den avvisar en domän
+    // användaren inte tillhör, och då ska knappen inte se vald ut.
+    setDomain(c.domain ?? (mine.length === 1 ? mine[0] : null));
     setMatches(m.matches ?? []);
   }, []);
+
+  const bytDomän = useCallback((d: ActivityDomain | null) => {
+    setDomain(d);
+    loadFeed(d);
+  }, [loadFeed]);
 
   // Invite dancers to the pool (Web Share where available, else copy the link).
   const invite = useCallback(async () => {
     const url = `${window.location.origin}/app/training-buddies`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "Usha Platform", text: t("inviteShare"), url });
+        await navigator.share({ title: "Usha Platform", text: td("invite"), url });
       } else {
         await navigator.clipboard.writeText(url);
         toast.success(t("linkCopied"));
@@ -180,7 +202,7 @@ export function TrainingBuddiesContent() {
   if (!profile?.is_active || editing) {
     if (!bankidVerified) {
       return (
-        <Shell t={t}>
+        <Shell t={t} subtitle={td("subtitle")}>
           <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6 text-center">
             <ShieldCheck className="mx-auto mb-3 text-[var(--usha-gold)]" size={32} />
             <h2 className="text-lg font-bold">{t("bankidGateTitle")}</h2>
@@ -196,7 +218,7 @@ export function TrainingBuddiesContent() {
       );
     }
     return (
-      <Shell t={t}>
+      <Shell t={t} subtitle={td("subtitle")}>
         <BuddyForm
           t={t}
           initial={profile}
@@ -210,7 +232,27 @@ export function TrainingBuddiesContent() {
 
   // ── Active pool member ──
   return (
-    <Shell t={t}>
+    <Shell t={t} subtitle={td("subtitle")}>
+      {domains.length > 1 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label={t("title")}>
+          {domains.map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => bytDomän(domain === d ? null : d)}
+              aria-pressed={domain === d}
+              className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                domain === d
+                  ? "border-[var(--usha-gold)] bg-[var(--usha-gold)]/15 text-[var(--usha-gold)]"
+                  : "border-[var(--usha-border)] text-[var(--usha-muted)] hover:text-[var(--usha-white)]"
+              }`}
+            >
+              {t(`domains.${d}.label`)}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="mb-4 flex items-center gap-2">
         <button
           onClick={() => setTab("suggestions")}
@@ -248,7 +290,7 @@ export function TrainingBuddiesContent() {
             <Empty
               icon={Sparkles}
               text={t("firstInPoolTitle")}
-              subtext={t("firstInPoolText")}
+              subtext={td("firstInPool")}
               action={
                 <button
                   onClick={invite}
@@ -317,14 +359,23 @@ export function TrainingBuddiesContent() {
   );
 }
 
-function Shell({ t, children }: { t: ReturnType<typeof useTranslations>; children: React.ReactNode }) {
+function Shell({
+  t,
+  subtitle,
+  children,
+}: {
+  t: ReturnType<typeof useTranslations>;
+  /** Domänanpassad underrubrik — "Hitta en danspartner", "Hitta en träningskompis". */
+  subtitle: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="px-4 py-6 md:max-w-2xl md:mx-auto">
       <div className="mb-5 flex items-center gap-3">
         <Users size={24} className="text-[var(--usha-gold)]" />
         <div>
           <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="text-sm text-[var(--usha-muted)]">{t("subtitle")}</p>
+          <p className="text-sm text-[var(--usha-muted)]">{subtitle}</p>
         </div>
       </div>
       {children}

@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { Users, Radio, ScanLine, BarChart3, Receipt, Mail, Ticket } from "lucide-react";
+import { Users, Radio, ScanLine, BarChart3, Receipt, Mail, Ticket, QrCode } from "lucide-react";
 import EventForm from "../../event-form";
 import { updateEvent } from "../../actions";
 import { getTranslations } from "next-intl/server";
@@ -78,6 +78,16 @@ export default async function EditEventPage(props: { params: Promise<{ id: strin
         >
           <ScanLine size={15} />
           Skanna biljetter
+        </Link>
+        {/* Entréförsäljningen står bredvid skanningen: samma person, samma
+            dörr, samma stund. Den som skannar biljetter är den som möter
+            spontanbesökaren utan biljett. */}
+        <Link
+          href={`/app/events/${event.id}/entre`}
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--usha-gold)]/60 px-4 py-2 text-sm font-medium text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+        >
+          <QrCode size={15} />
+          {t("sellAtDoor")}
         </Link>
         {/* Bokningar direkt efter skanning: det är här man ser vem som köpt och
             betalar tillbaka en biljett. Den här knappraden är den yta arrangören

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { notIndexable } from "@/lib/seo/metadata";
 
 const OG_LOCALE: Record<string, string> = { sv: "sv_SE", en: "en_US", es: "es_ES" };
 
@@ -14,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = t("signupDescription");
 
   return {
+    ...notIndexable(),
     title,
     description,
     alternates: { canonical: "/signup" },

@@ -4,10 +4,17 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { BETA_MODE, BETA_END_MS } from "@/lib/beta";
 
-export function Pricing() {
+type PricingRole = "customer" | "creator" | "venue";
+
+/**
+ * Prislistan är densamma överallt; `role` avgör bara vilken flik som är öppen
+ * när sidan laddas, så att besökaren på /for-platser möter venue-priserna
+ * först men fortfarande kan jämföra med de andra rollerna.
+ */
+export function Pricing({ role = "creator" }: { role?: PricingRole } = {}) {
   const t = useTranslations("landing");
   const locale = useLocale();
-  const [activeRole, setActiveRole] = useState<"customer" | "creator" | "venue">("creator");
+  const [activeRole, setActiveRole] = useState<PricingRole>(role);
 
   const betaEndLabel = Number.isNaN(BETA_END_MS)
     ? null
@@ -17,10 +24,10 @@ export function Pricing() {
         year: "numeric",
       }).format(new Date(BETA_END_MS));
 
-  const ROLE_TABS = [
-    { key: "customer" as const, label: t("pricing.roleUser") },
-    { key: "creator" as const, label: t("pricing.roleCreator") },
-    { key: "venue" as const, label: t("pricing.roleExperience") },
+  const ROLE_TABS: { key: PricingRole; label: string }[] = [
+    { key: "customer", label: t("pricing.roleUser") },
+    { key: "creator", label: t("pricing.roleCreator") },
+    { key: "venue", label: t("pricing.roleExperience") },
   ];
 
   const PRICING_DATA: Record<string, { gratis: { features: string[] }; guld: { price: number; features: string[]; popular: boolean }; premium: { price: number; features: string[]; popular: boolean } }> = {
@@ -118,10 +125,24 @@ export function Pricing() {
 
   const data = PRICING_DATA[activeRole];
 
+  // Säljarna vill veta vad de kan bygga, publiken vad de får ut av kvällen.
+  const SUBTITLE_KEY: Record<PricingRole, string> = {
+    customer: "pricing.subtitleCustomer",
+    creator: "pricing.subtitle",
+    venue: "pricing.subtitleVenue",
+  };
+
+  const isAudience = activeRole === "customer";
+  const tierDesc = {
+    free: isAudience ? t("pricing.publikFreeDesc") : t("pricing.freeDesc"),
+    gold: isAudience ? t("pricing.publikGoldDesc") : t("pricing.goldDesc"),
+    premium: isAudience ? t("pricing.publikPremiumDesc") : t("pricing.premiumDesc"),
+  };
+
   const tiers = [
-    { name: t("pricing.free"), price: 0, desc: t("pricing.freeDesc"), features: data.gratis.features, cta: t("pricing.ctaFree"), popular: false },
-    { name: t("pricing.gold"), price: data.guld.price, desc: t("pricing.goldDesc"), features: data.guld.features, cta: t("pricing.ctaGold"), popular: data.guld.popular },
-    { name: t("pricing.premium"), price: data.premium.price, desc: t("pricing.premiumDesc"), features: data.premium.features, cta: t("pricing.ctaPremium"), popular: data.premium.popular },
+    { name: t("pricing.free"), price: 0, desc: tierDesc.free, features: data.gratis.features, cta: t("pricing.ctaFree"), popular: false },
+    { name: t("pricing.gold"), price: data.guld.price, desc: tierDesc.gold, features: data.guld.features, cta: t("pricing.ctaGold"), popular: data.guld.popular },
+    { name: t("pricing.premium"), price: data.premium.price, desc: tierDesc.premium, features: data.premium.features, cta: t("pricing.ctaPremium"), popular: data.premium.popular },
   ];
 
   return (
@@ -136,7 +157,7 @@ export function Pricing() {
             {t("pricing.title")}
           </h2>
           <p className="mx-auto max-w-xl text-sm text-[var(--usha-muted)] sm:text-base">
-            {t("pricing.subtitle")}
+            {t(SUBTITLE_KEY[activeRole])}
           </p>
           {BETA_MODE && (
             <p className="mx-auto mt-3 max-w-lg text-sm text-[var(--usha-muted)]">

@@ -19,6 +19,9 @@ interface TicketResult {
     date: string;
     time: string | null;
     location: string | null;
+    ticketType?: string | null;
+    holder?: string | null;
+    seats?: number;
   };
 }
 
@@ -30,6 +33,7 @@ interface CheckInResult {
   error?: string;
   status?: string;
   attendeeLabel?: string;
+  passRemaining?: number;
 }
 
 export default function ScanPage() {
@@ -465,9 +469,28 @@ export default function ScanPage() {
                 {result.status === "already_used" ? t("statusAlreadyUsed") :
                  result.status === "canceled" ? t("statusCanceled") :
                  result.status === "pending" ? t("statusPending") :
+                 result.status === "wrong_date" ? t("statusWrongDate", { date: result.ticket.date }) :
                  t("statusInvalid")}
               </p>
             </>
+          )}
+
+          {/* Biljettypen först och störst. Det är den enda raden som avgör
+              om personen ska in nu eller först kl. 20 — allt annat på kortet
+              är samma för hela kvällen. */}
+          {result.ticket.ticketType && (
+            <p className="mt-3 text-2xl font-bold text-[var(--usha-gold)]">{result.ticket.ticketType}</p>
+          )}
+          {(result.ticket.holder || (result.ticket.seats ?? 1) > 1) && (
+            <p className="mt-1 text-sm text-[var(--usha-white)]">
+              {result.ticket.holder}
+              {(result.ticket.seats ?? 1) > 1 && (
+                <span className="text-[var(--usha-muted)]">
+                  {result.ticket.holder ? " · " : ""}
+                  {t("seats", { n: result.ticket.seats ?? 1 })}
+                </span>
+              )}
+            </p>
           )}
 
           <div className="mt-4 space-y-1 text-sm">
@@ -530,6 +553,9 @@ export default function ScanPage() {
               <UserCheck size={48} className="mx-auto mb-3 text-green-400" />
               <p className="text-lg font-bold text-green-400">{t("checkedInSuccess")}</p>
               <p className="mt-2 text-sm font-medium">{checkInDone.title}</p>
+              {checkInDone.passRemaining != null && (
+                <p className="mt-1 text-sm font-semibold text-[var(--usha-gold)]">{t("passRemaining", { n: checkInDone.passRemaining })}</p>
+              )}
               <p className="mt-1 text-xs text-[var(--usha-muted)]">
                 {new Date(checkInDone.checkedInAt!).toLocaleTimeString("sv-SE", {
                   hour: "2-digit",

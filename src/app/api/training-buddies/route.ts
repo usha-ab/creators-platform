@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getBuddyCandidates } from "@/lib/matching/buddy-matches";
+import { getBuddyCandidates, getMyDomains } from "@/lib/matching/buddy-matches";
+import { isDomain, isInDomain } from "@/lib/matching/activity-domains";
 import { userIsPremium } from "@/lib/matching/access";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
@@ -42,7 +43,15 @@ export async function GET(req: NextRequest) {
     }
 
     const sp = req.nextUrl.searchParams;
+    const rawDomain = sp.get("domain");
+    const myDomains = await getMyDomains(user.id);
+    // Växlaren visar bara domäner användaren själv tillhör. En påhittad
+    // frågeparameter ska inte kunna öppna en pool man inte hör hemma i.
+    const domain =
+      isDomain(rawDomain) && myDomains.includes(rawDomain) ? rawDomain : undefined;
+
     const candidates = await getBuddyCandidates(user.id, {
+      domain,
       style: sp.get("style") || undefined,
       level: sp.get("level") || undefined,
       city: sp.get("city") || undefined,
@@ -50,16 +59,22 @@ export async function GET(req: NextRequest) {
     });
     const buddies = candidates.map((c) => ({ ...c, score: Math.round(c.score) }));
 
-    // How many OTHER dancers are in the pool at all — lets the UI tell
-    // "you're the first one here" apart from "you've seen everyone".
-    const { count: poolSize } = await createAdminClient()
+    // Hur många andra finns i poolen — skiljer "du är först här" från "du har
+    // sett alla". Räknas PER DOMÄN: en löpare ska inte få höra att poolen är
+    // full för att den är full av dansare.
+    const { data: poolRows } = await createAdminClient()
       .from("training_buddy_profiles")
-      .select("profile_id", { count: "exact", head: true })
+      .select("profile_id, dance_styles")
       .eq("is_active", true)
-      .neq("profile_id", user.id);
+      .neq("profile_id", user.id)
+      .limit(1000);
+    const relevant = (poolRows ?? []) as { dance_styles: string[] | null }[];
+    const poolSize = relevant.filter((r) =>
+      domain ? isInDomain(r.dance_styles, domain) : myDomains.some((d) => isInDomain(r.dance_styles, d))
+    ).length;
 
     return NextResponse.json(
-      { buddies, access, launch: access === "open", poolSize: poolSize ?? 0 },
+      { buddies, access, launch: access === "open", poolSize, domains: myDomains, domain: domain ?? null },
       { headers: { "Cache-Control": "no-store" } }
     );
   } catch (error) {

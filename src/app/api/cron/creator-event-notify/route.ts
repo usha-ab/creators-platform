@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { activeEmailFollowers } from "@/lib/follows/email-follow";
 import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendCreatorEventEmail } from "@/lib/email/send-creator-event";
@@ -39,6 +40,7 @@ export async function GET(req: NextRequest) {
   if (!listings?.length) return NextResponse.json({ listings: 0, notified: 0 });
 
   let notified = 0;
+  let emailNotified = 0;
 
   for (const listing of listings) {
     // Claim the listing up front (mark BEFORE emailing) so a function timeout or
@@ -59,6 +61,7 @@ export async function GET(req: NextRequest) {
       .eq("id", listing.user_id)
       .single();
 
+    const accountEmails = new Set<string>();
     const { data: followers } = await admin
       .from("follows")
       .select("follower_id")
@@ -77,6 +80,7 @@ export async function GET(req: NextRequest) {
         .eq("id", followerId)
         .single();
       if (!fp?.email) continue;
+      accountEmails.add(fp.email.toLowerCase());
 
       try {
         await sendCreatorEventEmail({
@@ -94,6 +98,16 @@ export async function GET(req: NextRequest) {
         console.error(`Creator event notify failed for follower ${followerId}:`, err);
       }
     }
+
+    // Följare utan konto (biljettköpare som sagt ja, eller bekräftat via mejl).
+    emailNotified += await notifyEmailFollowers({
+      admin,
+      followedId: listing.user_id,
+      skipEmails: accountEmails,
+      creatorName: creator?.full_name || "En kreatör",
+      listing,
+      appUrl,
+    });
 
     // (Already marked notified up front — the claim above prevents re-scan.)
   }
@@ -114,6 +128,7 @@ export async function GET(req: NextRequest) {
     .is("venue_followers_notified_at", null);
 
   let venueNotified = 0;
+  let venueEmailNotified = 0;
 
   for (const listing of venueListings ?? []) {
     // Claima före utskick, som ovan: en timeout eller överlappande körning ska
@@ -148,6 +163,7 @@ export async function GET(req: NextRequest) {
       venueId: listing.venue_profile_id,
     });
 
+    const accountEmails = new Set<string>();
     const venueName = (venue?.company_name || venue?.full_name || "").trim();
 
     for (const followerId of audience) {
@@ -158,6 +174,7 @@ export async function GET(req: NextRequest) {
         .eq("id", followerId)
         .single();
       if (!fp?.email) continue;
+      accountEmails.add(fp.email.toLowerCase());
 
       try {
         await sendCreatorEventEmail({
@@ -177,6 +194,17 @@ export async function GET(req: NextRequest) {
         console.error(`Venue event notify failed for follower ${followerId}:`, err);
       }
     }
+
+    // Lokalens e-postföljare, minus de som redan fick kvällen via arrangören.
+    for (const ef of await activeEmailFollowers(admin, listing.user_id)) accountEmails.add(ef.email);
+    venueEmailNotified += await notifyEmailFollowers({
+      admin,
+      followedId: listing.venue_profile_id,
+      skipEmails: accountEmails,
+      creatorName: venueName || creator?.full_name || "En lokal",
+      listing,
+      appUrl,
+    });
   }
 
   return NextResponse.json({
@@ -184,5 +212,45 @@ export async function GET(req: NextRequest) {
     notified,
     venueListings: venueListings?.length ?? 0,
     venueNotified,
+    emailNotified,
+    venueEmailNotified,
   });
+}
+
+/**
+ * Mejlar de som följer utan konto. Hoppar över adresser som redan fått
+ * kvällen som kontoföljare, så ingen får samma mejl två gånger. Varje mejl
+ * bär sin egen avslutalänk.
+ */
+async function notifyEmailFollowers(opts: {
+  admin: ReturnType<typeof getSupabaseAdmin>;
+  followedId: string;
+  skipEmails: Set<string>;
+  creatorName: string;
+  listing: { id: string; title: string | null; event_date: string | null; event_location: string | null };
+  appUrl: string;
+}): Promise<number> {
+  const { admin, followedId, skipEmails, creatorName, listing, appUrl } = opts;
+  let sent = 0;
+  for (const ef of await activeEmailFollowers(admin, followedId)) {
+    if (skipEmails.has(ef.email)) continue;
+    try {
+      await sendCreatorEventEmail({
+        to: ef.email,
+        followerName: "",
+        creatorName,
+        eventTitle: listing.title || "Nytt event",
+        eventDate: listing.event_date ? new Date(listing.event_date) : undefined,
+        location: listing.event_location || undefined,
+        eventUrl: `${appUrl}/listing/${listing.id}`,
+        followerId: null,
+        unsubscribeUrl: `${appUrl}/folj/avsluta/${ef.unsubscribe_token}`,
+        preferredLocale: ef.locale,
+      });
+      sent++;
+    } catch (err) {
+      console.error(`Email follower notify failed for ${ef.email}:`, err);
+    }
+  }
+  return sent;
 }

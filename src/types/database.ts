@@ -4,7 +4,7 @@ export type PlanKey =
   | 'publik_guld' | 'publik_premium'
   | 'kreator_guld' | 'kreator_premium'
   | 'upplevelse_guld' | 'upplevelse_premium';
-export type ListingType = 'service' | 'event' | 'table_reservation' | 'spa_treatment' | 'group_activity' | 'dance_package' | 'coaching_session' | 'b2b_offering';
+export type ListingType = 'service' | 'event' | 'table_reservation' | 'spa_treatment' | 'group_activity' | 'package' | 'coaching_session' | 'b2b_offering';
 
 export interface ExperienceDetails {
   amenities?: string[];

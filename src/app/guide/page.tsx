@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import PrintButton from "./print-button";
+import { indexable } from "@/lib/seo/metadata";
 
 /**
  * Kom igång-guide för kreatörer och lokaler.
@@ -15,7 +16,7 @@ import PrintButton from "./print-button";
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("guide.meta");
-  return { title: t("title"), description: t("description") };
+  return { title: t("title"), description: t("description"), ...indexable("/guide") };
 }
 
 export default async function GuidePage() {

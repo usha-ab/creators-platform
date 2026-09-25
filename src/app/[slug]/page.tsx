@@ -27,5 +27,9 @@ export default async function SlugPage({ params }: Props) {
     notFound();
   }
 
-  redirect(`/creators/${profile.id}`);
+  // Till slug-adressen, inte till id:t. /creators/[id] slår upp båda, och den
+  // som skrivit in usha.se/osvaldopalma ska inte hamna på en 36 tecken lång
+  // UUID i adressfältet — hela poängen med en egen adress är att den går att
+  // säga, dela och känna igen.
+  redirect(`/creators/${slug.toLowerCase()}`);
 }

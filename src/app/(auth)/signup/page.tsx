@@ -8,25 +8,71 @@ import { createClient } from "@/lib/supabase/client";
 import { isPasswordPwned } from "@/lib/auth/password-strength";
 import { isRateLimitError } from "@/lib/auth/rate-limit-error";
 import { trackEvent } from "@/lib/analytics";
-import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2 } from "lucide-react";
+import { SIGNUP_CREDIT_ORE, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/signup";
+import { Palette, Store, Search, ShieldCheck, Loader2, Music, User, Building2, Gift } from "lucide-react";
 import { GoogleIcon, FacebookIcon } from "@/components/brand-icons";
 
-type Role = "creator" | "venue" | "customer";
+import type { Role } from "@/lib/roles";
 type CreatorSubcategory = "general" | "taxi_dancer";
 
 // Only creators must verify with BankID at signup. Venues sign up normally and
 // verify their company (org-nr) in the dashboard; BankID is optional for them.
 const NEEDS_BANKID: Role[] = ["creator"];
 
+/**
+ * Roll från länken, för kampanjer som ska landa direkt i registreringen.
+ *
+ * QR-koden på danskvällarna lovar 50 kr och ska ta folk raka vägen till kontot.
+ * Rollvalet är då första hindret: en fråga om hur man tänker använda
+ * plattformen, ställd till någon som bara vill ha sin rabatt. `?role=customer`
+ * hoppar över steget.
+ *
+ * Bara kända roller släpps igenom. Ett okänt värde faller tillbaka på det
+ * vanliga rollvalet i stället för att skapa ett konto med en roll som inte
+ * finns.
+ */
+function roleFromParam(value: string | null): Role | null {
+  return value === "creator" || value === "venue" || value === "customer" ? value : null;
+}
+
 function FieldError({ message }: { message: string }) {
   return <p className="mt-1 text-xs text-red-400">{message}</p>;
+}
+
+/**
+ * Välkomstavdraget, sagt på registreringssidan.
+ *
+ * Marknadsföringen lovar 50 kr — affischer, QR-koden i projektionen — och den
+ * som scannar landar här. Utan den här rutan bekräftar sidan aldrig löftet, och
+ * avdraget delas ut helt tyst av triggern i handle_new_user.
+ *
+ * Beloppen läses från samma konstanter som regeln använder, så texten inte kan
+ * påstå ett belopp och koden räkna med ett annat.
+ */
+function WelcomeCredit() {
+  const t = useTranslations("auth");
+  return (
+    <div className="mb-6 flex items-start gap-3 rounded-xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 px-4 py-3 text-left">
+      <Gift size={18} className="mt-0.5 shrink-0 text-[var(--usha-gold)]" />
+      <div>
+        <p className="text-sm font-semibold text-[var(--usha-gold)]">
+          {t("signupCreditTitle", { amount: SIGNUP_CREDIT_ORE / 100 })}
+        </p>
+        <p className="mt-0.5 text-xs text-[var(--usha-muted)]">
+          {t("signupCreditNote", { minSpend: SIGNUP_CREDIT_MIN_SPEND_ORE / 100 })}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function SignupPage() {
   const t = useTranslations("auth");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(() =>
+    roleFromParam(searchParams.get("role"))
+  );
   const [selectedSubcategory, setSelectedSubcategory] = useState<CreatorSubcategory | null>(null);
   // Creator only: sells as a private individual vs a company (unlocks org.nr steps).
   const [selectedIsCompany, setSelectedIsCompany] = useState<boolean | null>(null);
@@ -42,6 +88,9 @@ export default function SignupPage() {
   const [passwordError, setPasswordError] = useState("");
   const [nameTouched, setNameTouched] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  // Omarkerad som standard, och det är hela poängen: ett förkryssat val är
+  // inget samtycke. Sparas som user_settings.notif_marketing via triggern.
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   // BankID state
@@ -218,6 +267,10 @@ export default function SignupPage() {
         ? { is_company: "true" }
         : {}),
       ...(refCode ? { referred_by_code: refCode.toUpperCase() } : {}),
+      // Går vidare till handle_new_user, som lägger user_settings-raden. Skickas
+      // alltid — utan nyckeln kan triggern inte skilja "tackade nej" från
+      // "registrerade sig innan rutan fanns".
+      marketing_consent: marketingConsent ? "true" : "false",
       // Seeds profiles.locale via handle_new_user, so the welcome mail and every
       // later receipt arrive in the language this account was created in.
       locale,
@@ -271,6 +324,12 @@ export default function SignupPage() {
 
   function storeRoleForOAuth() {
     document.cookie = `pending_role=${selectedRole};path=/;max-age=600;SameSite=Lax`;
+    // Google och Facebook bär inte med sig något av det som fylls i här, så
+    // valet får resa i en cookie och plockas upp i /callback. Samma max-age
+    // som rollen, och den tillämpas bara när OAuth-rundturen nyss SKAPADE
+    // kontot — annars skulle en gammal cookie kunna slå över inställningen
+    // vid en senare inloggning.
+    document.cookie = `pending_marketing_consent=${marketingConsent ? "true" : "false"};path=/;max-age=600;SameSite=Lax`;
   }
 
   async function handleGoogleSignup() {
@@ -326,6 +385,8 @@ export default function SignupPage() {
             <h1 className="text-2xl font-bold">{t("chooseRole")}</h1>
             <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("howToUse")}</p>
           </div>
+
+          <WelcomeCredit />
 
           <div className="space-y-3">
             {ROLES.map((role) => (
@@ -560,6 +621,22 @@ export default function SignupPage() {
             </button>
           )}
         </div>
+
+        <WelcomeCredit />
+
+        {/* Samtycket står före ALLA tre registreringsvägarna, inte nere vid
+            formulärets knapp. Google- och Facebook-knapparna ligger ovanför
+            formuläret, så en ruta där nere hade aldrig hunnit synas för den som
+            registrerar sig med OAuth — valet hade i praktiken varit ett nej. */}
+        <label className="mb-4 flex cursor-pointer items-start gap-3 text-left text-sm text-[var(--usha-muted)]">
+          <input
+            type="checkbox"
+            checked={marketingConsent}
+            onChange={(e) => setMarketingConsent(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--usha-gold)]"
+          />
+          <span>{t("marketingConsent")}</span>
+        </label>
 
         {/* OAuth buttons — only available after BankID for creator/experience */}
         {(!NEEDS_BANKID.includes(selectedRole!) || bankidVerified) && (

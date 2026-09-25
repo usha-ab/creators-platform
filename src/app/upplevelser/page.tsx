@@ -1,18 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
+import { BROWSABLE_TYPES } from "@/lib/listings/browse";
 import { CATEGORIES } from "@/lib/categories";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { MapPin, Calendar, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
-import { ListingCard } from "@/components/listing-card";
+import { SeriesCard } from "@/components/series-card";
+import { groupBySeries } from "@/lib/listings/group-series";
 import { getBookingCounts, sortWithPromoted, isActivelyPromoted } from "@/lib/listings/popularity";
 import { GeoLocationDetector } from "@/components/geo-location";
 import { EventCarousel } from "@/components/event-carousel";
+import { upcomingOrUndated, pastOnly } from "@/lib/listings/time-window";
+import { indexable } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
   return {
+    ...indexable("/upplevelser"),
     title: t("experiences.metaTitle"),
     description: t("experiences.metaDescription"),
     openGraph: {
@@ -25,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 interface SearchParams {
   category?: string;
+  when?: string;
   location?: string;
   sort?: string;
   page?: string;
@@ -47,26 +53,36 @@ export default async function UpplevelserPage(
   const searchParams = await props.searchParams;
   const supabase = await createClient();
   const t = await getTranslations();
-  const { category, location, sort, page: pageParam } = searchParams;
+  const { category, location, sort, when, page: pageParam } = searchParams;
+
+  // Ett passerat event ska inte ligga först när någon klickar sig in från en
+  // story. Kommande är default; de gamla finns kvar men bakom ?when=past, så
+  // biblioteket är intakt och bara nedprioriterat.
+  const showPast = when === "past";
+  const timeFilter = showPast ? pastOnly() : upcomingOrUndated();
   const currentPage = Math.max(1, parseInt(pageParam || "1", 10) || 1);
   const offset = (currentPage - 1) * PAGE_SIZE;
 
   // ── Build filtered listings query ──
   let query = supabase
     .from("listings")
-    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until", { count: "exact" })
-    .eq("is_active", true).eq("is_public", true);
+    .select("id, title, price, event_date, event_location, event_city, event_venue, category, image_url, listing_type, created_at, is_promoted, promoted_until, series_id, ticket_types(price)", { count: "exact" })
+    .eq("is_active", true).eq("is_public", true)
+    .or(BROWSABLE_TYPES)
+    .or(timeFilter);
 
   if (category && category !== "all") {
     query = query.eq("category", category);
   }
 
-  if (location) {
-    const sanitized = decodeURIComponent(location).replace(/[,()\\]/g, " ").trim();
-    if (sanitized) {
-      // Filter on the real city, not the raw address (which starts with the venue).
-      query = query.ilike("event_city", `%${sanitized}%`);
-    }
+  // Ett namn, använt av både listan och filterräknarna — annars räknar chipsen
+  // hela landet medan listan visar en stad.
+  const sanitizedLocation = location
+    ? decodeURIComponent(location).replace(/[,()\\]/g, " ").trim()
+    : "";
+  if (sanitizedLocation) {
+    // Filter on the real city, not the raw address (which starts with the venue).
+    query = query.ilike("event_city", `%${sanitizedLocation}%`);
   }
 
   // Sort
@@ -80,8 +96,15 @@ export default async function UpplevelserPage(
     case "price_desc":
       query = query.order("price", { ascending: false, nullsFirst: false });
       break;
-    default:
+    case "newest":
       query = query.order("created_at", { ascending: false });
+      break;
+    default:
+      // Närmast i tiden först. Passerade listas nyast först i stället, annars
+      // hamnar det äldsta eventet överst i biblioteket.
+      query = showPast
+        ? query.order("event_date", { ascending: false, nullsFirst: false })
+        : query.order("event_date", { ascending: true, nullsFirst: false });
   }
 
   // Paginate
@@ -96,6 +119,14 @@ export default async function UpplevelserPage(
 
   // Sort promoted first (preserve sort order otherwise)
   const listings = sortWithPromoted(rawListings || []);
+  // En serie är ETT kort med datumen bakom en utfällning. Fjorton The
+  // Lab-kvällar fyllde annars listan med nästan identiska kort och trängde ut
+  // kurser och tjänster, trots att de är egna erbjudanden.
+  //
+  // Grupperingen sker efter hämtningen, så totalsiffran och sidindelningen
+  // räknar fortfarande kvällar. Det är medvetet: annars skulle sida två börja
+  // mitt i en serie och samma kväll kunna dyka upp på båda sidorna.
+  const grupper = groupBySeries(listings);
 
   // ── Fetch promoted events for carousel ──
   const { data: promotedEvents } = await supabase
@@ -103,7 +134,9 @@ export default async function UpplevelserPage(
     .select("id, slug, title, price, event_date, event_location, image_url, category, is_promoted, promoted_until")
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(BROWSABLE_TYPES)
     .eq("is_promoted", true)
+    .or(timeFilter)
     .order("created_at", { ascending: false })
     .limit(6);
 
@@ -117,13 +150,20 @@ export default async function UpplevelserPage(
   const { data: countRows } = await supabase
     .from("listings")
     .select("category, event_city")
-    .eq("is_active", true).eq("is_public", true);
+    .eq("is_active", true).eq("is_public", true)
+    .or(BROWSABLE_TYPES)
+    .or(timeFilter);
 
   const categoryCounts: Record<string, number> = {};
   const locationCounts: Record<string, number> = {};
   const cityCatCounts: Record<string, Record<string, number>> = {};
+  const locationNeedle = sanitizedLocation.toLowerCase();
   (countRows || []).forEach((l) => {
-    if (l.category) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
+    // Kategorichipsen räknar det klicket faktiskt ger. Med Stockholm valt stod
+    // det "Dans (10)" medan Dans + Stockholm gav nio — den tionde saknar stad.
+    const inLocation =
+      !locationNeedle || (l.event_city ?? "").toLowerCase().includes(locationNeedle);
+    if (l.category && inLocation) categoryCounts[l.category] = (categoryCounts[l.category] || 0) + 1;
     // Real city only — venues never appear under "Alla städer".
     const city = l.event_city?.trim();
     if (city) {
@@ -140,7 +180,7 @@ export default async function UpplevelserPage(
   // ── Helper to build filter URLs ──
   function filterUrl(overrides: Record<string, string | undefined>) {
     const params = new URLSearchParams();
-    const merged = { category, location, sort, ...overrides };
+    const merged = { category, location, sort, when, ...overrides };
     Object.entries(merged).forEach(([k, v]) => {
       if (v && v !== "all") params.set(k, v);
     });
@@ -148,7 +188,7 @@ export default async function UpplevelserPage(
     return `/upplevelser${qs ? `?${qs}` : ""}`;
   }
 
-  const hasFilters = category || location || sort;
+  const hasFilters = category || location || sort || when;
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
@@ -171,7 +211,14 @@ export default async function UpplevelserPage(
         )}
 
         <h1 className="text-2xl font-bold md:text-3xl">{t("experiences.title")}</h1>
-        <p className="mt-1 text-sm text-[var(--usha-muted)]">{t("experiences.countInSweden", { count: totalCount || 0 })}</p>
+        <p className="mt-1 text-sm text-[var(--usha-muted)]">
+          {sanitizedLocation
+            ? t("experiences.countInCity", {
+                count: totalCount || 0,
+                city: sanitizedLocation.charAt(0).toUpperCase() + sanitizedLocation.slice(1),
+              })
+            : t("experiences.countInSweden", { count: totalCount || 0 })}
+        </p>
 
         {/* ── Filter bar ── */}
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -219,13 +266,30 @@ export default async function UpplevelserPage(
             </>
           )}
 
-          {/* Sort - pushed right */}
+          {/* Kommande / Tidigare — biblioteket finns kvar, men är inte det
+              första någon möter. */}
           <div className="ml-auto flex items-center gap-1.5">
+            <Link
+              href={filterUrl({ when: undefined, page: undefined })}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition ${!showPast ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+            >
+              {t("experiences.whenUpcoming")}
+            </Link>
+            <Link
+              href={filterUrl({ when: "past", page: undefined })}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition ${showPast ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+            >
+              {t("experiences.whenPast")}
+            </Link>
+          </div>
+
+          {/* Sort */}
+          <div className="flex items-center gap-1.5">
             {SORT_OPTIONS.map((opt) => (
               <Link
                 key={opt.value}
                 href={filterUrl({ sort: opt.value, page: undefined })}
-                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "newest") === opt.value ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
+                className={`rounded-lg px-2.5 py-1.5 text-xs transition ${(sort || "date") === opt.value ? "bg-white/10 font-medium text-[var(--usha-white)]" : "text-[var(--usha-muted)] hover:text-[var(--usha-white)]"}`}
               >
                 {t(opt.labelKey)}
               </Link>
@@ -245,12 +309,12 @@ export default async function UpplevelserPage(
         {/* ── Listings grid ── */}
         {listings && listings.length > 0 ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                bookingCount={bookingCounts[listing.id] || 0}
-                isPromoted={isActivelyPromoted(listing)}
+            {grupper.map((g) => (
+              <SeriesCard
+                key={g.forsta.id}
+                grupp={g}
+                bookingCount={bookingCounts[g.forsta.id] || 0}
+                isPromoted={isActivelyPromoted(g.forsta)}
               />
             ))}
           </div>

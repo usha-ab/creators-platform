@@ -8,7 +8,7 @@ import { isAdminById } from "./check";
  * adding one is a migration on purpose, so a new admin tool can't quietly widen
  * what a partner is able to do.
  */
-export const ADMIN_CAPABILITIES = ["creators", "promo"] as const;
+export const ADMIN_CAPABILITIES = ["creators", "promo", "partners"] as const;
 export type AdminCapability = (typeof ADMIN_CAPABILITIES)[number];
 
 /**

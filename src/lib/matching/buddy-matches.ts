@@ -1,8 +1,18 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  type ActivityDomain,
+  domainsForActivities,
+  isInDomain,
+  sharesDomain,
+} from "@/lib/matching/activity-domains";
 
 /**
  * Training-buddy matching: user→user ranking for the practice-partner pool.
- * Adapts the event matcher (user-matches.ts) to score other opted-in dancers.
+ * Adapts the event matcher (user-matches.ts) to score other opted-in members.
+ *
+ * Poolen är domänindelad: en löpare matchas inte mot en dansare. Överlappet i
+ * aktiviteter POÄNGSÄTTS inom domänen, men domänen i sig är ett HÅRT filter —
+ * annars hamnar fel folk i listan, bara längre ner.
  * All ranking is server-side; the client only receives a public-safe, distance-
  * rounded payload (never raw coordinates).
  */
@@ -88,6 +98,20 @@ export interface BuddyFilter {
   level?: string;
   city?: string;
   limit?: number;
+  /** Visa bara en domän. Ignoreras om användaren inte själv tillhör den. */
+  domain?: ActivityDomain;
+}
+
+/** Domänerna användaren tillhör — driver växlaren i gränssnittet. */
+export async function getMyDomains(userId: string): Promise<ActivityDomain[]> {
+  const { data } = await createAdminClient()
+    .from("training_buddy_profiles")
+    .select("dance_styles, is_active")
+    .eq("profile_id", userId)
+    .maybeSingle();
+  const row = data as { dance_styles: string[] | null; is_active: boolean } | null;
+  if (!row || !row.is_active) return [];
+  return domainsForActivities(row.dance_styles);
 }
 
 /**
@@ -137,6 +161,13 @@ export async function getBuddyCandidates(userId: string, opts: BuddyFilter = {})
   const myLevels = me.style_levels ?? {};
   const myDays = new Set((me.availability?.days ?? []).map(norm));
   const myWindows = new Set((me.availability?.windows ?? []).map(norm));
+  // Domänen är hårt filter, inte poäng. Utan aktiviteter alls: ingen pool —
+  // hellre tomt än att matcha någon mot främlingar hen inte delar något med.
+  const myDomains = domainsForActivities(me.dance_styles);
+  if (myDomains.length === 0) return [];
+  const filterDomain: ActivityDomain | null =
+    opts.domain && myDomains.includes(opts.domain) ? opts.domain : null;
+
   const filterStyle = opts.style ? norm(opts.style) : null;
   const filterLevel = opts.level ? norm(opts.level) : null;
   const filterCity = opts.city ? norm(opts.city) : null;
@@ -146,6 +177,14 @@ export async function getBuddyCandidates(userId: string, opts: BuddyFilter = {})
     const p = profMap.get(c.profile_id) as
       | { full_name: string | null; avatar_url: string | null; bankid_verified_at: string | null }
       | undefined;
+    // Domängrinden. Med växlaren aktiv visas bara den valda domänen; utan
+    // den räcker det att vi delar någon domän alls.
+    if (filterDomain) {
+      if (!isInDomain(c.dance_styles, filterDomain)) continue;
+    } else if (!sharesDomain(me.dance_styles, c.dance_styles)) {
+      continue;
+    }
+
     const candStyles = (c.dance_styles ?? []).map(norm);
     const candStyleSet = new Set(candStyles);
 

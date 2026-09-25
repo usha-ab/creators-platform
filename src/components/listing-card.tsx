@@ -20,6 +20,10 @@ interface ListingCardProps {
     event_venue?: string | null;
     category: string | null;
     image_url: string | null;
+    // Biljettyperna följer med från sidans select (ticket_types(price)).
+    // Utan dem visar kortet listpriset som om det vore det enda, och en kväll
+    // med practica 50 / workshop 100 / social 130 säljs in som "50 kr".
+    ticket_types?: { price: number | null }[] | null;
   };
   bookingCount?: number;
   isPromoted?: boolean;
@@ -33,6 +37,15 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
     getSaleState({ price: listing.price, event_date: listing.event_date }, new Date()).state === "past";
   const isPopular = bookingCount >= 3;
   const isHot = bookingCount >= 8;
+
+  const tierPrices = (listing.ticket_types ?? [])
+    .map((tt) => tt.price)
+    .filter((p): p is number => typeof p === "number");
+  const hasTicketTypes = tierPrices.length > 0;
+  // "Från" bara när det finns en riktig spännvidd. En enda typ, eller flera
+  // med samma pris, är inte "från" — det är priset.
+  const showFrom = new Set(tierPrices).size > 1;
+  const displayPrice = hasTicketTypes ? Math.min(...tierPrices) : listing.price;
 
   return (
     <Link
@@ -96,7 +109,9 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
         </div>
         <div className="mt-2 flex items-center justify-between">
           <span className="text-xs font-medium text-[var(--usha-gold)]">
-            {listing.price ? t("listingCard.price", { price: listing.price }) : t("listingCard.free")}
+            {displayPrice
+              ? t(showFrom ? "listingCard.fromPrice" : "listingCard.price", { price: displayPrice })
+              : t("listingCard.free")}
           </span>
           {listing.category && (
             <span className="rounded-full bg-[var(--usha-gold)]/10 px-2 py-0.5 text-[10px] text-[var(--usha-gold)]">
@@ -112,7 +127,9 @@ export async function ListingCard({ listing, bookingCount = 0, isPromoted }: Lis
           <BuyTicketCta
             listingId={listing.id}
             slug={listing.slug}
-            price={listing.price}
+            price={displayPrice}
+            hasTicketTypes={hasTicketTypes}
+            fromPrice={showFrom}
             className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-3 py-2 text-xs font-semibold text-black transition hover:opacity-90"
           />
         )}

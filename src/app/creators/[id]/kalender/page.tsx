@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowLeft, CalendarDays, MapPin, Clock, ShieldCheck, CalendarPlus } from "lucide-react";
 import { FollowButton } from "@/components/follow-button";
 import type { Metadata } from "next";
+import { notIndexable } from "@/lib/seo/metadata";
 
 export const revalidate = 60;
 
@@ -26,7 +27,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     .eq(column, params.id)
     .eq("is_public", true)
     .single();
-  return { title: `${profile?.full_name || "Kreatör"}s kalender – Usha Platform` };
+  return { title: `${profile?.full_name || "Kreatör"}s kalender – Usha Platform`, ...notIndexable() };
 }
 
 export default async function CreatorCalendarPage(props: Props) {

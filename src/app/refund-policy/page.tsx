@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { indexable } from "@/lib/seo/metadata";
 
 export const metadata = {
+  ...indexable("/refund-policy"),
   title: "Återbetalningspolicy | Usha Platform",
   description: "Så fungerar avbokning och återbetalning på Usha Platform.",
 };

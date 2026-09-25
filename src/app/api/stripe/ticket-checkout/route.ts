@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
+import { getCreditLedgerBalance, applicableLedgerCredit } from "@/lib/credits/balance";
+import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
+import { passBookingFields } from '@/lib/passes/series-pass';
 import type Stripe from 'stripe';
 import { getStripeLocale } from "@/lib/i18n/stripe-locale";
 import { stripe } from '@/lib/stripe/client';
 import { computeServiceFeeOre, serviceFeeMode } from '@/lib/tickets/service-fee';
+import { applicableCredit } from '@/lib/credits/signup';
 import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from '@/lib/tickets/attendees';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
@@ -26,7 +31,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { listingId, ticketTypeId, quantity, attendeeNames } = await req.json();
-    const qty = clampQuantity(quantity);
+    let qty = clampQuantity(quantity);
 
     if (!listingId) {
       return NextResponse.json(
@@ -61,7 +66,7 @@ export async function POST(req: NextRequest) {
     // Get listing details
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode')
+      .select('id, title, price, user_id, is_active, event_date, event_time, release_to_gold_at, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug')
       .eq('id', listingId)
       .single();
 
@@ -79,6 +84,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Klippkort säljs ett åt gången och har inga biljettyper — kortet ÄR typen.
+    const isPass = listing.listing_type === 'package' && (listing.session_count ?? 0) > 0;
+    if (isPass) qty = 1;
+
     if (listing.user_id === user.id) {
       return NextResponse.json(
         { error: 'You cannot buy a ticket to your own event' },
@@ -89,7 +98,7 @@ export async function POST(req: NextRequest) {
     // Optional ticket type (price tier). When present it overrides the price and
     // capacity for this purchase; validated to belong to this listing.
     let ticketType: { id: string; name: string; price: number; capacity: number | null; tickets_sold: number } | null = null;
-    if (ticketTypeId) {
+    if (ticketTypeId && !isPass) {
       const { data: tt } = await supabase
         .from('ticket_types')
         .select('id, name, price, capacity, tickets_sold')
@@ -180,6 +189,7 @@ export async function POST(req: NextRequest) {
         guest_count: qty,
         ticket_type_id: ticketType?.id ?? null,
         ticket_type_name: ticketType?.name ?? null,
+        ...passBookingFields(isPass ? listing.session_count : null),
       }).select('id').single();
 
       if (insertError) {
@@ -234,6 +244,10 @@ export async function POST(req: NextRequest) {
       full_name: creator.full_name ?? null,
     };
     const flow = resolvePayeeFlow(payee);
+    // Partnerprogrammet: vem ledde hit? Kontots värvare inom fönstret, annars cookien.
+    const affiliateId = await affiliateForPurchase(createAdminClient(), { userId: user.id, refCookie: req.cookies.get(REF_COOKIE)?.value });
+    // Kanalen köpet kom ifrån, från landningscookien.
+    const utm = parseUtm(req.cookies.get(UTM_COOKIE)?.value);
 
     if (flow === 'third_party') {
       if (!creator.stripe_account_id) {
@@ -256,22 +270,63 @@ export async function POST(req: NextRequest) {
       (creator as { creator_subcategory?: string | null }).creator_subcategory ?? null
     );
     const applicationFee = Math.round(amountInOre * commissionRate);
+    // OBS: applicationFee räknas per biljett på ordinarie pris nedan, och
+    // avdraget dras från Ushas egen del i slutänden (se creditOre).
 
     // Tickster-style service fee (gated off until the flag is set). In BOTH
     // modes the fee is added to the application_fee so it stays with Usha; in
     // "buyer" mode it is ALSO added as a line item so the buyer pays it on top.
     const feeMode = serviceFeeMode(listing.service_fee_mode);
     const serviceFee = computeServiceFeeOre(amountInOre, qty); // total for all N tickets
+    // Välkomstavdraget. Räknas på ordersumman för biljetterna, INTE på
+    // serviceavgiften — avgiften är Ushas ersättning, inte en del av köpet.
+    //
+    // Avdraget dras som en egen negativ post går inte i Stripe, så det görs på
+    // biljettradens styckpris. Med flera biljetter fördelas det över hela
+    // ordern, vilket är samma sak för köparen och gör att qty * unit_amount
+    // fortfarande stämmer med det Stripe drar.
+    const subtotalOre = amountInOre * qty;
+    const { data: creditRow } = await admin
+      .from('account_credits')
+      .select('amount_ore, used_at, expires_at')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    const welcomeCreditOre = applicableCredit({
+      creditOre: creditRow?.amount_ore,
+      subtotalOre,
+      used: !!creditRow?.used_at,
+      expired: !!creditRow?.expires_at && new Date(creditRow.expires_at) < new Date(),
+    });
+    // Intjänad kredit (partnerprogrammet) läggs ovanpå välkomstavdraget, utan
+    // minimigräns – den är förtjänad, inte en gåva.
+    const ledgerCreditOre = applicableLedgerCredit(await getCreditLedgerBalance(admin, user.id), subtotalOre - welcomeCreditOre);
+    const creditOre = welcomeCreditOre + ledgerCreditOre;
+    const payableOre = subtotalOre - creditOre;
+    // Styckpriset avrundas nedåt och resten läggs på första biljetten, så att
+    // summan blir exakt även när avdraget inte går jämnt upp på antalet.
+    const unitAfterCredit = Math.floor(payableOre / qty);
+    const remainderOre = payableOre - unitAfterCredit * qty;
+
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [
       {
         price_data: {
           currency: 'sek',
           product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
-          unit_amount: amountInOre,
+          unit_amount: unitAfterCredit,
         },
         quantity: qty,
       },
     ];
+    if (remainderOre > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'sek',
+          product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
+          unit_amount: remainderOre,
+        },
+        quantity: 1,
+      });
+    }
     if (serviceFee > 0 && feeMode === 'buyer') {
       lineItems.push({
         price_data: {
@@ -303,8 +358,17 @@ export async function POST(req: NextRequest) {
     const paymentIntentData = buildConnectPaymentIntentData({
       flow,
       payee,
-      applicationFeeOre: applicationFee * qty + serviceFee,
-      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, termsUrl: creator.terms_url }),
+      // Usha bär avdraget, och det syns här: plattformsavgiften minskas med
+      // hela avdraget innan den dras. Arrangören får alltså lika mycket som
+      // om köparen betalat fullt, ända tills avdraget överstiger Ushas egen
+      // avgift — då finns inget mer av Ushas del att ge, och resten hamnar
+      // hos arrangören. I dag är arrangören och Usha samma bolag på varje
+      // kväll som säljer biljetter, så det är en gräns i teorin.
+      //
+      // Partnern är skyddad oavsett: avräkningen räknas på ordinarie pris via
+      // bookings.credit_applied_ore, inte på det köparen betalade.
+      applicationFeeOre: Math.max(0, applicationFee * qty + serviceFee - creditOre),
+      metadata: buildPaymentMetadata({ flow, payee, eventId: listing.id, eventDate: listing.event_date, seriesSlug: listing.series_slug, termsUrl: creator.terms_url }),
     });
 
     // Create Stripe Checkout session with Connect split
@@ -316,6 +380,9 @@ export async function POST(req: NextRequest) {
         customer_email: user.email,
         line_items: lineItems,
         mode: 'payment',
+        // Köparen matar in rabattkoden själv. Stripe äger kupongen och räknar
+        // ned användningarna, så en engångskod kan inte lösas in två gånger.
+        allow_promotion_codes: true,
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
         ...(paymentIntentData ? { payment_intent_data: paymentIntentData } : {}),
         ...(customText ? { custom_text: customText } : {}),
@@ -332,10 +399,16 @@ export async function POST(req: NextRequest) {
           discountedPrice: String(discountedPrice),
           serviceFeeOre: String(serviceFee),
           serviceFeeMode: feeMode,
-          platformFeeOre: String(applicationFee * qty + serviceFee),
+          platformFeeOre: String(Math.max(0, applicationFee * qty + serviceFee - creditOre)),
           ticketTypeId: ticketType?.id ?? '',
           ticketTypeName: ticketType?.name ?? '',
+          creditOre: String(creditOre),
+          welcomeCreditOre: String(welcomeCreditOre),
+          ledgerCreditOre: String(ledgerCreditOre),
           quantity: String(qty),
+          affiliateId: affiliateId ?? '',
+          ...utmMetadata(utm),
+          sessionsTotal: isPass ? String(listing.session_count) : '',
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: 'true',
           eventDate: listing.event_date || '',

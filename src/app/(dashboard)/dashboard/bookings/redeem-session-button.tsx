@@ -2,11 +2,11 @@
 
 import { useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { redeemDance } from "./actions";
+import { redeemSession } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import { Music, Check } from "lucide-react";
 
-export function RedeemDanceButton({
+export function RedeemSessionButton({
   bookingId,
   redeemed,
   total,
@@ -23,7 +23,7 @@ export function RedeemDanceButton({
   function handle() {
     if (allDone) return;
     startTransition(async () => {
-      const result = await redeemDance(bookingId);
+      const result = await redeemSession(bookingId);
       if ("error" in result) {
         toast.error(t("redeemRedeemError"), result.error);
         return;

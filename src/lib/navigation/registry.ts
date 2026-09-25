@@ -122,6 +122,9 @@ export const APP_DESTINATIONS: AppDestination[] = [
     group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
   { path: "/dashboard/billing", labelKey: "billingLabel", descKey: "billingDesc", icon: CreditCard,
     group: "finance", roles: "all", surfaces: ["more"] },
+  // Partnerprogrammet: alla kan värva, så raden ligger hos alla roller.
+  { path: "/app/partner", labelKey: "partnerLabel", descKey: "partnerDesc", navLabelKey: "partner", icon: Gift,
+    group: "finance", roles: "all", surfaces: ["more"] },
   { path: "/dashboard/promo-codes", labelKey: "promoCodesLabel", descKey: "promoCodesDesc", icon: Tag,
     group: "finance", roles: ["creator", "venue"], surfaces: ["more"] },
 
@@ -224,6 +227,8 @@ export const ADMIN_DESTINATIONS: AdminDestination[] = [
     requires: "creators" },
   { path: "/dashboard/admin/promo", labelKey: "promoLabel", descKey: "promoDesc", icon: Tag,
     requires: "promo" },
+  { path: "/dashboard/admin/partners", labelKey: "partnersLabel", descKey: "partnersDesc", icon: Gift,
+    requires: "partners" },
   // Att dela ut behörighet går inte att delegera: en partner som kan bredda sin
   // egen behörighet har i praktiken ingen begränsning.
   { path: "/dashboard/admin/access", labelKey: "accessLabel", descKey: "accessDesc", icon: KeyRound,
@@ -248,6 +253,7 @@ export const CONTEXTUAL_ROUTES: Record<string, string> = {
   "/app/events/[id]/settlement": "Nås från knappraden på eventsidan.",
   "/app/events/[id]/broadcast": "Nås från väntelistan på eventsidan.",
   "/app/events/[id]/codes": "Nås från eventsidan.",
+  "/app/events/[id]/entre": "Nås från knappraden på eventsidan; öppnas av den som står i dörren.",
   "/app/events/new": "Nås från Skapa-knappen i eventlistan.",
   "/app/events/open": "Nås från eventlistan.",
   "/app/events/insights": "Statistik för egna event — nås från Statistik-länken i eventlistans huvud. Det är en underrutt till Evenemang, inte en jämlike i menyn.",

@@ -7,6 +7,7 @@
  */
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { passRedemptionRows } from "@/lib/passes/series-pass";
 import { getStripe } from "@/lib/stripe/client";
 import {
   decidePayout,
@@ -27,6 +28,8 @@ export interface PayoutRunResult {
   deferred: { listingId: string; title: string }[];
   failed: { listingId: string; title: string; error: string }[];
   totalOre: number;
+  /** Kvällar som faktiskt fick pengar den här körningen, för beskedet efteråt. */
+  transfers: { title: string; eventDate: string; amountOre: number; transferId: string; partnerName: string }[];
 }
 
 /**
@@ -41,6 +44,8 @@ interface ShareRow {
   payout_delay_days: number;
   listing: { id: string; title: string | null; event_date: string | null } | null;
   partner: {
+    full_name?: string | null;
+    company_name?: string | null;
     id: string;
     stripe_account_id: string | null;
     company_verified_at: string | null;
@@ -65,6 +70,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     dryRun: 0,
     blocked: [],
     deferred: [],
+    transfers: [],
     failed: [],
     totalOre: 0,
   };
@@ -77,7 +83,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     .select(
       "listing_id, partner_percent, vat_rate, payout_delay_days, " +
         "listing:listings!listing_id(id, title, event_date), " +
-        "partner:profiles!partner_profile_id(id, stripe_account_id, company_verified_at, stripe_charges_enabled)"
+        "partner:profiles!partner_profile_id(id, full_name, company_name, stripe_account_id, company_verified_at, stripe_charges_enabled)"
     );
 
   if (error) throw new Error(`Kunde inte läsa delningsavtal: ${error.message}`);
@@ -97,13 +103,19 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       .eq("listing_id", listing.id)
       .maybeSingle();
 
-    if (existing && (existing.status === "paid" || existing.status === "dry_run")) continue;
+    // En torrkörd kväll är räknad men obetald. När utbetalningarna slås på ska
+    // den betalas, inte hoppas över för evigt — annars blir varje kväll som
+    // hunnit torrköras permanent oreglerad, och det är just de kvällarna man
+    // slår på funktionen för.
+    if (existing && (existing.status === "paid" || (existing.status === "dry_run" && !live))) continue;
 
     const { data: bookings } = await db
       .from("bookings")
-      .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count")
+      .select("status, amount_paid, platform_fee_amount, refund_amount, guest_count, credit_applied_ore")
       .eq("listing_id", listing.id)
       .eq("booking_type", "ticket");
+    // Inlösta klipp på seriekort: 1/N av kortet per kväll, se lib/passes.
+    const passRows = await passRedemptionRows(db, listing.id);
 
     const candidate: PayoutCandidate = {
       listingId: listing.id,
@@ -113,7 +125,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
       partnerPercent: share.partner_percent,
       vatRate: Number(share.vat_rate),
       payoutDelayDays: share.payout_delay_days,
-      bookings: bookings ?? [],
+      bookings: [...(bookings ?? []), ...passRows],
     };
 
     const decision = decidePayout(candidate);
@@ -154,6 +166,30 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
         if (insErr.code !== "23505") {
           result.failed.push({ listingId: listing.id, title: candidate.listingTitle, error: insErr.message });
         }
+        continue;
+      }
+    } else if (live && existing.status === "dry_run") {
+      // Torrkörningen blir en riktig utbetalning. Beloppen räknas om från
+      // dagens bokningar i stället för att lita på vad som stod i raden när
+      // den skrevs — biljetter kan ha tillkommit eller återbetalats sedan
+      // dess. Statusbytet till "pending" är samma lås som insert ger en ny rad.
+      const { error: updErr } = await db
+        .from("event_settlement_payouts")
+        .update({
+          status: "pending",
+          amount_ore: s.partnerOre,
+          gross_ore: s.grossOre,
+          refunded_ore: s.refundedOre,
+          vat_ore: s.vatOre,
+          basis_ore: s.basisOre,
+          partner_percent: s.partnerPercent,
+          vat_rate: s.vatRate,
+        })
+        .eq("listing_id", listing.id)
+        .eq("status", "dry_run");
+
+      if (updErr) {
+        result.failed.push({ listingId: listing.id, title: candidate.listingTitle, error: updErr.message });
         continue;
       }
     }
@@ -199,6 +235,13 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
 
       result.paid += 1;
       result.totalOre += s.partnerOre;
+      result.transfers.push({
+        title: candidate.listingTitle,
+        eventDate: listing.event_date,
+        amountOre: s.partnerOre,
+        transferId: transfer.id,
+        partnerName: partner.company_name || partner.full_name || "partner",
+      });
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
 

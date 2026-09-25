@@ -3,10 +3,10 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { deleteListing, toggleListingActive, duplicateListing } from "./actions";
+import { deleteListing, toggleListingActive, duplicateListing, moveListing } from "./actions";
 import { useToast } from "@/components/ui/toaster";
 import Link from "next/link";
-import { Clock, Pencil, Trash2, Crown, Calendar, MapPin, Copy } from "lucide-react";
+import { ArrowDown, ArrowUp, Calendar, Clock, Copy, Crown, MapPin, Pencil, Trash2 } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { SocialShareButton } from "@/components/social-share-button";
 import { eventShareUrl } from "@/lib/events/share";
@@ -31,7 +31,15 @@ export interface Listing {
   created_at: string;
 }
 
-export default function ListingRow({ listing }: { listing: Listing }) {
+export default function ListingRow({
+  listing,
+  kanFlyttaUpp = false,
+  kanFlyttaNer = false,
+}: {
+  listing: Listing;
+  kanFlyttaUpp?: boolean;
+  kanFlyttaNer?: boolean;
+}) {
   const { toast } = useToast();
   const t = useTranslations("listingsPage");
   const router = useRouter();
@@ -90,6 +98,14 @@ export default function ListingRow({ listing }: { listing: Listing }) {
       } catch {
         toast.error(t("toastGenericError"));
       }
+    });
+  }
+
+  function handleMove(riktning: "upp" | "ner") {
+    startTransition(async () => {
+      const result = await moveListing(listing.id, riktning);
+      if (result && "error" in result && result.error) toast.error(result.error);
+      else router.refresh();
     });
   }
 
@@ -178,6 +194,28 @@ export default function ListingRow({ listing }: { listing: Listing }) {
         >
           {listing.is_active ? t("deactivate") : t("activate")}
         </button>
+        {(kanFlyttaUpp || kanFlyttaNer) && (
+          <>
+            <button
+              onClick={() => handleMove("upp")}
+              disabled={!kanFlyttaUpp}
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)] disabled:opacity-25 disabled:hover:bg-transparent"
+              aria-label={t("moveUp")}
+              title={t("moveUp")}
+            >
+              <ArrowUp size={14} />
+            </button>
+            <button
+              onClick={() => handleMove("ner")}
+              disabled={!kanFlyttaNer}
+              className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)] disabled:opacity-25 disabled:hover:bg-transparent"
+              aria-label={t("moveDown")}
+              title={t("moveDown")}
+            >
+              <ArrowDown size={14} />
+            </button>
+          </>
+        )}
         <button
           onClick={handleDuplicate}
           className="flex h-11 w-11 items-center justify-center rounded-lg text-[var(--usha-muted)] transition-colors hover:bg-[var(--usha-card-hover)] hover:text-[var(--usha-white)]"

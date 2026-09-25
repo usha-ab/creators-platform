@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { handleCapacityReached, autoPromoteFromQueue, addToQueue, getQueuePosition } from "@/lib/bookings/queue";
 import { requirePaidSubscription } from "@/lib/subscription/check";
 import { refundBookingCharge } from "@/lib/tickets/refund";
+import { voidRewardsForBooking } from "@/lib/affiliate/rewards";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { sendBookingConfirmationEmail, sendBookingCancellationEmail } from "@/lib/email/send-booking";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
@@ -260,6 +261,8 @@ export async function updateBookingStatus(
     try {
       refundInfo = await refundBookingCharge(booking.stripe_payment_id);
       console.log(`Refunded ${refundInfo.amount} öre (${refundInfo.refundId}) for booking ${bookingId}`);
+      // Partnerns andel av ett återbetalat köp ska inte betalas ut.
+      await voidRewardsForBooking(createAdminClient(), bookingId);
     } catch (err) {
       console.error("Auto-refund failed:", err);
       return { error: "Kunde inte återbetala. Kontakta support." };
@@ -481,11 +484,11 @@ export async function getMyQueuePosition(listingId: string) {
 }
 
 /**
- * Increments dances_redeemed by 1 on a dance_package booking.
- * Only the creator (taxi_dancer) of the booking may redeem.
- * If the increment reaches dances_total, status is auto-marked completed.
+ * Löser in ett pass på ett klippkort: räknar upp sessions_redeemed med 1.
+ * Bara kreatören som äger bokningen får lösa in.
+ * När sista passet tas markeras bokningen automatiskt som completed.
  */
-export async function redeemDance(bookingId: string) {
+export async function redeemSession(bookingId: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -495,18 +498,18 @@ export async function redeemDance(bookingId: string) {
 
   const { data: booking } = await supabase
     .from("bookings")
-    .select("id, creator_id, status, dances_total, dances_redeemed")
+    .select("id, creator_id, status, sessions_total, sessions_redeemed")
     .eq("id", bookingId)
     .single();
 
   if (!booking) return { error: "Bokning hittades inte." };
 
   if (booking.creator_id !== user.id) {
-    return { error: "Bara taxidansaren kan markera danser inlösta." };
+    return { error: "Bara kreatören kan lösa in pass." };
   }
 
-  const total = (booking as { dances_total?: number | null }).dances_total ?? null;
-  const redeemed = (booking as { dances_redeemed?: number | null }).dances_redeemed ?? 0;
+  const total = (booking as { sessions_total?: number | null }).sessions_total ?? null;
+  const redeemed = (booking as { sessions_redeemed?: number | null }).sessions_redeemed ?? 0;
 
   if (total === null || total <= 0) {
     return { error: "Den här bokningen har inte ett danspaket." };
@@ -523,18 +526,18 @@ export async function redeemDance(bookingId: string) {
   const nextRedeemed = redeemed + 1;
   const reachedTotal = nextRedeemed >= total;
 
-  // Optimistic concurrency: only apply if dances_redeemed is still what we read
+  // Optimistic concurrency: only apply if sessions_redeemed is still what we read
   // and the booking is still confirmed. A concurrent redemption (double-tap /
   // two devices) changes the value so the guard misses → 0 rows → we bail out
   // instead of silently losing an update.
   const { data: updatedRows, error: updateError } = await supabase
     .from("bookings")
     .update({
-      dances_redeemed: nextRedeemed,
+      sessions_redeemed: nextRedeemed,
       ...(reachedTotal ? { status: "completed" } : {}),
     })
     .eq("id", bookingId)
-    .eq("dances_redeemed", redeemed)
+    .eq("sessions_redeemed", redeemed)
     .eq("status", "confirmed")
     .select("id");
 
@@ -551,7 +554,7 @@ export async function redeemDance(bookingId: string) {
 
 /**
  * Instructor redeems a block of minutes on-site for an instructor-minutes
- * booking. Mirrors redeemDance but works in `amount`-minute steps (default 15).
+ * booking. Mirrors redeemSession but works in `amount`-minute steps (default 15).
  */
 export async function redeemMinutes(bookingId: string, amount = 15) {
   const supabase = await createClient();

@@ -27,7 +27,6 @@ export function Ecosystem() {
       icon: Palette,
       title: t("ecosystem.creators.title"),
       desc: t("ecosystem.creators.desc"),
-      color: "from-[var(--usha-gold)] to-amber-600",
       details: [
         { icon: Palette, text: t("ecosystem.creators.detail1") },
         { icon: Ticket, text: t("ecosystem.creators.detail2") },
@@ -39,7 +38,6 @@ export function Ecosystem() {
       icon: Store,
       title: t("ecosystem.experiences.title"),
       desc: t("ecosystem.experiences.desc"),
-      color: "from-[var(--usha-accent)] to-rose-500",
       details: [
         { icon: Ticket, text: t("ecosystem.experiences.detail1") },
         { icon: Search, text: t("ecosystem.experiences.detail2") },
@@ -52,7 +50,6 @@ export function Ecosystem() {
       icon: Heart,
       title: t("ecosystem.customers.title"),
       desc: t("ecosystem.customers.desc"),
-      color: "from-sky-500 to-blue-500",
       details: [
         { icon: Search, text: t("ecosystem.customers.detail1") },
         { icon: CalendarCheck, text: t("ecosystem.customers.detail2") },
@@ -87,8 +84,12 @@ export function Ecosystem() {
                   onClick={() => setOpenPillar(isOpen ? null : i)}
                   className="flex w-full items-center gap-4 p-6 text-left"
                 >
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${pillar.color}`}>
-                    <pillar.icon size={18} className="text-black" />
+                  {/* Samma ikonbricka som dörrarna och trygghetskorten. Pelarna
+                      hade tidigare var sin mättade gradient med svart ikon, och
+                      den tredje var blå — en färg som inte fanns någon
+                      annanstans på sidan. */}
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--usha-gold)]/20 to-[var(--usha-accent)]/20">
+                    <pillar.icon size={18} className="text-[var(--usha-gold)]" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold">{pillar.title}</h3>

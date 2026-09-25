@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Calendar, ChevronRight, Eye, ImageIcon } from "lucide-react";
 
 export interface OwnListing {
+  listing_type?: string | null;
   id: string;
   title: string;
   category?: string | null;

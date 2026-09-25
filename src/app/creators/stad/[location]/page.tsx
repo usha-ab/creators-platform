@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MapPin, ArrowLeft } from "lucide-react";
 import { SeoFooter } from "@/components/seo-footer";
+import { indexable } from "@/lib/seo/metadata";
 
 interface Props {
   params: Promise<{ location: string }>;
@@ -30,6 +31,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     title: `Kreatörer i ${city} – Usha Platform`,
     description: `Hitta kreatörer i ${city}. Dansinstruktörer, musiker, fotografer och mer.`,
     ...(!count ? { robots: { index: false } } : {}),
+    ...indexable(`/creators/stad/${params.location}`),
     openGraph: {
       title: `Kreatörer i ${city} – Usha Platform`,
       description: `Hitta kreativa talanger i ${city}.`,

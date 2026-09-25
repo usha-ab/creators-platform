@@ -25,23 +25,37 @@ interface Listing {
   event_lng?: number | null;
   event_place_id?: string | null;
   listing_type?: string | null;
-  dance_count?: number | null;
+  pass_series_id?: string | null;
+  pass_series_ids?: string[] | null;
+  pass_reference_price?: number | null;
+  pass_covers?: string | null;
+  session_count?: number | null;
 }
 
 export default function ListingForm({
   listing,
   action,
   creatorSubcategory,
+  seriesOptions = [],
 }: {
   listing?: Listing;
   action: (formData: FormData) => Promise<{ error?: string } | void>;
   creatorSubcategory?: string | null;
+  /** Kreatörens egna serier, för klippkort som ska gälla som biljett. */
+  seriesOptions?: { id: string; title: string }[];
 }) {
   const t = useTranslations("listingForm");
   const ta = useTranslations("a11y");
   const isTaxiDancer = creatorSubcategory === "taxi_dancer";
+  // Kortet kan gälla flera serier. Äldre kort har bara pass_series_id.
+  const selectedSeries =
+    listing?.pass_series_ids?.length
+      ? listing.pass_series_ids
+      : listing?.pass_series_id
+        ? [listing.pass_series_id]
+        : [];
   const [listingType, setListingType] = useState<string>(
-    listing?.listing_type ?? (isTaxiDancer ? "dance_package" : "service")
+    listing?.listing_type ?? (isTaxiDancer ? "package" : "service")
   );
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -153,9 +167,11 @@ export default function ListingForm({
         />
       </div>
 
-      {/* Listing type — only for taxi_dancer creators */}
-      {isTaxiDancer && (
-        <div>
+      {/* Typväljaren visas för ALLA kreatörer. Tidigare låg hela blocket bakom
+          isTaxiDancer, så en boxningstränare kunde varken se eller välja
+          klippkort — serverns grind var lyft men knappen fanns inte.
+          Coaching och B2B är fortsatt taxidansarnas och listas bara för dem. */}
+      <div>
           <label htmlFor="listing_type" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
             {t("listingTypeLabel")}
           </label>
@@ -165,32 +181,83 @@ export default function ListingForm({
             onChange={(e) => setListingType(e.target.value)}
             className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
           >
-            <option value="dance_package">{t("typeDancePackage")}</option>
-            <option value="coaching_session">{t("typeCoachingSession")}</option>
-            <option value="b2b_offering">{t("typeB2bOffering")}</option>
             <option value="service">{t("typeService")}</option>
+            <option value="package">{t("typePackage")}</option>
+            {isTaxiDancer && (
+              <>
+                <option value="coaching_session">{t("typeCoachingSession")}</option>
+                <option value="b2b_offering">{t("typeB2bOffering")}</option>
+              </>
+            )}
           </select>
-          {listingType === "dance_package" && (
+          {listingType === "package" && (
             <>
               <p className="mt-1.5 text-xs text-[var(--usha-muted)]">
-                {t("dancePackageHint")}
+                {t("packageHint")}
               </p>
               <div className="mt-3">
-                <label htmlFor="dance_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-                  {t("danceCountLabel")}
+                <label htmlFor="session_count" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                  {t("sessionCountLabel")}
                 </label>
                 <input
-                  id="dance_count"
-                  name="dance_count"
+                  id="session_count"
+                  name="session_count"
                   type="number"
                   min={1}
                   step={1}
                   required
-                  defaultValue={listing?.dance_count ?? 5}
-                  placeholder={t("danceCountPlaceholder")}
+                  defaultValue={listing?.session_count ?? 5}
+                  placeholder={t("sessionCountPlaceholder")}
                   className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
                 />
               </div>
+              {seriesOptions.length > 0 && (
+                <div className="mt-3">
+                  <span className="mb-1.5 block text-sm text-[var(--usha-muted)]">
+                    {t("passSeriesLabel")}
+                  </span>
+                  <div className="flex flex-col gap-2 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3">
+                    {seriesOptions.map((s) => (
+                      <label key={s.id} className="flex items-center gap-2.5 text-sm">
+                        <input
+                          type="checkbox"
+                          name="pass_series_id"
+                          value={s.id}
+                          defaultChecked={selectedSeries.includes(s.id)}
+                          className="h-4 w-4 accent-[var(--usha-gold)]"
+                        />
+                        <span>{s.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("passSeriesHint")}</p>
+                  <label htmlFor="pass_covers" className="mb-1.5 mt-3 block text-sm text-[var(--usha-muted)]">
+                    {t("passCoversLabel")}
+                  </label>
+                  <input
+                    id="pass_covers"
+                    name="pass_covers"
+                    type="text"
+                    maxLength={80}
+                    defaultValue={listing?.pass_covers ?? ""}
+                    placeholder={t("passCoversPlaceholder")}
+                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                  />
+                  <label htmlFor="pass_reference_price" className="mb-1.5 mt-3 block text-sm text-[var(--usha-muted)]">
+                    {t("passReferencePriceLabel")}
+                  </label>
+                  <input
+                    id="pass_reference_price"
+                    name="pass_reference_price"
+                    type="number"
+                    min={1}
+                    step={1}
+                    defaultValue={listing?.pass_reference_price ?? ""}
+                    className="w-full rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] px-4 py-3 text-sm outline-none transition focus:border-[var(--usha-gold)]/40"
+                  />
+                  <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("passReferencePriceHint")}</p>
+                </div>
+              )}
             </>
           )}
           {listingType === "coaching_session" && (
@@ -203,8 +270,7 @@ export default function ListingForm({
               {t("b2bOfferingHint")}
             </p>
           )}
-        </div>
-      )}
+      </div>
 
       {/* Category + Price */}
       <div className="grid gap-6 sm:grid-cols-2">

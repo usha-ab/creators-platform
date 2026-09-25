@@ -111,14 +111,25 @@ describe("buildPaymentMetadata", () => {
       payee: { company_name: "Joy Nation AB", org_number: "5560360793", full_name: "Anna" },
       eventId: "evt_1",
       eventDate: "2026-09-01",
+      seriesSlug: "brazilian-zouk-tisdag",
     });
     expect(meta).toEqual({
       model: "agent",
       event_date: "2026-09-01",
       organizer_org_nr: "556036-0793",
       event_id: "evt_1",
+      series_slug: "brazilian-zouk-tisdag",
       terms_url: "",
     });
+  });
+
+  it("series_slug blir tom sträng när kvällen inte tillhör en serie", () => {
+    const meta = buildPaymentMetadata({
+      flow: "usha_principal",
+      payee: { company_name: null, org_number: null, full_name: "Pablo" },
+      eventId: "evt_2",
+    });
+    expect(meta.series_slug).toBe("");
   });
 
   it("stamps terms_url when provided", () => {

@@ -6,9 +6,17 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight } from "lucide-react";
+import { MapPin, Clock, Calendar, ArrowLeft, User, ChevronRight, ChevronDown } from "lucide-react";
 import { CATEGORY_LABELS } from "@/lib/categories";
+import {
+  splitBilingualDescription,
+  buildPreviewDescription,
+} from "@/lib/listings/description";
+import { FollowButton } from "@/components/follow-button";
+import { EmailFollowForm } from "@/components/email-follow-form";
+import { FollowUs } from "@/components/follow-us";
 import { getTranslations, getLocale } from "next-intl/server";
+import { canonicalSeriesSlug } from "@/lib/listings/series-aliases";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -30,20 +38,36 @@ type Occurrence = {
   image_url: string | null;
   user_id: string;
   content_language: string | null;
+  ticket_types?: { price: number | null }[] | null;
 };
 
-async function fetchSeries(slug: string): Promise<Occurrence[]> {
+const SERIES_COLUMNS =
+  "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language, ticket_types(price)";
+
+async function fetchBySeriesSlug(slug: string): Promise<Occurrence[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("listings")
-    .select(
-      "id, slug, title, description, category, price, event_date, event_time, event_end_time, event_location, event_lat, event_lng, image_url, user_id, content_language"
-    )
+    .select(SERIES_COLUMNS)
     .eq("series_slug", slug)
     .eq("is_active", true)
     .eq("is_public", true)
     .order("event_date", { ascending: true });
   return (data as Occurrence[] | null) ?? [];
+}
+
+/**
+ * Gamla serienycklar finns på utskrivna QR-koder och i delade länkar, så de
+ * översätts till dagens nyckel. Slår den nya tomt provas den inmatade som den
+ * är: aliaset och databasbytet kan inte landa i exakt samma sekund, och i
+ * glappet ska ingen mötas av 404. (Det hände 2026-09-17 — alias-deployen gick
+ * ut före omdöpningen, och den utskrivna QR-kodens adress dog i tio minuter.)
+ */
+async function fetchSeries(rawSlug: string): Promise<Occurrence[]> {
+  const canonical = canonicalSeriesSlug(rawSlug);
+  const rows = await fetchBySeriesSlug(canonical);
+  if (rows.length > 0 || canonical === rawSlug) return rows;
+  return fetchBySeriesSlug(rawSlug);
 }
 
 // Per-series language: if the host pinned a language on the series, the page
@@ -67,8 +91,13 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   const s = occurrences[0];
   const title = t("metaTitle", { title: s.title });
-  const description = s.description?.slice(0, 160) || t("metaDescription", { title: s.title });
-  const url = `${appUrl()}/series/${params.slug}`;
+  // Samma behandling som eventsidan: plats först, dekorativ inledning och
+  // andraspråk bort. Utan det inleds förhandsvisningen med brödtextens början
+  // och kan svämma över i den engelska halvan.
+  const description =
+    buildPreviewDescription([s.event_location?.split(",")[0]?.trim()], s.description, 160) ||
+    t("metaDescription", { title: s.title });
+  const url = `${appUrl()}/series/${canonicalSeriesSlug(params.slug)}`;
 
   return {
     title,
@@ -170,11 +199,29 @@ export default async function SeriesPage(props: Props) {
 
   const locale = await resolveLocale(series);
   const t = await getTranslations({ locale, namespace: "seriesPage" });
+  const isOwnSeries = !!user && user.id === series.user_id;
+  const [{ count: followerCount }, { data: myFollow }] = await Promise.all([
+    supabase.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", series.user_id),
+    user
+      ? supabase.from("follows").select("id").eq("follower_id", user.id).eq("followed_id", series.user_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
+  const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const tCat = await getTranslations({ locale, namespace: "categories" });
   const categoryLabel = (value: string | null) =>
     !value ? "" : tCat.has(value) ? tCat(value) : CATEGORY_LABELS[value] ?? value;
-  const priceLabel = (price: number | null) =>
-    price == null ? null : price > 0 ? t("priceSek", { price }) : t("free");
+  // Lägsta biljettpris, och "från" när typerna spänner över flera priser.
+  // Annars står "50 SEK" på en kväll där bara practican kostar 50.
+  const seriesText = splitBilingualDescription(series.description);
+  const priceLabel = (o: Occurrence) => {
+    const tiers = (o.ticket_types ?? [])
+      .map((tt) => tt.price)
+      .filter((p): p is number => typeof p === "number");
+    const price = tiers.length ? Math.min(...tiers) : o.price;
+    if (price == null) return null;
+    if (price <= 0) return t("free");
+    return t(new Set(tiers).size > 1 ? "priceFromSek" : "priceSek", { price });
+  };
 
   // Creator profile
   const { data: creator } = await supabase
@@ -194,8 +241,10 @@ export default async function SeriesPage(props: Props) {
     "@context": "https://schema.org",
     "@type": "EventSeries",
     name: series.title,
-    url: `${appUrl()}/series/${params.slug}`,
-    ...(series.description ? { description: series.description.slice(0, 300) } : {}),
+    url: `${appUrl()}/series/${canonicalSeriesSlug(params.slug)}`,
+    ...(series.description
+      ? { description: splitBilingualDescription(series.description).primary.slice(0, 300) }
+      : {}),
     ...(series.image_url ? { image: series.image_url } : {}),
     ...(creator
       ? {
@@ -277,9 +326,23 @@ export default async function SeriesPage(props: Props) {
         )}
 
         {series.description && (
-          <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-[var(--usha-muted)]">
-            {series.description}
-          </p>
+          <div className="mt-4 text-sm leading-relaxed text-[var(--usha-muted)]">
+            <p className="whitespace-pre-line">{seriesText.primary}</p>
+            {/* Samma utfällning som på eventsidan — en serie visar samma
+                beskrivning som sina kvällar, och skulle annars upprepa hela
+                texten på båda språken här också. */}
+            {seriesText.secondary && (
+              <details className="group mt-4 rounded-xl border border-[var(--usha-border)]">
+                <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
+                  {seriesText.secondaryLabel}
+                  <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
+                </summary>
+                <p className="whitespace-pre-line border-t border-[var(--usha-border)] px-4 py-4">
+                  {seriesText.secondary}
+                </p>
+              </details>
+            )}
+          </div>
         )}
 
         {/* Upcoming */}
@@ -294,7 +357,7 @@ export default async function SeriesPage(props: Props) {
                   key={o.id}
                   o={o}
                   locale={locale}
-                  priceLabel={priceLabel(o.price)}
+                  priceLabel={priceLabel(o)}
                   ctaLabel={t("book")}
                 />
               ))}
@@ -319,7 +382,7 @@ export default async function SeriesPage(props: Props) {
                   o={o}
                   past
                   locale={locale}
-                  priceLabel={priceLabel(o.price)}
+                  priceLabel={priceLabel(o)}
                   ctaLabel={t("view")}
                 />
               ))}
@@ -354,6 +417,35 @@ export default async function SeriesPage(props: Props) {
             </div>
           </Link>
         )}
+
+        {/* Följ härifrån: serien är det man faktiskt vill ha nästa kväll av. */}
+        {creator && !isOwnSeries && (
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <FollowButton
+              creatorId={series.user_id}
+              initialFollowing={!!myFollow}
+              followerCount={followerCount ?? 0}
+              isLoggedIn={isLoggedIn}
+              returnTo={`/series/${canonicalSeriesSlug(params.slug)}`}
+            />
+          </div>
+        )}
+        {creator && !user && (
+          <EmailFollowForm
+            followedId={series.user_id}
+            locale={locale}
+            className="mt-4"
+            labels={{
+              prompt: tFollow("prompt", { name: creator.full_name || t("creator") }),
+              placeholder: tFollow("placeholder"),
+              button: tFollow("button"),
+              pending: tFollow("pending"),
+              active: tFollow("active", { name: creator.full_name || t("creator") }),
+              failed: tFollow("failed"),
+            }}
+          />
+        )}
+        <FollowUs className="mt-8" />
       </div>
     </div>
   );

@@ -82,6 +82,7 @@ export default async function AdminCreatorsPage({
         <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <div className="mb-4">
             <p className="font-semibold">{profile.full_name || t("noName")}</p>
+            <Link href={`/creators/${profile.id}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-sm text-[var(--usha-gold)] hover:underline">{t("previewProfile")}</Link>
             <p className="text-sm text-[var(--usha-muted)]">{profile.email} · {t("roleLabel", { role: profile.role ?? "–" })}</p>
           </div>
 

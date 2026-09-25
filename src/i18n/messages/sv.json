@@ -46,6 +46,7 @@
     "switchToDark": "Byt till mörkt läge"
   },
   "nav": {
+    "partner": "Partner",
     "tools": "Verktyg",
     "favorites": "Favoriter",
     "home": "Hem",
@@ -141,7 +142,8 @@
     "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usha Platform samlar kreatörer, upplevelser och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Alla kreatörer är BankID-verifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
     "p2": "Usha grundades av Pablo Acosta, som arbetar i skärningspunkten mellan dans, teknik och community-building. Visionen är enkel: bygga en plats där kreativitet får leva, talanger får synas och människor får komma närmare varandra.",
     "roadmapTitle": "Vart vi är på väg",
-    "p3": "Vi bygger steg för steg, med riktiga upplevelser från dag ett. I sommar startar vi med The Kiz Lab — öppen dansträning varje vecka i Stockholm. Därifrån växer vi vidare till återkommande månadsfester och, längre fram, en årlig festival som samlar hela gemenskapen.",
+    "p3": "Vi bygger steg för steg, med riktiga upplevelser från dag ett. Grunden är återkommande kvällar i Stockholm — öppen dansträning varje vecka, där alla är välkomna oavsett nivå. Därifrån växer vi vidare till månadsfester och, längre fram, en årlig festival som samlar hela gemenskapen.",
+    "p3Link": "Se vad som händer just nu →",
     "closing": "Det här är bara början. Välkommen att vara med från start.",
     "tagline": "Usha Platform — för mänskligt uttryck."
   },
@@ -307,7 +309,9 @@
     "editPrefs": "Redigera preferenser"
   },
   "profile": {
+    "partner": "Partnerprogram",
     "editProfile": "Redigera Profil",
+    "viewMyPage": "Visa min sida",
     "payouts": "Utbetalningar",
     "language": "Språk",
     "myPlan": "Min plan & betalning",
@@ -517,9 +521,17 @@
     "businessIndividualDesc": "Jag säljer i eget namn, utan organisationsnummer",
     "businessCompany": "Företag",
     "businessCompanyDesc": "Jag fakturerar via ett företag med organisationsnummer",
-    "businessTypeNote": "Företag får verifiera org.nr och visas som säljare med organisationsnummer på kvittot. Du kan ändra detta senare."
+    "businessTypeNote": "Företag får verifiera org.nr och visas som säljare med organisationsnummer på kvittot. Du kan ändra detta senare.",
+    "signupCreditTitle": "{amount} kr till nya konton",
+    "signupCreditNote": "Att använda vid köp från {minSpend} kr. Gäller i 12 månader.",
+    "marketingConsent": "Ja, jag vill få mejl om erbjudanden och nyheter från Usha. Du kan ändra det när som helst i inställningarna."
   },
   "landing": {
+    "whatsOn": {
+      "heading": "Vad händer",
+      "sub": "Kommande kvällar, kurser och tjänster.",
+      "seeAll": "Se allt"
+    },
     "meta": {
       "title": "Usha Platform — Där kreatörer, platser och publik möts",
       "description": "Kretsloppet som får Sveriges kreativa liv att snurra – kreatörer hittar uppdrag, platser fyller sin kalender, publiken upptäcker upplevelser. Tryggt med BankID och Stripe.",
@@ -534,7 +546,7 @@
       "marketplace": "Marketplace",
       "openApp": "Öppna appen",
       "downloadApp": "Ladda ner appen",
-      "getStarted": "Kom igång",
+      "getStarted": "Skaffa konto",
       "menuAriaLabel": "Meny",
       "login": "Logga in",
       "forCreators": "Kreatör",
@@ -542,7 +554,8 @@
       "forAudience": "Publik",
       "shop": "Shop",
       "sellTickets": "Sälj biljetter",
-      "homeAriaLabel": "Usha Platform – hem"
+      "homeAriaLabel": "Usha Platform – hem",
+      "calendar": "Kalender"
     },
     "install": {
       "title": "Installera Usha Platform",
@@ -569,10 +582,10 @@
       "eventsCta": "Se evenemang"
     },
     "ecosystem": {
-      "title": "Tre ben, ett",
-      "titleHighlight": "ekosystem",
-      "subtitle": "BankID-verifierade kreatörer skapar utbudet. Upplevelser erbjuder platserna. Kunder upptäcker och bokar tryggt. Alla förstärker varandra.",
-      "loopMessage": "Fler kreatörer lockar fler kunder. Fler kunder lockar fler upplevelser. Kretsloppet som driver tillväxt.",
+      "title": "Så hänger",
+      "titleHighlight": "det ihop",
+      "subtitle": "BankID-verifierade kreatörer skapar utbudet. Platser upplåter sina lokaler. Publiken upptäcker och bokar tryggt. Alla förstärker varandra.",
+      "loopMessage": "Fler kreatörer lockar fler besökare. Fler besökare lockar fler platser. Kretsloppet som driver tillväxt.",
       "creators": {
         "title": "Kreatörer",
         "desc": "Dansinstruktörer, fotografer, musiker, designers — kreativa talanger som bygger sin verksamhet.",
@@ -582,7 +595,7 @@
         "detail4": "Säkra Stripe-utbetalningar med intäktsstatistik"
       },
       "experiences": {
-        "title": "Upplevelser",
+        "title": "Platser",
         "desc": "Restauranger, konserthus, SPA, nattklubbar och retreat centers — platser som skapar oförglömliga stunder.",
         "detail1": "Skapa events & sälj biljetter med QR-kod",
         "detail2": "Skanna biljetter & ha koll på deltagare i dörren",
@@ -591,7 +604,7 @@
         "detail5": "Bjud in personal och dela ut delar av lokalen — utan att ge bort ekonomin"
       },
       "customers": {
-        "title": "Kunder",
+        "title": "Publik",
         "desc": "Människor som vill upptäcka BankID-verifierade kreativa talanger och upplevelser — och boka dem direkt.",
         "detail1": "Upptäck BankID-verifierade kreatörer & upplevelser",
         "detail2": "Boka direkt med datum & tid — säker Stripe-betalning",
@@ -780,7 +793,12 @@
       "upplevelsePremium2": "3% kommission (istället för 15%)",
       "upplevelsePremium3": "Toppsynlighet + utvalda",
       "upplevelsePremium4": "Facebook-sync",
-      "upplevelsePremium5": "Dedikerad support"
+      "upplevelsePremium5": "Dedikerad support",
+      "subtitleVenue": "Ta emot kreatörer, fyll kvällarna och håll ekonomin samlad. Lokalen sätter villkoren, plattformen sköter biljetter, incheckning och avräkning.",
+      "subtitleCustomer": "Medlemskapet är för dig som går ut ofta: rabatt på bokningar, tidig tillgång till biljetterna och hela programmet samlat i din kalender.",
+      "publikFreeDesc": "Allt du behöver för att gå på saker",
+      "publikGoldDesc": "För dig som går ut regelbundet",
+      "publikPremiumDesc": "För dig som alltid är med"
     },
     "faq": {
       "title": "Frågor &",
@@ -804,7 +822,9 @@
       "installLead": "Eller installera appen direkt"
     },
     "footer": {
+      "partner": "Partnerprogram",
       "description": "Kreatörer, upplevelser och kunder — förenade på en plattform.",
+      "discover": "Hitta",
       "platform": "Plattform",
       "marketplace": "Marketplace",
       "pricing": "Priser",
@@ -824,6 +844,10 @@
       "venueDesc": "Fyll kalendern med kuraterade kreatörer",
       "audienceLabel": "Jag vill uppleva",
       "audienceDesc": "Upptäck upplevelser nära dig"
+    },
+    "signupCta": {
+      "title": "Skaffa konto – det är gratis",
+      "description": "Ett konto räcker för allt: köpa biljetter, följa arrangörer, och sälja själv den dagen du vill."
     },
     "homeCta": {
       "title": "Hitta din plats i kretsloppet",
@@ -986,6 +1010,171 @@
     "followerCount": "{count} följare",
     "listingCount": "{count, plural, one {# tjänst} other {# tjänster}}"
   },
+  "calendar": {
+    "metaTitle": "Kalender – Usha Platform",
+    "metaDescription": "Kommande evenemang, kurser och kvällar på Usha Platform – dag för dag.",
+    "title": "Kalender",
+    "intro": "{count, plural, one {# kommande händelse} other {# kommande händelser}}",
+    "navFeed": "Flöde",
+    "navExperiences": "Upplevelser",
+    "navCreateProfile": "Skapa profil",
+    "today": "I dag",
+    "thisWeek": "Den här veckan",
+    "nextWeek": "Nästa vecka",
+    "later": "Längre fram",
+    "every": "Varje {weekday}",
+    "occurrences": "{count} tillfällen",
+    "next": "Nästa {date}",
+    "free": "Gratis",
+    "price": "{price} kr",
+    "empty": "Inget inplanerat just nu. Titta in igen snart.",
+    "open": "Öppna"
+  },
+  "followUs": {
+      "heading": "Följ oss",
+      "facebook": "Usha på Facebook",
+      "instagram": "Usha på Instagram",
+      "tiktok": "Usha på TikTok"
+  },
+  "emailFollow": {
+      "prompt": "Få ett mejl när {name} lägger upp nästa tillfälle",
+      "placeholder": "din@epost.se",
+      "button": "Följ via e-post",
+      "pending": "Nästan klart – bekräfta i mejlet vi just skickade.",
+      "active": "Du följer {name} via e-post.",
+      "failed": "Det gick inte. Försök igen.",
+      "ticketQuestion": "Vill du ha ett mejl när {name} lägger upp nästa tillfälle?",
+      "ticketExplain": "Ett mejl per nytt tillfälle till {email}. Avsluta när du vill via länken i mejlet.",
+      "yes": "Ja, mejla mig",
+      "no": "Nej tack",
+      "unsubscribed": "Du får inga mejl om nya tillfällen från {name}.",
+      "change": "Ändra",
+      "confirmTitle": "Klart – du följer {name}",
+      "confirmBody": "Vi mejlar dig när nästa tillfälle läggs upp. Avsluta när du vill via länken i varje mejl.",
+      "confirmInvalidTitle": "Länken gäller inte längre",
+      "confirmInvalidBody": "Be om en ny bekräftelse från eventsidan.",
+      "unsubTitle": "Du är avprenumererad",
+      "unsubBody": "Inga fler mejl om nya tillfällen. Du kan följa igen från eventsidan när du vill.",
+      "unsubInvalidTitle": "Länken känns inte igen",
+      "unsubInvalidBody": "Kontrollera att hela länken från mejlet följde med.",
+      "toProfile": "Till {name}",
+      "metaConfirm": "Bekräfta följning – Usha Platform",
+      "metaUnsub": "Avsluta följning – Usha Platform"
+  },
+  "partner": {
+      "metaTitle": "Partnerprogram – Usha Platform",
+      "title": "Partnerprogram",
+      "intro": "Dela din länk. Du får {share} % av Ushas intäkt på allt dina värvade köper eller säljer i tolv månader, plus premium-tid och kredit.",
+      "yourLink": "Din länk",
+      "linkHint": "Länken fungerar på alla sidor på usha.se – lägg ?ref=din kod efter vilken adress som helst, till exempel The Lab:",
+      "copy": "Kopiera",
+      "copied": "Kopierad",
+      "share": "Dela",
+      "shareTitle": "Usha Platform",
+      "shareText": "Kolla in Usha Platform – kurser, kvällar och biljetter på ett ställe.",
+      "qrHint": "QR-koden pekar på din länk. Visa den i dörren eller på en affisch.",
+      "statClicks": "Klick",
+      "statSignups": "Registreringar",
+      "statPurchases": "Köp",
+      "statEarned": "Intjänat",
+      "statPaid": "Utbetalt",
+      "statPremium": "Premium-tid",
+      "kr": "{amount} kr",
+      "days": "{count} dagar",
+      "termsHeading": "Så fungerar det",
+      "terms1": "{share} % av Ushas intäkt på allt dina värvade köper eller säljer, i tolv månader från registreringen.",
+      "terms2": "{days} dagar premium när en kreatör eller lokal du värvat publicerar sitt första utbud – och samma till hen.",
+      "terms3": "{amount} kr i kredit när en kund du värvat gör sitt första köp.",
+      "terms4": "Räknas när köpet är betalt. Återbetalade köp räknas bort.",
+      "terms5": "Ingen belöning för egna köp eller egna konton.",
+      "payoutNote": "Bolag får kontant utbetalning kvartalsvis via Stripe vid minst 200 kr, annars som kredit. Privatpersoner får alltid kredit att handla för i kassan. Andelar godkänns 14 dagar efter köpet.",
+      "rewardsHeading": "Dina belöningar",
+      "rewardsEmpty": "Inget än. Dela länken så syns det här.",
+      "kind": {
+          "credit": "Kredit",
+          "premium_days": "Premium-tid",
+          "commission_share": "Andel av intäkt"
+      },
+      "status": {
+          "pending": "väntar",
+          "approved": "godkänd",
+          "paid": "utbetald",
+          "void": "återkallad"
+      }
+  },
+  "adminPartners": {
+      "colStripe": "Stripe-överföring",
+      "title": "Partnerprogram",
+      "intro": "Vem som värvat vad, vad som väntar och vad som betalats ut.",
+      "pending": "Väntar",
+      "approved": "Godkänt",
+      "paid": "Utbetalt",
+      "void": "Återkallat",
+      "premiumDays": "Premiumdagar",
+      "runDaily": "Kör dagliga jobbet nu",
+      "runPayout": "Kör kvartalsutbetalning",
+      "runPayoutDry": "Torrkör kvartalsutbetalning",
+      "topPartners": "Partners",
+      "latestRewards": "Senaste belöningar",
+      "payouts": "Utbetalningar",
+      "colPartner": "Partner",
+      "colReferred": "Värvade",
+      "colRewards": "Belöningar",
+      "colEarned": "Intjänat",
+      "colDate": "Datum",
+      "colKind": "Typ",
+      "colAmount": "Belopp",
+      "colStatus": "Status",
+      "colPeriod": "Period",
+      "empty": "Inget än.",
+      "approve": "Godkänn",
+      "voidAction": "Återkalla",
+      "noticeDaily": "Dagliga jobbet kört: {n} rader påverkade.",
+      "noticePayout": "Utbetalning körd: {n} partners.",
+      "noticeDryRun": "Torrkörning klar: {n} partners hade fått utbetalning.",
+      "noticeVoid": "Belöningen är återkallad.",
+      "noticeApproved": "Andelen är godkänd.",
+      "kind_credit": "Kredit",
+      "kind_premium_days": "Premium-tid",
+      "kind_commission_share": "Andel av intäkt",
+      "status_pending": "väntar",
+      "status_approved": "godkänd",
+      "status_paid": "utbetald",
+      "status_void": "återkallad",
+      "payoutStatus_dry_run": "torrkörning",
+      "payoutStatus_paid": "utbetald",
+      "payoutStatus_credited": "som kredit",
+      "payoutStatus_failed": "misslyckad"
+  },
+  "partnerPublic": {
+      "metaTitle": "Partnerprogram – Usha Platform",
+      "metaDescription": "Tjäna på att tipsa om Usha: 30 % av Ushas intäkt på allt dina värvade köper eller säljer i tolv månader, premium-tid och kredit.",
+      "eyebrow": "Usha Partner",
+      "title": "Tipsa om Usha. Få {share} % av det vi tjänar på det.",
+      "intro": "Din länk fungerar på alla sidor på usha.se. Den som klickar och registrerar sig, eller köper som gäst, blir din i tolv månader. Gratis, inga volymkrav.",
+      "cta": "Skapa konto och hämta din länk",
+      "ctaLoggedIn": "Till din partnersida",
+      "step1Title": "Dela din länk",
+      "step1Body": "Hämta länken på din partnersida och lägg den i bio, i ett inlägg eller på en affisch. Den fungerar på alla sidor, till exempel direkt på en kväll du gillar.",
+      "step2Title": "{share} % av Ushas intäkt",
+      "step2Body": "På allt dina värvade köper eller säljer i tolv månader: provisionen på tredjepartsförsäljning, tio procent av biljettpriset på Ushas egna kvällar.",
+      "step3Title": "{days} dagar premium",
+      "step3Body": "När en kreatör eller lokal du värvat publicerar sitt första utbud får ni båda en månad premium. En värvad kund som gör sitt första köp ger dig {amount} kr i kredit.",
+      "rulesHeading": "Regler",
+      "rule1": "Belöningar räknas när köpet är betalt. Återbetalade köp räknas bort.",
+      "rule2": "Bolag får kontant utbetalning kvartalsvis via Stripe från 200 kr, annars kredit. Privatpersoner får kredit att handla för.",
+      "rule3": "Inget för egna köp eller egna konton. Missbruk återkallas.",
+      "rule4": "Andelar godkänns 14 dagar efter köpet.",
+      "faqHeading": "Vanliga frågor",
+      "faq1Q": "Måste jag sälja något själv?",
+      "faq1A": "Nej. Vem som helst med konto kan vara partner. Du delar en länk; resten sker på plattformen.",
+      "faq2Q": "Hur får jag pengarna?",
+      "faq2A": "Har du ett bolag med anslutet Stripe-konto betalas andelen ut kvartalsvis från 200 kr. Annars läggs den som kredit du använder i kassan.",
+      "faq3Q": "Vad händer om någon jag värvat ångrar ett köp?",
+      "faq3A": "Belöningen för det köpet återkallas. Därför godkänns andelar först 14 dagar efter köpet.",
+      "faq4Q": "Jag är utanför Sverige – kan jag vara med?",
+      "faq4A": "Ja, som partner. Vill du också sälja på plattformen sätter vi upp ditt säljarkonto personligen, eftersom publicering i dag kräver svenskt BankID."
+  },
   "experiences": {
     "metaTitle": "Upplevelser – Usha Platform",
     "metaDescription": "Utforska kreativa upplevelser, events och tjänster nära dig. Dans, musik, fotografi och mer.",
@@ -995,8 +1184,11 @@
     "navCreateProfile": "Skapa profil",
     "title": "Upplevelser",
     "countInSweden": "{count} upplevelser i hela Sverige",
+    "countInCity": "{count} upplevelser i {city}",
     "filterAll": "Alla",
     "allCities": "Alla städer",
+    "whenUpcoming": "Kommande",
+    "whenPast": "Tidigare",
     "sortDate": "Datum",
     "sortPriceAsc": "Pris (lägst)",
     "sortPriceDesc": "Pris (högst)",
@@ -1009,12 +1201,31 @@
     "seoCategoryInCity": "{category} i {city}",
     "emptyCreateFirst": "Är du kreatör? Skapa den första upplevelsen här."
   },
+  "listingPage": {
+    "metaFallbackTitle": "Evenemang – Usha Platform",
+    "backTo": "Tillbaka till {name}",
+    "creatorFallbackLower": "kreatören",
+    "creatorFallback": "Kreatör",
+    "free": "Gratis",
+    "aboutHeading": "Om evenemanget",
+    "includedHeading": "Vad ingår",
+    "amenitiesHeading": "Bekvämligheter",
+    "ownerPreview": "Förhandsvisning — så ser besökare sidan",
+    "instructorsHeading": "Boka en instruktör på plats",
+    "instructorFallback": "Instruktör",
+    "thatIsYou": "Det här är du"
+  },
+  "seriesCard": {
+    "more": "{count, plural, =1 {# tillfälle till} other {# tillfällen till}}",
+    "book": "Boka"
+  },
   "listingCard": {
     "badgePromoted": "Framhävd",
     "badgePopular": "Populär",
     "badgeBookings": "{count} bokningar",
     "free": "Gratis",
     "price": "{price} kr",
+    "fromPrice": "Från {price} kr",
     "carouselPromoted": "Framhävd",
     "carouselMoreInfo": "Mer info →"
   },
@@ -1032,6 +1243,7 @@
     "wellness": "Wellness"
   },
   "seoFooter": {
+    "partner": "Partnerprogram",
     "experiencesHeading": "Upplevelser",
     "creatorsHeading": "Kreatörer",
     "categoriesHeading": "Kategorier",
@@ -1063,6 +1275,9 @@
   },
   "creatorProfile": {
     "metaTitleFallback": "Creator – Usha Platform",
+    "share": "Dela profil",
+    "shareText": "Kolla in {name} på Usha",
+    "previewBanner": "Förhandsvisning — den här profilen är inte publik ännu. Bara du och Ushas admin ser den.",
     "metaTitle": "{name} – Usha Platform",
     "metaTitleOg": "{name} – Usha Platform",
     "metaDescriptionFallback": "{category} på Usha Platform",
@@ -1086,7 +1301,15 @@
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} gäster"
     },
+    "coaching": {
+      "heading": "Coaching",
+      "onLab": "Coaching på The Lab",
+      "onLabHint": "Köp minuter med {name} under nästa öppna kväll. Betalas här, används på plats.",
+      "nextNight": "Nästa tillfälle: {date}",
+      "itsYou": "Det här är du."
+    },
     "events": {
+      "passes": "Klippkort",
       "heading": "Evenemang",
       "seeCalendar": "Se kalender",
       "upcoming": "Kommande",
@@ -1353,9 +1576,11 @@
       "canvasAriaFallback": "profil",
       "copied": "Kopierat",
       "copyLink": "Kopiera länk",
+      "preview": "Förhandsgranska",
       "download": "Ladda ner som PNG",
       "generateError": "Kunde inte generera QR-kod",
-      "copyError": "Kunde inte kopiera länk"
+      "copyError": "Kunde inte kopiera länk",
+      "hiddenNoQr": "QR-koden är avstängd medan profilen är dold. Länken nedan innehåller en hemlig nyckel — dela den med personer, inte på affischer."
     },
     "instagram": {
       "title": "Instagram-import",
@@ -1566,6 +1791,9 @@
     "toastEarlyBirdError": "Misslyckades",
     "toastGenericError": "Något gick fel",
     "duplicate": "Duplicera",
+    "dragHandle": "Dra för att ändra ordning",
+    "moveUp": "Flytta upp",
+    "moveDown": "Flytta ner",
     "toastDuplicated": "Kopia skapad som utkast",
     "toastDuplicateError": "Kunde inte duplicera",
     "seriesBadge": "Serie",
@@ -1871,6 +2099,7 @@
     "date": "Datum",
     "startTime": "Starttid",
     "endTime": "Sluttid",
+    "endTimeHint": "Behövs för att besökarens kalender ska visa rätt längd.",
     "recurring": "Återkommande event (serie)",
     "interval": "Intervall",
     "intervalWeekly": "Varje vecka",
@@ -1960,6 +2189,32 @@
     "ticketTypesPoolHelp": "Ska två biljettyper dela på samma platser? Ge dem samma namn i fältet Delad pott och samma kapacitet."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Dans",
+        "subtitle": "Hitta en danspartner",
+        "firstInPool": "Inga andra dansare har gått med än. Bjud in dina danskompisar så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta din danspartner på Usha – gå med i Träningsvänner!"
+      },
+      "traning": {
+        "label": "Träning",
+        "subtitle": "Hitta en träningskompis",
+        "firstInPool": "Inga andra som tränar har gått med än. Bjud in dina träningskompisar så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta din träningskompis på Usha – gå med i Träningsvänner!"
+      },
+      "racket": {
+        "label": "Racket",
+        "subtitle": "Hitta någon att spela med",
+        "firstInPool": "Ingen annan spelare har gått med än. Bjud in dem du brukar spela med så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta någon att spela med på Usha – gå med i Träningsvänner!"
+      },
+      "kropp": {
+        "label": "Kropp & sinne",
+        "subtitle": "Hitta någon att träna med",
+        "firstInPool": "Ingen annan har gått med än. Bjud in dem du brukar träna med så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta någon att träna med på Usha – gå med i Träningsvänner!"
+      }
+    },
     "title": "Träningsvänner",
     "subtitle": "Hitta träningspartner för dans",
     "tabSuggestions": "Förslag",
@@ -1968,7 +2223,7 @@
     "bankidGateDesc": "Träningsvänpoolen är för verifierade personer — tryggare när ni ska träffas och träna. Verifiera dig med BankID för att gå med.",
     "bankidGateCta": "Verifiera med BankID",
     "onboardTitle": "Berätta vad och hur du vill träna, så matchar vi dig med partners.",
-    "onboardStyles": "Dansstilar",
+    "onboardStyles": "Aktiviteter",
     "onboardRole": "Din roll",
     "onboardAvailability": "När kan du träna?",
     "onboardCity": "Plats",
@@ -1976,7 +2231,7 @@
     "onboardBio": "Om dig (valfritt)",
     "onboardSave": "Gå med i poolen",
     "onboardSaving": "Sparar…",
-    "needStyle": "Välj minst en dansstil",
+    "needStyle": "Välj minst en aktivitet",
     "adult18": "Jag är 18 år eller äldre och förstår att jag träffar andra på egen risk.",
     "needAdult": "Du måste bekräfta att du är 18 år eller äldre.",
     "saveError": "Något gick fel. Försök igen.",
@@ -2040,6 +2295,11 @@
     }
   },
   "eventPage": {
+    "singleTicket": "Biljett till kvällen",
+    "passSessions": "{n} tillfällen",
+    "passPerSession": "{price} kr/kväll",
+    "passDiscount": "−{percent} % mot dörrpris",
+    "buyPass": "Köp klippkort · {price} kr",
     "bankidVerified": "BankID-verifierad",
     "crewHeading": "Medverkande",
     "dateComing": "Datum kommer",
@@ -2047,6 +2307,8 @@
     "free": "Gratis",
     "freeTicket": "Få gratis biljett",
     "buyTicket": "Köp biljett · {price} kr",
+    "ticketsFromCta": "Biljetter från {price} kr",
+    "buyTicketFrom": "Biljetter från {price} kr",
     "quickBuyTitle": "Bekräfta ditt köp",
     "quickBuyConfirm": "Betala {price} kr",
     "quickBuyCancel": "Avbryt",
@@ -2063,6 +2325,8 @@
     "releasesAt": "Släpps {date}",
     "soldOut": "Slutsålt",
     "notReleased": "Inte släppt än",
+    "payAtVenueBadge": "Betalning i dörren",
+    "payAtVenueNote": "Den här arrangören tar inte emot onlinebetalning ännu. Du är välkommen ändå — betala på plats.",
     "createAccountNote": "Du skapar ett gratis Usha Platform-konto i samma flöde",
     "waitlistLabel": "Väntelista",
     "waitlistHeading": "Säkra din plats i kön",
@@ -2116,7 +2380,10 @@
     "quantity": "Antal",
     "attendeeNamePlaceholder": "Namn på gäst {n} (valfritt)",
     "mapHeading": "Hitta hit",
-    "openInMaps": "Öppna i Maps"
+    "addToCalendar": "Lägg till i kalendern",
+    "openInMaps": "Öppna i Maps",
+    "creditApplied": "Ditt välkomstavdrag på {amount} kr är avräknat",
+    "creditMinSpend": "Du har {amount} kr i välkomstavdrag — gäller köp från {min} kr"
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -2286,6 +2553,8 @@
     "ctaButton": "Kom igång gratis"
   },
   "ticketPage": {
+    "passChip": "Klippkort · {remaining} av {total} kvar",
+    "passCovers": "Ett klipp ger: {covers}",
     "walletApple": "Lägg till i Apple Wallet",
     "walletGoogle": "Spara i Google Wallet",
     "canceled": "Bokningen är avbokad",
@@ -2353,6 +2622,7 @@
     "shareFormLocked": "Kvällen har redan sålt biljetter. Villkoren går inte att ändra i efterhand — det skulle ändra vad som är skyldigt på köp som redan skett."
   },
   "scanPage": {
+    "passRemaining": "{n} klipp kvar på kortet",
     "title": "Skanna biljetter",
     "subtitle": "Skanna QR-koden eller ange biljettkoden manuellt.",
     "gateMessage": "Uppgradera till Guld eller Premium för att skanna biljetter.",
@@ -2392,7 +2662,9 @@
     "errOnlyOwnEvents": "Du kan bara skanna biljetter för dina egna evenemang.",
     "errCouldNotVerify": "Kunde inte verifiera biljett",
     "errNetwork": "Nätverksfel. Försök igen.",
-    "errNetworkShort": "Nätverksfel"
+    "errNetworkShort": "Nätverksfel",
+    "seats": "{n} platser",
+    "statusWrongDate": "Fel datum — biljetten gäller {date}"
   },
   "terms": {
     "back": "Tillbaka",
@@ -2449,6 +2721,9 @@
     "s9BodyPost": "Du har även rätt att lämna klagomål till Integritetsskyddsmyndigheten (IMY)."
   },
   "scanApi": {
+    "passType": "Klippkort · {covers} · {remaining} av {total} kvar",
+    "passNoEventToday": "Ingen kväll i serien i dag – kortet kan inte klippas.",
+    "passUsedUp": "Alla klipp på kortet är använda.",
     "notLoggedIn": "Du måste vara inloggad",
     "invalidRequest": "Ogiltig begäran",
     "missingBookingId": "Boknings-ID saknas",
@@ -2507,6 +2782,8 @@
     "inviteFriends": "Bjud in vänner"
   },
   "toolsPage": {
+    "partnerLabel": "Partnerprogram",
+    "partnerDesc": "Din länk, dina värvningar och vad de gett.",
     "homeLabel": "Hem",
     "toolsLabel": "Verktyg",
     "openGigsLabel": "Uppdrag",
@@ -2644,6 +2921,7 @@
     "title": "Mina Evenemang",
     "statistics": "Statistik",
     "openEvents": "Öppna event →",
+    "orderServices": "Ordna tjänster →",
     "activeCount": "{count} aktiva",
     "emptyTitle": "Inga evenemang ännu",
     "emptyBody": "Skapa ditt första evenemang för att komma igång",
@@ -2693,7 +2971,8 @@
     "seriesCount": "{count, plural, one {# tillfälle} other {# tillfällen}}",
     "showOccurrences": "Visa {count, plural, one {# till} other {# till}}",
     "hideOccurrences": "Dölj",
-    "badgePast": "Passerat"
+    "badgePast": "Passerat",
+    "sellAtDoor": "Sälj i entrén"
   },
   "calendarPage": {
     "dayMon": "Mån",
@@ -2719,13 +2998,15 @@
     "statusConfirmed": "Bekräftad",
     "statusPending": "Väntande",
     "availabilityDone": "Klar med tillgänglighet",
-    "availabilityMark": "Markera tillgänglighet",
-    "availabilityHint": "Tryck på ett datum för att lägga till tidsluckor. Grönt = tillgänglig.",
+    "availabilityMark": "Redigera tillgänglighet",
+    "availabilityUnmark": "Avmarkera tillgänglighet",
+    "availabilityUnmarkHint": "Tryck på en grön dag för att ta bort tillgängligheten.",
+    "availabilityHint": "Tryck på ett datum för att lägga till eller ta bort tillgänglighet. Grönt = tillgänglig.",
     "legendBooking": "Bokning",
     "legendAvailable": "Tillgänglig",
     "upcomingBookings": "Kommande bokningar",
     "noUpcomingBookings": "Inga kommande bokningar",
-    "allDayActive": "Hela dagen (aktiv)",
+    "removeAllDay": "Ta bort tillgängligheten",
     "markAllDay": "Markera hela dagen",
     "removeAllTimes": "Ta bort alla tider",
     "startTime": "Starttid",
@@ -3314,6 +3595,12 @@
     "submit": "Publicera gig"
   },
   "listingForm": {
+    "passSeriesLabel": "Gäller som biljett på serie",
+    "passSeriesHint": "Bocka i varje serie kortet ska gälla på — QR-koden skannas i dörren, ett klipp per kväll. Ingen serie ibockad betyder att kortet löses in för hand i bokningslistan.",
+    "passCoversLabel": "Ett klipp ger tillträde till",
+    "passCoversPlaceholder": "t.ex. Allt: practica + workshop + social",
+    "passReferencePriceLabel": "Ordinarie pris per kväll (valfritt)",
+    "passReferencePriceHint": "Vad samma kväll kostar styckvis. Används bara för att visa rabatten i procent. Lämna tomt så jämförs kortet med biljetten som heter samma sak som fältet ovan.",
     "uploadFailed": "Uppladdning misslyckades",
     "saveFailed": "Kunde inte spara tjänst",
     "savedToast": "Tjänst sparad",
@@ -3325,13 +3612,9 @@
     "descriptionLabel": "Beskrivning",
     "descriptionPlaceholder": "Beskriv vad som ingår i tjänsten...",
     "listingTypeLabel": "Typ av tjänst",
-    "typeDancePackage": "Danspaket (förbetalt — inlöses på event)",
     "typeCoachingSession": "Coachning (privatlektion med tid)",
     "typeB2bOffering": "B2B-event (arrangör bokar för kväll/event)",
     "typeService": "Annan tjänst",
-    "dancePackageHint": "Kunden betalar i förväg och inlöser danserna på ett event. Inget specifikt datum krävs vid bokning.",
-    "danceCountLabel": "Antal danser i paketet",
-    "danceCountPlaceholder": "t.ex. 5",
     "coachingSessionHint": "Kunden bokar en specifik tid utifrån din tillgänglighet i kalendern.",
     "b2bOfferingHint": "Arrangörer (lokaler, danspalats, eventbolag) kan boka dig för en specifik kväll eller ett event. Pris du anger är ditt baspris — arrangören anger datum, tid och lokal vid bokning.",
     "categoryLabel": "Kategori",
@@ -3354,7 +3637,15 @@
     "endTimeLabel": "Sluttid",
     "saving": "Sparar...",
     "saveChanges": "Spara ändringar",
-    "createListing": "Skapa tjänst"
+    "createListing": "Skapa tjänst",
+    "typePackage": "Klippkort",
+    "sessionCountLabel": "Antal pass",
+    "sessionCountHelp": "T.ex. 5 eller 10. Köparen löser in ett pass i taget.",
+    "sessionsRedeemed": "{redeemed} av {total} pass använda",
+    "redeemSession": "Lös in ett pass",
+    "redeemedAll": "Alla pass använda",
+    "packageHint": "Sälj ett kort med flera pass. Köparen betalar en gång och löser in ett pass i taget.",
+    "sessionCountPlaceholder": "5"
   },
   "productsPage": {
     "back": "Tillbaka",
@@ -3501,6 +3792,15 @@
     "siteOgDescription": "Skapa event, sälj biljetter, skanna vid dörren och betala ditt crew — allt i en app."
   },
   "platserPage": {
+    "detail": {
+      "metaFallbackTitle": "Plats – Usha Platform",
+      "metaDescription": "Upplevelser och events på {name}.",
+      "metaDescriptionCity": "Upplevelser och events på {name} i {city}.",
+      "navExperiences": "Upplevelser",
+      "navMarketplace": "Marketplace",
+      "empty": "Inga upplevelser på denna plats just nu.",
+      "seeAll": "Se alla upplevelser"
+    },
     "meta": {
       "title": "Platser – Usha Platform",
       "description": "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
@@ -3588,6 +3888,7 @@
     "view": "Visa",
     "free": "Gratis",
     "priceSek": "{price} SEK",
+    "priceFromSek": "Från {price} SEK",
     "creator": "Kreatör",
     "viewProfile": "Visa profil"
   },
@@ -3628,6 +3929,12 @@
     "refundedAmount": "Återbetald {amount} kr"
   },
   "emails": {
+    "greetingNoName": "Hej!",
+    "creatorEventUnsubscribe": "Vill du inte ha fler mejl? Avsluta här.",
+    "followConfirmSubject": "Bekräfta att du vill följa {creator}",
+    "followConfirmIntro": "Du har bett om ett mejl varje gång {creator} lägger upp ett nytt tillfälle på Usha Platform. Bekräfta med knappen nedan.",
+    "followConfirmCta": "Ja, mejla mig om nya tillfällen",
+    "followConfirmFooter": "Bad du inte om detta? Ignorera mejlet, så händer inget.",
     "greeting": "Hej {name},",
     "greetingExcited": "Hej {name}!",
     "labelDate": "Datum: {value}",
@@ -3696,9 +4003,21 @@
     "trialWarning": "Om du inte uppgraderar återgår ditt konto till gratisplanen och du förlorar tillgång till Premium-funktioner som lägre kommission, toppsynlighet och dedikerad support.",
     "trialCta": "Uppgradera nu",
     "broadcastFooter": "Du får detta mejl för att du anmälde dig till väntelistan på Usha Platform.",
-    "broadcastUnsubscribe": "Avregistrera dig"
+    "broadcastUnsubscribe": "Avregistrera dig",
+    "creditSubject": "Du har {amount} kr att använda",
+    "creditGreeting": "Hej {name},",
+    "creditIntro": "Vi har lagt ett välkomstavdrag på ditt konto. Du behöver ingen kod — det dras av automatiskt i kassan.",
+    "creditAmount": "{amount} kr",
+    "creditAmountLabel": "på ditt konto",
+    "creditHowHeading": "Så funkar det",
+    "creditHowAutomatic": "Dras automatiskt vid köp på minst {min} kr.",
+    "creditHowOneOff": "Gäller ett köp, inte flera.",
+    "creditHowValid": "Ligger kvar till {date}.",
+    "creditCta": "Se vad som är på gång"
   },
   "adminPage": {
+    "partnersLabel": "Partnerprogram",
+    "partnersDesc": "Värvningar, belöningar och utbetalningar.",
     "heading": "Admin",
     "subheading": "Verktyg som bara administratörer ser.",
     "backToApp": "Tillbaka till appen",
@@ -3712,6 +4031,7 @@
     "accessDesc": "Ge partners tillgång till enskilda adminverktyg."
   },
   "adminCreators": {
+    "previewProfile": "Förhandsgranska profilen så som den ser ut publikt",
     "title": "Kreatörer — privatperson/företag",
     "intro": "Sök upp en kreatör och ändra om de säljer som företag (org.nr-verifiering + org.nr på kvitto).",
     "searchPlaceholder": "kreatörens e-post",
@@ -3996,5 +4316,22 @@
       "title": "Fastnar du?",
       "body": "Skriv till oss på pablo.acosta@usha.se, så hjälper vi till. Plattformen är ny och er återkoppling formar den."
     }
+  },
+  "entrance": {
+    "title": "Entré",
+    "back": "Tillbaka",
+    "pickTicket": "Välj biljett så visas en QR-kod gästen scannar.",
+    "noTicketTypes": "Eventet har inga biljettyper att sälja.",
+    "priceSek": "{price} kr",
+    "soldOut": "Slutsålt",
+    "qrAlt": "QR-kod för {ticket}",
+    "guestScans": "Gästen scannar med sin egen telefon och betalar med Apple Pay, Google Pay eller kort.",
+    "otherTicket": "Välj annan biljett",
+    "paidHeading": "Betalt nyss",
+    "guest": "Gäst",
+    "seats": "{n} platser",
+    "noPermission": "Du har inte behörighet att sälja i entrén för det här eventet.",
+    "loadError": "Kunde inte hämta biljetterna.",
+    "connectionLost": "Ingen kontakt med servern."
   }
 }

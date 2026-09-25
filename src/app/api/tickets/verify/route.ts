@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { isPassBooking, passRemaining, passSeriesIds, pickOccurrence, seriesOccurrences } from "@/lib/passes/series-pass";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminById } from "@/lib/admin/check";
 import { canScanListing } from "@/lib/scan-access";
+import { isEventDay } from "@/lib/tickets/event-day";
 
 export async function GET(request: NextRequest) {
   const t = await getTranslations("scanApi");
@@ -64,7 +66,7 @@ export async function GET(request: NextRequest) {
 
   let bookingQuery = admin
     .from("bookings")
-    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count");
+    .select("id, listing_id, creator_id, status, scheduled_at, notes, amount_paid, booking_type, guest_count, ticket_type_name, guest_name, sessions_total, sessions_redeemed");
 
   // The QR encodes the FULL booking UUID as `id` — match it exactly. Only the
   // code-only path (USH-XXXXXXXX, 8 hex) needs the prefix range. Using
@@ -98,6 +100,13 @@ export async function GET(request: NextRequest) {
         location: null,
       },
     });
+  }
+
+  // Klippkort på en serie: giltigt vilken kväll som helst i serien, ett klipp
+  // per kväll. Har sin egen väg eftersom "rätt dag" inte är kortets datum
+  // utan seriens nästa kväll.
+  if (isPassBooking(booking)) {
+    return verifySeriesPass({ admin, userId: user.id, booking, ticketCode, t });
   }
 
   // The listing owner, an admin, or a crew member the host delegated scanning
@@ -218,6 +227,19 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // Rätt dag? En bekräftad, oanvänd biljett för den 21:a lyste grön i dörren
+  // den 7:e. Statusen var korrekt — datumet var det ingen jämförde. En biljett
+  // på fel dag är inte giltig; vill arrangören ändå släppa in kan det göras i
+  // efterhand från bokningslistan.
+  if (valid && !isEventDay(listing?.event_date)) {
+    valid = false;
+    status = "wrong_date";
+  }
+
+  // Biljettypen är det dörren faktiskt behöver. En Practica-biljett och en
+  // Allt-biljett gav tidigare exakt samma gröna ruta — och Practica-gästen
+  // ska inte in på socialen. Namnet står med så värden kan tilltala rätt
+  // person när flera kommer på samma bokning.
   return NextResponse.json({
     valid,
     status,
@@ -230,6 +252,89 @@ export async function GET(request: NextRequest) {
       date: displayDate,
       time: displayTime,
       location: displayLocation,
+      ticketType: booking.ticket_type_name ?? null,
+      holder: booking.guest_name ?? null,
+      seats: booking.guest_count ?? 1,
     },
+  });
+}
+
+async function verifySeriesPass(opts: {
+  admin: ReturnType<typeof createAdminClient>;
+  userId: string;
+  booking: {
+    id: string;
+    listing_id: string;
+    creator_id: string;
+    status: string;
+    guest_name: string | null;
+    sessions_total: number | null;
+    sessions_redeemed: number | null;
+  };
+  ticketCode: string;
+  t: Awaited<ReturnType<typeof getTranslations>>;
+}) {
+  const { admin, userId, booking, ticketCode, t } = opts;
+  const { data: pass } = await admin
+    .from("listings")
+    .select("title, pass_series_id, pass_series_ids, pass_covers")
+    .eq("id", booking.listing_id)
+    .maybeSingle();
+  const passSeries = passSeriesIds(pass);
+  const occurrences = await seriesOccurrences(admin, passSeries);
+  const { today, next } = pickOccurrence(occurrences);
+
+  // Behörigheten prövas mot kvällens tillfälle: den som får skanna i dörren
+  // i kväll får klippa kort i kväll.
+  const isOwnerOrAdmin = booking.creator_id === userId || (await isAdminById(userId));
+  if (!isOwnerOrAdmin && !(await canScanListing(admin, userId, today?.id ?? booking.listing_id))) {
+    return NextResponse.json({ error: t("noVerifyPermission") }, { status: 403 });
+  }
+
+  const total = booking.sessions_total ?? 0;
+  const remaining = passRemaining(booking);
+  let valid = false;
+  let status: string;
+  if (booking.status === "canceled") status = "canceled";
+  else if (booking.status === "pending") status = "pending";
+  else if (passSeries.length === 0) status = "pass_not_series";
+  else if (remaining <= 0) status = "already_used";
+  else if (!today) status = "wrong_date";
+  else {
+    const { data: clipped } = await admin
+      .from("pass_redemptions")
+      .select("id")
+      .eq("booking_id", booking.id)
+      .eq("listing_id", today.id)
+      .maybeSingle();
+    if (clipped) status = "already_used";
+    else {
+      status = "confirmed";
+      valid = true;
+    }
+  }
+
+  const shown = today ?? next;
+  const displayDate = shown
+    ? new Date(shown.event_date + "T00:00").toLocaleDateString("sv-SE", { day: "numeric", month: "long", year: "numeric" })
+    : "";
+
+  return NextResponse.json({
+    valid,
+    status,
+    bookingId: booking.id,
+    attendeeId: null,
+    attendeeLabel: null,
+    ticket: {
+      code: ticketCode,
+      title: shown?.title ?? pass?.title ?? t("unknownTitle"),
+      date: displayDate,
+      time: shown?.event_time ? shown.event_time.slice(0, 5) : null,
+      location: shown?.event_location ?? null,
+      ticketType: t("passType", { covers: pass?.pass_covers ?? pass?.title ?? "", remaining, total }),
+      holder: booking.guest_name ?? null,
+      seats: 1,
+    },
+    pass: { total, remaining, occurrenceId: today?.id ?? null },
   });
 }

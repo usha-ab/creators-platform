@@ -2,21 +2,31 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { collabRoleLabel } from "@/lib/collaborators";
 import { applyPoolLimits } from "@/lib/tickets/pools";
+import { passSavings } from "@/lib/passes/series-pass";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
+import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
 import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
+import { buildMapsHref } from "@/lib/listings/maps";
+import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { safeJsonLd } from "@/lib/json-ld";
 import { getTranslations, getLocale, getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { SocialShareButton } from "@/components/social-share-button";
 import { TrackEvent } from "@/components/track-event";
 import { EventMap } from "@/components/event-map";
+import { FollowButton } from "@/components/follow-button";
+import { EmailFollowForm } from "@/components/email-follow-form";
+import { FollowUs } from "@/components/follow-us";
+import { getCreditLedgerBalance } from "@/lib/credits/balance";
+import { indexable } from "@/lib/seo/metadata";
 
 export const revalidate = 60;
 
@@ -82,7 +92,7 @@ async function getListing(slug: string) {
   const { data: listing } = await supabase
     .from("listings")
     .select(
-      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
+      "id, user_id, title, description, category, price, duration_minutes, image_url, image_url_square, series_id, event_date, event_time, event_end_time, event_location, event_place_id, event_lat, event_lng, event_city, event_venue, slug, series_slug, is_active, content_language, organizer_name, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, venue_profile_id, venue_confirmed_at"
     )
     .eq(isUUID(slug) ? "id" : "slug", slug)
     .eq("is_active", true)
@@ -92,7 +102,7 @@ async function getListing(slug: string) {
 
   const { data: host } = await supabase
     .from("profiles")
-    .select("id, full_name, slug, avatar_url, bankid_verified_at")
+    .select("id, full_name, slug, avatar_url, bankid_verified_at, company_verified_at")
     .eq("id", listing.user_id)
     .maybeSingle();
 
@@ -202,13 +212,35 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const t = await getTranslations({ locale: eventLocale, namespace: "eventPage" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
+  // Förhandsvisningen i WhatsApp, Facebook och iMessage klipps efter ett par
+  // rader. Faktaraden först: när och var kvällen hålls är mer värt där än
+  // brödtextens inledning — som dessutom kan vara en stiliserad rubrik, eller
+  // den andra halvan av en tvåspråkig text.
+  const previewDate = listing.event_date
+    ? new Intl.DateTimeFormat(eventLocale === "sv" ? "sv-SE" : eventLocale === "es" ? "es-ES" : "en-GB", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        timeZone: "Europe/Stockholm",
+      }).format(new Date(`${listing.event_date}T12:00:00`))
+    : null;
+  const previewTime = listing.event_time
+    ? `${listing.event_time.slice(0, 5)}${listing.event_end_time ? `–${listing.event_end_time.slice(0, 5)}` : ""}`
+    : null;
   const description =
-    listing.description?.slice(0, 200) ??
+    buildPreviewDescription(
+      [previewDate, previewTime, listing.event_location?.split(",")[0]?.trim()],
+      listing.description
+    ) ||
     (host?.full_name ? t("metaDescriptionBy", { name: host.full_name }) : t("metaDescription"));
 
   return {
     title: t("metaTitle", { title: listing.title }),
     description,
+    // Kvällen bor på sin egen adress även när besökaren kom in via seriens
+    // slug (som omdirigerar hit) eller via /listing/<id>. Utan canonical får
+    // sökmotorn välja mellan tre adresser till samma innehåll.
+    ...indexable(`/event/${listing.slug ?? listing.id}`),
     openGraph: {
       title: listing.title,
       description,
@@ -260,6 +292,24 @@ export default async function EventPage(props: Params) {
   // typen förvald, så att första skärmen visar rätt pris i stället för att be
   // hen leta rätt på raden igen.
   const preselectTicketTypeId = (await props.searchParams)?.tt ?? null;
+
+  // Välkomstavdraget, om köparen har kvar sitt. Visas i biljettrutan så att
+  // det syns FÖRE kassan — ett avdrag som dyker upp först i Stripe övertygar
+  // ingen att köpa.
+  let signupCreditOre = 0;
+  {
+    const sb = await createClient();
+    const { data: { user: buyer } } = await sb.auth.getUser();
+    if (buyer) {
+      const { data: credit } = await sb
+        .from("account_credits")
+        .select("amount_ore, used_at, expires_at")
+        .eq("user_id", buyer.id)
+        .maybeSingle();
+      const gone = !!credit?.used_at || (!!credit?.expires_at && new Date(credit.expires_at) < new Date());
+      signupCreditOre = (credit && !gone ? credit.amount_ore : 0) + (await getCreditLedgerBalance(sb, buyer.id));
+    }
+  }
   let data = await getListing(slug);
   if (!data) {
     const resolved = await resolveSlugToOccurrence(slug);
@@ -270,6 +320,31 @@ export default async function EventPage(props: Params) {
   const { listing, host, venue, more, moreDates } = data;
   const crew = await getCrew(listing.id);
   const supabase = await createClient();
+
+  // Klippkort på serien ("5 kvällar") säljs som ett alternativ bredvid
+  // kvällens biljetter. Kortet är en egen annons (package) kopplad till en
+  // eller flera serier, så pris och antal ändras i kreatörens tjänstelista.
+  // Ett kort som gäller flera serier ligger i pass_series_ids; pass_series_id
+  // tas med i sökningen för kort som skrevs innan arrayen fanns.
+  // Värdet vävs in i ett PostgREST-filter nedan, så det får bara vara ett uuid.
+  const seriesIdRaw = (listing as { series_id?: string | null }).series_id ?? null;
+  const seriesIdForPass =
+    seriesIdRaw && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(seriesIdRaw)
+      ? seriesIdRaw
+      : null;
+  type PassRow = { id: string; title: string; price: number | null; session_count: number | null; pass_covers: string | null; pass_reference_price: number | null };
+  const { data: passRows } = seriesIdForPass
+    ? await supabase
+        .from("listings")
+        .select("id, title, price, session_count, pass_covers, pass_reference_price")
+        .or(`pass_series_id.eq.${seriesIdForPass},pass_series_ids.cs.{${seriesIdForPass}}`)
+        .eq("is_active", true)
+        .eq("is_public", true)
+        .order("price", { ascending: true })
+    : { data: [] as PassRow[] };
+  const passes = ((passRows ?? []) as PassRow[])
+    .filter((p) => (p.session_count ?? 0) > 0)
+    .map((p) => ({ id: p.id, title: p.title, price: p.price ?? 0, sessionCount: p.session_count ?? 0, covers: p.pass_covers, referencePrice: p.pass_reference_price }));
 
   // Ticket types (price tiers). Empty → single-price event (unchanged).
   const { data: ticketTypes } = await supabase
@@ -301,6 +376,19 @@ export default async function EventPage(props: Params) {
     }))
   );
 
+  // Rabatten på ett klippkort ska stå i klartext i köpvalet. Jämförpriset är i
+  // första hand arrangörens eget (pass_reference_price), annars kvällens
+  // biljett som heter det kortet täcker, annars entrépriset. Finns inget att
+  // jämföra med står det ingenting — hellre tyst än ett påhittat jämförpris.
+  const passesForSale = passes.map((p) => {
+    const reference =
+      p.referencePrice ??
+      (ticketTypes ?? []).find((tt) => tt.name === p.covers)?.price ??
+      listing.price ??
+      0;
+    return { ...p, savings: passSavings({ price: p.price, sessionCount: p.sessionCount }, reference) };
+  });
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -314,6 +402,7 @@ export default async function EventPage(props: Params) {
   const tRoot = await getTranslations({ locale: eventLocale });
   const messages = await getMessages({ locale: eventLocale });
   const locale = eventLocale;
+  const tFollow = await getTranslations({ locale, namespace: "emailFollow" });
   const image = listing.image_url ?? FALLBACK_IMAGE;
   // Kategorin är ett enum i databasen — översätt via eventPage.cat_* och annars
   // via de delade categories.*-nycklarna innan råvärdet visas.
@@ -327,6 +416,25 @@ export default async function EventPage(props: Params) {
   // Timed automation: effective price + whether tickets are buyable right now.
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
+
+  // Priset för knappen högst upp. Biljettyperna kan spänna över flera priser
+  // (50/100/130/200 på The Lab) — då är lägsta priset rätt att visa, med
+  // "från", eftersom inget val är gjort ännu.
+  // Betalspärren under beta: bara plattformsägaren och verifierade bolag får ta
+  // emot riktiga betalningar. Alla checkout-rutter kontrollerar det redan, men
+  // den här sidan gjorde det inte — så en besökare kunde trycka Köp och mötas
+  // av ett fel först efteråt. Bättre att aldrig visa knappen.
+  const payeeCanReceive = canReceivePayments({
+    id: listing.user_id,
+    company_verified_at:
+      (host as { company_verified_at?: string | null } | null)?.company_verified_at ?? null,
+  });
+  const beskrivning = splitBilingualDescription(listing.description);
+  // Gratis biljetter rör inga pengar och berörs inte av spärren.
+  const sellable = payeeCanReceive || isFree;
+  const salePrices = ticketTypesForSale.map((tt) => tt.price);
+  const lowestPrice = salePrices.length ? Math.min(...salePrices) : sale.price;
+  const hasPriceRange = new Set(salePrices).size > 1;
   const saleUntil = sale.until
     ? new Intl.DateTimeFormat(dateLocaleFor(locale), {
         day: "numeric", month: "long", hour: "2-digit", minute: "2-digit",
@@ -345,6 +453,19 @@ export default async function EventPage(props: Params) {
     sale.state === "sold_out" && saleUntil ? t("releasesAt", { date: saleUntil }) : null;
   const isHost = !!user && user.id === listing.user_id;
   const returnPath = `/event/${slug}`;
+
+  // Följ arrangören (och lokalen) härifrån, där publiken faktiskt är. Profilen
+  // hade knappen; eventsidan hade den inte, och det är hit man kommer från
+  // Facebook, QR-koden i dörren och biljetten.
+  const followTargets = [listing.user_id, ...(venue ? [venue.id] : [])];
+  const [{ count: hostFollowerCount }, { data: myFollows }] = await Promise.all([
+    supabase.from("follows").select("id", { count: "exact", head: true }).eq("followed_id", listing.user_id),
+    user
+      ? supabase.from("follows").select("followed_id").eq("follower_id", user.id).in("followed_id", followTargets)
+      : Promise.resolve({ data: [] as { followed_id: string }[] }),
+  ]);
+  const followingIds = new Set((myFollows ?? []).map((f) => f.followed_id));
+  const hostDisplayName = listing.organizer_name || host?.full_name || t("organizer");
 
   const prepareCards = (items: EventCard[]): PreparedCard[] =>
     items.map((m) => ({
@@ -368,7 +489,116 @@ export default async function EventPage(props: Params) {
     }));
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://usha.se";
 
+  // Strukturerad data. Sidan hade ingen alls, medan /listing — som daterade
+  // evenemang omdirigeras BORT från sedan #326 — hade full Event-markup. Varje
+  // event flyttades alltså till en sida som varken Google eller en aggregator
+  // kan läsa maskinellt.
+  //
+  // Tidszonen skrivs ut (+02:00/+01:00) i stället för att utelämnas: utan
+  // offset tolkas tiden som besökarens lokala, och en kväll 17:00 i Stockholm
+  // blir fel för alla andra.
+  const tzOffset = (() => {
+    const d = new Date(`${listing.event_date}T12:00:00Z`);
+    const namn = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Europe/Stockholm",
+      timeZoneName: "longOffset",
+    }).formatToParts(d).find((x) => x.type === "timeZoneName")?.value;
+    return namn?.replace("GMT", "") || "+01:00";
+  })();
+  const isoStart = listing.event_time
+    ? `${listing.event_date}T${listing.event_time.slice(0, 8)}${tzOffset}`
+    : listing.event_date;
+  const isoEnd = listing.event_end_time
+    ? `${listing.event_date}T${listing.event_end_time.slice(0, 8)}${tzOffset}`
+    : undefined;
+
+  // En Offer per biljettyp. Det är hela poängen för en aggregator: "från 50 kr"
+  // går att härleda, och practica/workshop/social syns var för sig.
+  const offers = ticketTypesForSale.length
+    ? ticketTypesForSale.map((tt) => ({
+        "@type": "Offer",
+        name: tt.name,
+        price: tt.price,
+        priceCurrency: "SEK",
+        url: `${appUrl}/event/${slug}`,
+        availability: sale.buyable && sellable
+          ? "https://schema.org/InStock"
+          : "https://schema.org/SoldOut",
+      }))
+    : listing.price != null
+      ? [{
+          "@type": "Offer",
+          price: listing.price,
+          priceCurrency: "SEK",
+          url: `${appUrl}/event/${slug}`,
+          availability: sale.buyable && sellable
+            ? "https://schema.org/InStock"
+            : "https://schema.org/SoldOut",
+        }]
+      : [];
+
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "DanceEvent",
+    name: listing.title,
+    url: `${appUrl}/event/${slug}`,
+    // Radbrytningar fyller ingen funktion i en maskinläst beskrivning, och att
+    // inte ha dem tar bort en hel klass av escapningsproblem.
+    ...(beskrivning.primary
+      ? { description: beskrivning.primary.replace(/\s+/g, " ").trim().slice(0, 500) }
+      : {}),
+    ...(listing.image_url ? { image: [listing.image_url] } : {}),
+    startDate: isoStart,
+    ...(isoEnd ? { endDate: isoEnd } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    ...(listing.event_location
+      ? {
+          location: {
+            "@type": "Place",
+            name: listing.event_venue || listing.event_location.split(",")[0]?.trim(),
+            address: {
+              "@type": "PostalAddress",
+              streetAddress: listing.event_location,
+              ...(listing.event_city ? { addressLocality: listing.event_city } : {}),
+              addressCountry: "SE",
+            },
+            ...(typeof listing.event_lat === "number" && typeof listing.event_lng === "number"
+              ? {
+                  geo: {
+                    "@type": "GeoCoordinates",
+                    latitude: listing.event_lat,
+                    longitude: listing.event_lng,
+                  },
+                }
+              : {}),
+          },
+        }
+      : {}),
+    ...(offers.length ? { offers } : {}),
+    organizer: {
+      "@type": "Organization",
+      name: listing.organizer_name || host?.full_name || "Usha Platform",
+      url: host ? `${appUrl}/creators/${host.slug || host.id}` : appUrl,
+    },
+    ...(listing.series_slug
+      ? { superEvent: { "@type": "EventSeries", url: `${appUrl}/series/${listing.series_slug}` } }
+      : {}),
+  };
+
   return (
+    <>
+    {/* Utanför NextIntlClientProvider med flit. safeJsonLd escapar <, > och &
+        till \u003c/\u003e/\u0026, men korsar strängen RSC-gränsen in i en
+        klientkomponent avkodas den ett varv på vägen: & blev & igen och \n
+        blev en riktig radbrytning inuti en JSON-sträng. Resultatet var ogiltig
+        JSON som varken Google eller en aggregator kunde läsa. /series och
+        /listing har alltid fungerat just för att de saknar klientgräns runt
+        sitt skript. */}
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }}
+    />
     <NextIntlClientProvider locale={eventLocale} messages={messages}>
     <main className="min-h-screen bg-[var(--usha-black)] text-[var(--usha-white)]">
       <TrackEvent
@@ -394,64 +624,112 @@ export default async function EventPage(props: Params) {
             className="block h-auto w-full sm:absolute sm:inset-0 sm:h-full sm:object-cover sm:object-center"
           />
         </picture>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/10 to-black" />
-
-        <div className="absolute left-6 top-6 z-10">
+        {/* Ingen gradient och ingen text över bilden längre. Affischen och
+            rubriken slogs ihop till ett rörigt lapptäcke — särskilt i
+            Facebooks inbyggda webbläsare, där Usha-brickan lade sig mitt i
+            titeln. Bilden får tala själv; uppgifterna står under den. */}
+        {/* Lodrätt längs vänsterkanten, nedifrån och upp.
+            writing-mode gör texten vertikal utan att rotera hela lådan, så
+            träffytan och rundningen följer med; rotate-180 vänder läsriktningen
+            till nedifrån och upp, vilket är den som fungerar när etiketten
+            sitter i vänsterkanten. U-märket vänds tillbaka så bokstaven står
+            rätt. Den ligger ovanpå bilden och inte under den, eftersom den är
+            sidans enda väg tillbaka. */}
+        <div className="absolute bottom-3 left-3 z-10">
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-xs font-medium backdrop-blur-sm transition hover:bg-black/60"
+            /* Mer genomskinlig platta, tydligare kant: bilden ska synas igenom,
+               och det är kanten snarare än fyllningen som håller brickan läsbar
+               mot både ljus och mörk bakgrund. Suddet bakom gör texten läsbar
+               även där bilden är brokig. */
+            className="flex rotate-180 items-center gap-2 rounded-full border border-white/45 bg-black/20 px-1.5 py-3 text-xs font-medium backdrop-blur-md transition [writing-mode:vertical-rl] hover:border-white/70 hover:bg-black/40"
           >
-            <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black">
+            <span className="flex h-5 w-5 shrink-0 rotate-180 items-center justify-center rounded bg-gradient-to-br from-[var(--usha-gold)] to-[var(--usha-accent)] text-[10px] font-bold text-black [writing-mode:horizontal-tb]">
               U
             </span>
             {t("production")}
           </Link>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 px-6 pb-10 text-white sm:px-10 sm:pb-16">
-          <div className="mx-auto max-w-4xl">
-            <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
-              {categoryLabel}
-            </span>
-            <h1 className="text-3xl font-bold leading-tight sm:text-5xl">
-              {listing.title}
-            </h1>
-            {(dateLabel || listing.event_location) && (
-              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-white/80 sm:text-base">
-                {dateLabel && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar size={16} />
-                    {dateLabel}
-                  </span>
-                )}
-                {timeLabel && (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Clock size={16} />
-                    {timeLabel}
-                  </span>
-                )}
-                {listing.event_location &&
-                  (venue ? (
-                    <Link
-                      href={`/creators/${venue.slug || venue.id}`}
-                      className="inline-flex items-center gap-1.5 underline-offset-4 transition hover:text-white hover:underline"
-                    >
-                      <MapPin size={16} />
-                      {listing.event_location}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5">
-                      <MapPin size={16} />
-                      {listing.event_location}
-                    </span>
-                  ))}
-              </div>
-            )}
-          </div>
-        </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-6 py-10 sm:px-10 sm:py-16">
+      {/* Rubriken och uppgifterna, nu på sidans egen yta i stället för ovanpå
+          affischen. Samma innehåll som förut — bara läsbart. */}
+      <header className="mx-auto max-w-4xl px-6 pt-8 sm:px-10 sm:pt-12">
+        <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[var(--usha-gold)]/15 px-3 py-1 text-xs font-medium text-[var(--usha-gold)]">
+          {categoryLabel}
+        </span>
+        <h1 className="text-3xl font-bold leading-tight text-[var(--usha-white)] sm:text-5xl">
+          {listing.title}
+        </h1>
+        {(dateLabel || listing.event_location) && (
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-[var(--usha-muted)] sm:text-base">
+            {/* Datumet är en länk till en kalenderpost. Den som bestämt sig
+                ska inte behöva skriva in kvällen för hand — och just den raden
+                är där blicken redan är när beslutet tas. */}
+            {dateLabel && (
+              <a
+                href={`/event/${slug}/kalender.ics`}
+                title={t("addToCalendar")}
+                aria-label={`${t("addToCalendar")}: ${dateLabel}`}
+                className="inline-flex items-center gap-1.5 underline decoration-[var(--usha-muted)]/40 underline-offset-4 transition hover:text-[var(--usha-white)] hover:decoration-[var(--usha-gold)]"
+              >
+                <Calendar size={16} />
+                {dateLabel}
+              </a>
+            )}
+            {timeLabel && (
+              <span className="inline-flex items-center gap-1.5">
+                <Clock size={16} />
+                {timeLabel}
+              </span>
+            )}
+            {/* Biljettlänken hör till uppgifterna om kvällen: när, var, vad det
+                kostar. På mobil ligger biljettrutan efter beskrivningen och
+                kartan, så utan den här knappen ser en besökare varken pris
+                eller köpväg förrän hen scrollat förbi allt. Från md och upp
+                står sidokolumnen redan bredvid rubriken — då skulle knappen
+                scrolla till något som redan syns. */}
+            {sale.buyable && sellable && (
+              <a
+                href="#biljetter"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] px-5 py-2.5 text-base font-bold text-black shadow-lg shadow-[var(--usha-gold)]/20 transition hover:opacity-90 active:scale-[0.98] md:hidden"
+              >
+                <Ticket size={17} />
+                {isFree
+                  ? t("freeTicket")
+                  : hasPriceRange
+                    ? t("ticketsFromCta", { price: lowestPrice })
+                    : t("buyTicket", { price: lowestPrice })}
+              </a>
+            )}
+            {/* Adressen går till kartan, även när lokalen har en profil hos
+                oss. Den som läser adressraden vill veta var det ligger;
+                lokalens profil når man från lokalkortet i sidokolumnen, som
+                finns just för det. Förut tog adressen dit i stället, och till
+                kartan kom man bara genom att scrolla förbi hela texten. */}
+            {listing.event_location && (
+              <a
+                href={buildMapsHref({
+                  location: listing.event_location,
+                  city: "Stockholm",
+                  placeId: listing.event_place_id,
+                  lat: listing.event_lat,
+                  lng: listing.event_lng,
+                })}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 underline decoration-[var(--usha-muted)]/40 underline-offset-4 transition hover:text-[var(--usha-white)] hover:decoration-[var(--usha-gold)]"
+              >
+                <MapPin size={16} />
+                {listing.event_location}
+              </a>
+            )}
+          </div>
+        )}
+      </header>
+
+      <div className="mx-auto max-w-4xl px-6 pb-10 pt-8 sm:px-10 sm:pb-16 sm:pt-10">
         {isHost && (
           <div className="mb-8 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--usha-gold)]/30 bg-[var(--usha-gold)]/5 p-3">
             <span className="mr-1 px-1 text-xs font-medium text-[var(--usha-gold)]">
@@ -487,11 +765,33 @@ export default async function EventPage(props: Params) {
             </Link>
           </div>
         )}
+        {/* min-w-0 på båda grid-barnen: ett grid-spår tar annars minst sitt
+            innehålls min-content-bredd, och ett enda obrytbart stycke drar ut
+            spåret förbi skärmkanten — då hamnar kartan och biljettrutan
+            utanför till höger på mobil, medan texten ovanför ser ok ut. */}
         <div className="grid gap-8 md:grid-cols-[1fr_280px] md:gap-12">
-          <div>
+          <div className="min-w-0">
             {listing.description ? (
-              <div className="whitespace-pre-wrap text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
-                {listing.description}
+              <div className="text-base leading-relaxed text-[var(--usha-white)] sm:text-lg">
+                <div className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+                  {beskrivning.primary}
+                </div>
+                {/* Andra språket bakom en utfällning i stället för under
+                    förstasidestexten. Hela texten två gånger gör sidan dubbelt
+                    så lång, och den som söker sitt språk måste scrolla förbi
+                    ett stycke hen inte kan läsa. <details> klarar sig utan JS
+                    och är öppningsbar innan sidan hydrerat. */}
+                {beskrivning.secondary && (
+                  <details className="group mt-6 rounded-xl border border-[var(--usha-border)]">
+                    <summary className="flex cursor-pointer items-center justify-between gap-2 px-4 py-3 text-sm font-medium text-[var(--usha-muted)] transition hover:text-[var(--usha-white)] [&::-webkit-details-marker]:hidden">
+                      {beskrivning.secondaryLabel}
+                      <ChevronDown size={16} className="shrink-0 transition group-open:rotate-180" />
+                    </summary>
+                    <div className="whitespace-pre-wrap [overflow-wrap:anywhere] border-t border-[var(--usha-border)] px-4 py-4 text-base leading-relaxed sm:text-lg">
+                      {beskrivning.secondary}
+                    </div>
+                  </details>
+                )}
               </div>
             ) : (
               <p className="text-base text-[var(--usha-muted)]">
@@ -499,7 +799,12 @@ export default async function EventPage(props: Params) {
               </p>
             )}
 
-            {listing.duration_minutes && (
+            {/* duration_minutes är ett fält från tjänsteformuläret och kan
+                motsäga klockslagen: The Lab har 240 lagrat men pågår 17–23,
+                alltså 360. Står både "17:00 – 23:00" och "240 min" på samma
+                sida vet ingen vilket som gäller. Finns en sluttid är den
+                sanningen, och längden är redan uttryckt. */}
+            {listing.duration_minutes && !listing.event_end_time && (
               <p className="mt-6 text-sm text-[var(--usha-muted)]">
                 {t("durationMin", { minutes: listing.duration_minutes })}
               </p>
@@ -519,20 +824,22 @@ export default async function EventPage(props: Params) {
             />
           </div>
 
-          <aside className="space-y-4">
-            <div className="rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+          <aside className="min-w-0 space-y-4">
+            <div id="biljetter" className="scroll-mt-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
                   renderas den av BookButton och följer det man klickat på.
                   Går det inte att köpa finns inget val att följa, och då står
                   den kvar här. */}
-              {sale.buyable ? (
+              {sale.buyable && sellable ? (
                 <BookButton
                   listingId={listing.id}
                   price={sale.price}
                   isLoggedIn={!!user}
                   returnPath={returnPath}
                   ticketTypes={ticketTypesForSale}
+                  passes={passesForSale}
                   preselectTicketTypeId={preselectTicketTypeId}
+                  creditOre={signupCreditOre}
                   header={{
                     badge: saleBadge ?? t("ticket"),
                     listPrice: listing.price ?? null,
@@ -565,8 +872,18 @@ export default async function EventPage(props: Params) {
                   </div>
                   <div className="w-full rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-4 py-2.5 text-center text-sm font-semibold text-[var(--usha-muted)]">
                     {sale.state === "past" ? t("badgePast") :
-                     sale.state === "sold_out" ? t("soldOut") : t("notReleased")}
+                     sale.state === "sold_out" ? t("soldOut") :
+                     sale.buyable ? t("payAtVenueBadge") : t("notReleased")}
                   </div>
+                  {/* Säljfönstret är öppet, men arrangören får inte ta emot
+                      onlinebetalning under beta. Säg vad som gäller i stället
+                      för att låta rutan se ut som ett tekniskt fel — kvällen
+                      blir ju av, betalningen sker bara i dörren. */}
+                  {sale.buyable && (
+                    <p className="mt-3 text-center text-xs leading-relaxed text-[var(--usha-muted)]">
+                      {t("payAtVenueNote")}
+                    </p>
+                  )}
                 </>
               )}
               {sale.buyable && !user && (
@@ -636,6 +953,18 @@ export default async function EventPage(props: Params) {
                   · {t("bankidVerified")}
                 </span>
               )}
+              {!isHost && (
+                <div className="mt-2">
+                  <FollowButton
+                    creatorId={listing.user_id}
+                    initialFollowing={followingIds.has(listing.user_id)}
+                    followerCount={hostFollowerCount ?? 0}
+                    isLoggedIn={!!user}
+                    returnTo={returnPath}
+                    size="sm"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Lokalen får samma plats som arrangören. Kvällen är deras hus lika
@@ -652,10 +981,42 @@ export default async function EventPage(props: Params) {
                 >
                   {venue.full_name}
                 </Link>
+                {user?.id !== venue.id && (
+                  <div className="mt-2">
+                    <FollowButton
+                      creatorId={venue.id}
+                      initialFollowing={followingIds.has(venue.id)}
+                      followerCount={0}
+                      isLoggedIn={!!user}
+                      returnTo={returnPath}
+                      size="sm"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
+
+        {/* Utan konto: följ via e-post. Bekräftas med länk i mejlet innan
+            något annat skickas. */}
+        {host && !user && (
+          <EmailFollowForm
+            followedId={listing.user_id}
+            locale={locale}
+            className="mt-6"
+            labels={{
+              prompt: tFollow("prompt", { name: hostDisplayName }),
+              placeholder: tFollow("placeholder"),
+              button: tFollow("button"),
+              pending: tFollow("pending"),
+              active: tFollow("active", { name: hostDisplayName }),
+              failed: tFollow("failed"),
+            }}
+          />
+        )}
+
+        <FollowUs className="mt-8" />
 
         {crew.length > 0 && (
           <div className="mt-8 border-t border-[var(--usha-border)] pt-8">
@@ -732,6 +1093,7 @@ export default async function EventPage(props: Params) {
       )}
     </main>
     </NextIntlClientProvider>
+    </>
   );
 }
 

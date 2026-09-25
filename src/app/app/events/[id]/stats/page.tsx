@@ -168,7 +168,23 @@ export default function EventStatsPage() {
           <ArrowLeft size={14} /> {t("back")}
         </Link>
         <h1 className="text-2xl font-bold">{t("title")}</h1>
-        <p className="mt-1 text-sm text-[var(--usha-muted)]">{data.event.title}</p>
+        {/* Datumet, inte bara titeln. En serie har åtta kvällar med identisk
+            titel; utan datum går det inte att se vilken av dem siffrorna
+            gäller, och en tom statistik för 7 sep lästes som fel när live-vyn
+            för 21 sep visade en såld biljett. API:et skickade datumet redan. */}
+        <p className="mt-1 text-sm text-[var(--usha-muted)]">
+          {data.event.title}
+          {data.event.eventDate && (
+            <>
+              {" · "}
+              {new Date(data.event.eventDate + "T00:00").toLocaleDateString("sv-SE", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+            </>
+          )}
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

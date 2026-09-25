@@ -1,16 +1,28 @@
 import { useTranslations } from "next-intl";
+import { FollowUs } from "@/components/follow-us";
 
 /** Shared site footer for the home page and perspective pages. */
 export function Footer() {
   const t = useTranslations("landing");
 
+  // Sidfoten bär det toppmenyn inte längre gör. Menyn har en enda ingång till
+  // utbudet; den som vill förstå ekosystemet, sälja biljetter eller handla i
+  // shoppen hittar det här i stället.
   const FOOTER_LINKS = {
+    [t("footer.discover")]: [
+      { label: t("nav.experiences"), href: "/upplevelser" },
+      { label: t("nav.calendar"), href: "/kalender" },
+      { label: t("footer.marketplace"), href: "/marketplace" },
+      { label: t("nav.feed"), href: "/flode" },
+    ],
     [t("footer.platform")]: [
       { label: t("nav.forCreators"), href: "/for-kreatorer" },
       { label: t("nav.forVenues"), href: "/for-platser" },
       { label: t("nav.forAudience"), href: "/for-publik" },
-      { label: t("footer.marketplace"), href: "/marketplace" },
+      { label: t("nav.sellTickets"), href: "/salj-biljetter" },
+      { label: t("nav.shop"), href: "https://shop.usha.se" },
       { label: t("footer.about"), href: "/om" },
+      { label: t("footer.partner"), href: "/partner" },
     ],
     [t("footer.legal")]: [
       { label: t("footer.terms"), href: "/terms" },
@@ -33,6 +45,7 @@ export function Footer() {
             <p className="max-w-xs text-sm leading-relaxed text-[var(--usha-muted)]">
               {t("footer.description")}
             </p>
+            <FollowUs className="mt-5" />
           </div>
 
           {Object.entries(FOOTER_LINKS).map(([title, links]) => (

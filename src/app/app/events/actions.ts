@@ -13,7 +13,7 @@ import { getSubscriptionStatus } from "@/lib/subscription/check";
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug, generateUniqueSeriesSlug } from "@/lib/listings/slug";
 import { createNotification } from "@/lib/notifications/create";
-import { isSeller } from "@/lib/roles";
+import { isSeller, isCreatorRole } from "@/lib/roles";
 import { ticketGateForNewEvent, ticketGateForListing } from "@/lib/capabilities/gate";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 
@@ -119,6 +119,24 @@ function parseEventForm(formData: FormData) {
   const includedRaw = (formData.get("included") as string)?.trim() || "";
 
   if (!title) return { error: "Titel krävs" } as const;
+
+  // Tid krävs när evenemanget har ett datum.
+  //
+  // Sluttiden var frivillig, och utan den gissar besökarens kalenderapp: Google
+  // lägger på en timme, Apple gör posten punktformig. En kväll 17–23 hamnade
+  // alltså som en timme i kalendern hos den som tryckte på datumet.
+  //
+  // Starttiden kommer med i samma villkor eftersom en sluttid utan starttid
+  // inte betyder något.
+  if (eventDate) {
+    if (!eventTime) return { error: "Ange starttid för evenemanget" } as const;
+    if (!eventEndTime) return { error: "Ange sluttid — annars vet inte besökarens kalender hur länge kvällen håller på" } as const;
+    // Sluttid FÖRE starttid är tillåtet: kvällen passerar midnatt. Lika tider
+    // ger däremot ett evenemang utan längd.
+    if (eventEndTime === eventTime) {
+      return { error: "Sluttiden kan inte vara samma som starttiden" } as const;
+    }
+  }
   if (!category || !EVENT_CATEGORIES.includes(category as (typeof EVENT_CATEGORIES)[number])) {
     return { error: "Välj en giltig kategori" } as const;
   }
@@ -513,6 +531,12 @@ export async function duplicateEvent(
 
   if (!user) return { error: "Ej inloggad" };
   if (!newDate) return { error: "Datum krävs" };
+  // Samma krav som när ett evenemang skapas. Utan det kunde en dubblett bli
+  // den enda vägen till ett evenemang utan sluttid — och därmed till en
+  // kalenderpost som gissar längden.
+  if (!newTime) return { error: "Ange starttid för evenemanget" };
+  if (!newEndTime) return { error: "Ange sluttid — annars vet inte besökarens kalender hur länge kvällen håller på" };
+  if (newEndTime === newTime) return { error: "Sluttiden kan inte vara samma som starttiden" };
 
   if (!(await isBankidCleared(supabase, user.id))) {
     return { error: BANKID_REQUIRED_MSG };
@@ -727,7 +751,6 @@ export async function toggleEventActive(id: string, isActive: boolean) {
 // ── Instructor opt-in: offer paid mini-sessions at someone's open event ──
 
 const INSTRUCTOR_TIERS = ["guld", "premium"];
-const INSTRUCTOR_ROLES = ["creator", "creator"];
 
 /**
  * A paying dance-instructor creator joins an open event so they can sell
@@ -752,7 +775,7 @@ export async function joinOpenEvent(listingId: string) {
     .eq("id", user.id)
     .single();
 
-  if (!profile || !INSTRUCTOR_ROLES.includes(profile.role)) {
+  if (!profile || !isCreatorRole(profile.role)) {
     return { error: "Endast instruktörer (kreatörer) kan gå med." };
   }
   if (!INSTRUCTOR_TIERS.includes(profile.tier)) {

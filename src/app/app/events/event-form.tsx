@@ -333,15 +333,19 @@ export default function EventForm({
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="event_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              {t("startTime")}
+              {t("startTime")} <span className="text-[var(--usha-gold)]">*</span>
             </label>
             <TimeSelect id="event_time" name="event_time" defaultValue={event?.event_time ?? ""} />
           </div>
           <div>
             <label htmlFor="event_end_time" className="mb-1.5 block text-sm text-[var(--usha-muted)]">
-              {t("endTime")}
+              {t("endTime")} <span className="text-[var(--usha-gold)]">*</span>
             </label>
             <TimeSelect id="event_end_time" name="event_end_time" defaultValue={event?.event_end_time ?? ""} />
+            {/* Skälet står här, inte i ett felmeddelande efter att någon
+                försökt spara. Sluttiden är den enda uppgiften vars nytta syns
+                först hos besökaren, inte hos arrangören. */}
+            <p className="mt-1.5 text-xs text-[var(--usha-muted)]">{t("endTimeHint")}</p>
           </div>
         </div>
 

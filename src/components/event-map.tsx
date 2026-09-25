@@ -20,6 +20,8 @@ import { MapPin } from "lucide-react";
  * Länken under kartan går till riktiga Google Maps, där man får vägbeskrivning.
  * Den är viktigare än kartan: på en telefon är det den som tar folk fram.
  */
+import { buildMapsHref } from "@/lib/listings/maps";
+
 export function EventMap({
   lat,
   lng,
@@ -68,13 +70,7 @@ export function EventMap({
   // ett ställe, med Vägbeskrivning-knappen och allt Google vet om det.
   // place_id läggs till när det finns, så rätt ställe träffas även om namnet
   // är tvetydigt. Saknas namn helt faller vi tillbaka på koordinaterna.
-  const namedQuery = textQuery || location;
-  const mapsHref = namedQuery
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(namedQuery)}` +
-      (placeId ? `&query_place_id=${placeId}` : "")
-    : hasCoords
-      ? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
-      : "https://www.google.com/maps";
+  const mapsHref = buildMapsHref({ location, city, placeId, lat, lng });
 
   return (
     <section className="mt-8">

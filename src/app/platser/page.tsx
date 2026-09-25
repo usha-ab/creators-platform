@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { MapPin, Calendar, Search } from "lucide-react";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { SeoFooter } from "@/components/seo-footer";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -74,7 +74,7 @@ export default async function PlatserPage(
 
   return (
     <div className="min-h-screen bg-[var(--usha-black)]">
-      <Nav />
+      <SiteNav />
 
       <main className="mx-auto max-w-5xl px-4 pb-8 pt-24">
         <h1 className="text-2xl font-bold md:text-3xl">{t("title")}</h1>

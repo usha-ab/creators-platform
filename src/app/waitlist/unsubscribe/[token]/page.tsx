@@ -1,10 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getTranslations } from "next-intl/server";
+import { privatePage } from "@/lib/seo/metadata";
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   const t = await getTranslations("eventPage");
-  return { title: t("unsubMetaTitle") };
+  return { title: t("unsubMetaTitle"), ...privatePage() };
 }
 
 // GDPR: a guest unsubscribes from an event waitlist via their unique token.

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Check, Ticket, QrCode, Layers, Users, BellRing, Receipt, ArrowRight } from "lucide-react";
-import { Nav } from "@/components/landing/nav";
+import { SiteNav } from "@/components/landing/site-nav";
 import { Footer } from "@/components/landing/footer";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -42,7 +42,7 @@ export default async function SellTicketsPage() {
 
   return (
     <main className="bg-[var(--usha-black)] text-[var(--usha-white)]">
-      <Nav />
+      <SiteNav />
 
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-6 pt-24 pb-12 text-center">

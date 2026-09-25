@@ -1,4 +1,7 @@
+import { notIndexable } from "@/lib/seo/metadata";
+
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Offline — Usha Platform", ...notIndexable() };
 
 export default function OfflinePage() {
   return (
