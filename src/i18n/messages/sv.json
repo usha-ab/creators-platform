@@ -2189,6 +2189,32 @@
     "ticketTypesPoolHelp": "Ska två biljettyper dela på samma platser? Ge dem samma namn i fältet Delad pott och samma kapacitet."
   },
   "trainingBuddies": {
+    "domains": {
+      "dans": {
+        "label": "Dans",
+        "subtitle": "Hitta en danspartner",
+        "firstInPool": "Inga andra dansare har gått med än. Bjud in dina danskompisar så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta din danspartner på Usha – gå med i Träningsvänner!"
+      },
+      "traning": {
+        "label": "Träning",
+        "subtitle": "Hitta en träningskompis",
+        "firstInPool": "Inga andra som tränar har gått med än. Bjud in dina träningskompisar så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta din träningskompis på Usha – gå med i Träningsvänner!"
+      },
+      "racket": {
+        "label": "Racket",
+        "subtitle": "Hitta någon att spela med",
+        "firstInPool": "Ingen annan spelare har gått med än. Bjud in dem du brukar spela med så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta någon att spela med på Usha – gå med i Träningsvänner!"
+      },
+      "kropp": {
+        "label": "Kropp & sinne",
+        "subtitle": "Hitta någon att träna med",
+        "firstInPool": "Ingen annan har gått med än. Bjud in dem du brukar träna med så fylls poolen – de dyker upp här så fort de är med.",
+        "invite": "Hitta någon att träna med på Usha – gå med i Träningsvänner!"
+      }
+    },
     "title": "Träningsvänner",
     "subtitle": "Hitta träningspartner för dans",
     "tabSuggestions": "Förslag",
@@ -2197,7 +2223,7 @@
     "bankidGateDesc": "Träningsvänpoolen är för verifierade personer — tryggare när ni ska träffas och träna. Verifiera dig med BankID för att gå med.",
     "bankidGateCta": "Verifiera med BankID",
     "onboardTitle": "Berätta vad och hur du vill träna, så matchar vi dig med partners.",
-    "onboardStyles": "Dansstilar",
+    "onboardStyles": "Aktiviteter",
     "onboardRole": "Din roll",
     "onboardAvailability": "När kan du träna?",
     "onboardCity": "Plats",
@@ -2205,7 +2231,7 @@
     "onboardBio": "Om dig (valfritt)",
     "onboardSave": "Gå med i poolen",
     "onboardSaving": "Sparar…",
-    "needStyle": "Välj minst en dansstil",
+    "needStyle": "Välj minst en aktivitet",
     "adult18": "Jag är 18 år eller äldre och förstår att jag träffar andra på egen risk.",
     "needAdult": "Du måste bekräfta att du är 18 år eller äldre.",
     "saveError": "Något gick fel. Försök igen.",
