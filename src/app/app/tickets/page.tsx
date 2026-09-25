@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeEmail } from "@/lib/email/normalize";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 import { TicketsContent } from "./tickets-content";
 
@@ -65,12 +66,15 @@ export default async function TicketsPage() {
       // These have customer_id = null, so RLS hides them from the user client —
       // fetch them narrowly by exact email via the admin client and merge.
       let guest: any[] = [];
-      if (user.email) {
+      const ownEmail = normalizeEmail(user.email);
+      if (ownEmail) {
         const { data } = await createAdminClient()
           .from("bookings")
           .select(BOOKING_SELECT)
           .is("customer_id", null)
-          .eq("guest_email", user.email)
+          // Skiftlägesokänsligt: gamla gästrader kan vara sparade som de
+          // skrevs. ilike utan jokertecken är en ren jämförelse.
+          .ilike("guest_email", ownEmail)
           .order("scheduled_at", { ascending: false });
         guest = data || [];
       }

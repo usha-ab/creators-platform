@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { normalizeEmail } from "@/lib/email/normalize";
 import { UTM_COOKIE, parseUtm, utmMetadata } from "@/lib/analytics/utm";
 import { REF_COOKIE, affiliateForPurchase } from "@/lib/affiliate/attribution";
 import { passBookingFields } from "@/lib/passes/series-pass";
@@ -27,7 +28,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email, name, ticketTypeId, quantity, attendeeNames } = await req.json();
+    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames } = await req.json();
+    // Adressen är identiteten som knyter gästbiljetten till ett konto senare.
+    // Sparas den som den skrevs slutar `guest_email = user.email` matcha så
+    // fort någon råkar få en versal med sig från tangentbordet.
+    const email = normalizeEmail(rawEmail);
+    // let, inte const: main justerar antalet nedåt när potten inte räcker.
     let qty = clampQuantity(quantity);
 
     if (!listingId || !email) {
