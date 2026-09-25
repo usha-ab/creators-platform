@@ -7,9 +7,15 @@
  *    at this instant; afterwards tier gating (Gratis/Guld/Premium) is enforced.
  *
  * Note: NEXT_PUBLIC_* values are inlined into the client bundle at build time,
- * so on the client the end-date is evaluated at build time. A redeploy is
- * scheduled on the end date to re-inline the flipped value; server runtime
- * re-evaluates on each cold start, so server-side enforcement flips on its own.
+ * but the comparison against Date.now() runs where the module loads — so both
+ * the browser and a server cold start flip on their own at the end instant.
+ *
+ * What does NOT flip on its own is already-rendered output: pages generated or
+ * cached while beta was live keep serving beta-era markup afterwards. There is
+ * NO scheduled redeploy (checked 2026-09-24: neither .github/workflows nor
+ * vercel.json contains one), so a manual redeploy after the end instant is what
+ * clears that cache. An earlier version of this comment claimed the redeploy was
+ * scheduled; it never was.
  */
 const BETA_SWITCH_ON = process.env.NEXT_PUBLIC_BETA_MODE === "true";
 
