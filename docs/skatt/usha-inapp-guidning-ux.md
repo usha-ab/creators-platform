@@ -68,7 +68,7 @@ Kreatör registrerar sig
         ├─ business_type ∈ {sole_trader, company} OCH f_tax_status ≠ approved?
         │        └─► ⛔ HÅRD GRIND: blockera utbetalning som näringsinkomst.
         │             Visa: "Vi behöver verifiera din F-skatt först." → ansök/verifiera.
-        │             (Alternativ: betala ut först när F-skatt verifierad.)
+        │             (Alternativ: betala ut först när F-skatt verifierad, eller led till egenanställning.)
         │
         ├─ business_type = hobby?  ──► tillåt utbetalning, ingen F-skattegrind.
         │
@@ -87,7 +87,7 @@ Kreatör registrerar sig
 ```
 om utbetalning avser ARBETE (näringsinkomst):
     om f_tax_status = approved (verifierad)        → betala ut, inget skatteavdrag
-    annars                                          → BLOCKERA + guida till F-skatt
+    annars                                          → BLOCKERA + guida till F-skatt (eller egenanställning)
 om inkomst = hobby:
     → betala ut (kreatören redovisar T2 + egenavgifter själv)
 ```
