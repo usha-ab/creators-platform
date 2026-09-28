@@ -7,6 +7,7 @@ import { canManageListing } from "@/lib/listings/manage-access";
 import { venuesUserCanCreateFor } from "@/lib/venues/members";
 import { resolvePools, ownCapacityFor, parsePoolNames } from "@/lib/tickets/pools";
 import { revalidatePath } from "next/cache";
+import { syncListingPost, touchesPost } from "@/lib/facebook/auto-sync";
 import { redirect } from "next/navigation";
 import { EVENT_CATEGORIES } from "./constants";
 import { getSubscriptionStatus } from "@/lib/subscription/check";
@@ -695,6 +696,20 @@ export async function updateEvent(id: string, formData: FormData) {
 
   // Sync ticket types, preserving tickets_sold on surviving rows.
   await reconcileTicketTypes(admin, id, ticketTypes);
+
+  // Håll Facebook-inlägget i takt med evenemanget. Bara inlägg som redan
+  // publicerats uppdateras — första publiceringen är fortfarande knappen.
+  // Fel får aldrig stoppa sparningen, därför loggas de och inget mer.
+  if (touchesPost(updateData)) {
+    const resultat = await syncListingPost(
+      admin as never,
+      id,
+      process.env.NEXT_PUBLIC_APP_URL || "https://usha.se"
+    );
+    if (resultat.status === "fel") {
+      console.error("Facebook-autosynk misslyckades", { listingId: id, skäl: resultat.skäl });
+    }
+  }
 
   revalidatePath("/app/events");
   redirect("/app/events");
