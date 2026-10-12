@@ -65,6 +65,14 @@ export async function POST(
     return NextResponse.json({ error: te("past") }, { status: 403 });
   }
 
+  // Seriens stående koder är sanningen; kväll-raden är bara dess avtryck. Kopiera
+  // ner den innan vi läser, annars nekas en giltig kod på en kväll som triggern
+  // aldrig hann röra (t.ex. en avstängd kväll som tänts igen). Idempotent.
+  await admin.rpc("materialize_series_access_codes", {
+    p_listing: listingId,
+    p_code: code,
+  });
+
   // Look up the code (validate-only) to decide free vs discount. Codes are stored
   // upper/trimmed, matching redeem_access_code's upper(btrim()).
   const { data: codeRow } = await admin

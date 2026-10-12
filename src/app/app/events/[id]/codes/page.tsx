@@ -30,6 +30,10 @@ export default async function CodesPage(props: { params: Promise<{ id: string }>
     .maybeSingle();
   if (!listing || listing.user_id !== user.id) notFound();
 
+  // Visa värden samma uppsättning som dörren kommer att godta: seriens stående
+  // koder kopieras ner först, så en kväll som tänts igen inte ser kodlös ut.
+  await admin.rpc("materialize_series_access_codes", { p_listing: id });
+
   const { data: codes } = await admin
     .from("event_access_codes")
     .select("id, code, label, max_uses, used_count, is_active, discount_price")
