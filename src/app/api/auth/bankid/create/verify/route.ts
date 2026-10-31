@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { verifyCookieValue } from "@/lib/signicat/crypto";
 import { checkEmailCode, EMAIL_CODE_COOKIE } from "@/lib/bankid/email-code";
 import { applyBankIdVerification } from "@/lib/bankid/apply-verification";
+import { markEmailProven } from "@/lib/auth/email-proven";
 import { signInServerSide, finishSignIn } from "@/lib/bankid/session";
 import { REF_COOKIE, claimReferral } from "@/lib/affiliate/attribution";
 import { locales } from "@/i18n/config";
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "other_bankid" }, { status: 409 });
     }
     userId = existing.id;
+    await markEmailProven(admin, userId, email);
   } else {
     const locale =
       typeof body.locale === "string" && (locales as readonly string[]).includes(body.locale) ? body.locale : "sv";
@@ -60,6 +62,8 @@ export async function POST(req: NextRequest) {
     const { data: created, error } = await admin.auth.admin.createUser({
       email,
       email_confirm: true,
+      // Koden till adressen bevisar att personen äger den.
+      app_metadata: { email_proven: email },
       user_metadata: {
         full_name: bankid.name,
         role: bankid.role,
@@ -104,6 +108,6 @@ export async function POST(req: NextRequest) {
   const response = NextResponse.json({ ok: true, next, created: !existing });
   response.cookies.set("bankid_verified", "", { path: "/", maxAge: 0 });
   response.cookies.set(EMAIL_CODE_COOKIE, "", { path: "/", maxAge: 0 });
-  await finishSignIn(admin, response, { id: userId, email });
+  await finishSignIn(admin, response, { id: userId, email, emailProven: true });
   return response;
 }

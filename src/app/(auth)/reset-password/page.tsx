@@ -77,8 +77,13 @@ export default function ResetPasswordPage() {
 
     const supabase = createClient();
     if (tokenHash) {
-      const { error: otpError } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
-      if (otpError) {
+      // Servern löser in länken och markerar adressen som bevisad.
+      const res = await fetch("/api/auth/recovery-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token_hash: tokenHash }),
+      }).catch(() => null);
+      if (!res?.ok) {
         // Utgången eller redan använd: visa "begär ny länk".
         setHasSession(false);
         setLoading(false);

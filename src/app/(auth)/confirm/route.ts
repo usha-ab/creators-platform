@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
+import { markEmailProven } from "@/lib/auth/email-proven";
 
 // Passwordless / magic-link + recovery landing route.
 //
@@ -33,7 +34,12 @@ export async function GET(req: NextRequest) {
       // gamla gästköp måste ske även här — annars beror det på HUR man loggar
       // in om ens biljetter räknas.
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) await adoptGuestBookings(createAdminClient(), user.id, user.email);
+      // Länken kom via mejl till adressen, så adressen är nu bevisad.
+      if (user?.email) {
+        const admin = createAdminClient();
+        await markEmailProven(admin, user.id, user.email);
+        await adoptGuestBookings(admin, user.id, user.email, { emailProven: true });
+      }
       return NextResponse.redirect(`${origin}${safeNext}`);
     }
   }

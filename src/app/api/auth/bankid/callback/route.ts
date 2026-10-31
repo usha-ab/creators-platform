@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
       await signInServerSide(admin, target.email);
       const response = NextResponse.redirect(`${baseUrl}${safeNext ?? "/app"}`);
       response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
-      await finishSignIn(admin, response, { id: target.userId, email: target.email });
+      await finishSignIn(admin, response, { id: target.userId, email: target.email, emailProven: target.emailProven });
       return response;
     }
 
