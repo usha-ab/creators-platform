@@ -7,8 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
 import { findBankIdLoginTarget } from "@/lib/bankid/login";
-import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
-import { locales, LOCALE_COOKIE_NAME } from "@/i18n/config";
+import { signInServerSide, finishSignIn } from "@/lib/bankid/session";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -76,44 +75,46 @@ export async function GET(req: NextRequest) {
 
     const admin = createAdminClient();
 
-    // Inloggning med BankID: hitta kontot på personnummer-hashen och skapa en
-    // session på servern. Engångstoken (magiclink) genereras och löses in här i
-    // samma anrop, så den hamnar aldrig i en URL eller ett mejl.
+    // Fortsätt med BankID: finns ett konto kopplat loggas det in direkt, med en
+    // session som skapas på servern. Annars går man vidare till att skapa ett
+    // konto (/signup/bankid) med den verifierade identiteten i den signerade
+    // bankid_verified-cookien, precis som vid vanlig BankID-registrering.
     if (isLoginMode) {
       const target = await findBankIdLoginTarget(admin, hashedNin);
+      if (!target.ok && target.reason === "no_account") {
+        const verified: BankIdVerifiedData = {
+          name,
+          firstName,
+          lastName,
+          dateOfBirth,
+          hashedNin,
+          verifiedAt: new Date().toISOString(),
+          role:
+            sessionData.role === "creator" || sessionData.role === "venue" ? sessionData.role : "customer",
+          subcategory: sessionData.subcategory === "taxi_dancer" ? "taxi_dancer" : "general",
+        };
+        const createUrl = `${baseUrl}/signup/bankid${safeNext ? `?next=${encodeURIComponent(safeNext)}` : ""}`;
+        const response = NextResponse.redirect(createUrl);
+        response.cookies.set("bankid_verified", signCookieValue(verified), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          path: "/",
+          maxAge: 600,
+        });
+        response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+        return response;
+      }
       if (!target.ok) {
         const response = NextResponse.redirect(`${errorBase}?bankid=${target.reason}`);
         response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
         return response;
       }
 
-      const { data: link, error: linkErr } = await admin.auth.admin.generateLink({
-        type: "magiclink",
-        email: target.email,
-      });
-      const tokenHash = link?.properties?.hashed_token;
-      if (linkErr || !tokenHash) throw new Error(`generateLink: ${linkErr?.message ?? "no token"}`);
-
-      const supabase = await createClient();
-      const { error: otpErr } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
-      if (otpErr) throw new Error(`verifyOtp: ${otpErr.message}`);
-
-      // Samma efterarbete som /callback och /confirm: gamla gästköp och kontots språk.
-      await adoptGuestBookings(admin, target.userId, target.email);
+      await signInServerSide(admin, target.email);
       const response = NextResponse.redirect(`${baseUrl}${safeNext ?? "/app"}`);
       response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
-      const { data: prefs } = await admin
-        .from("profiles")
-        .select("locale")
-        .eq("id", target.userId)
-        .maybeSingle();
-      if (prefs?.locale && (locales as readonly string[]).includes(prefs.locale)) {
-        response.cookies.set(LOCALE_COOKIE_NAME, prefs.locale, {
-          path: "/",
-          maxAge: 60 * 60 * 24 * 365,
-          sameSite: "lax",
-        });
-      }
+      await finishSignIn(admin, response, { id: target.userId, email: target.email });
       return response;
     }
 

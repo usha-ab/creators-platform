@@ -346,6 +346,35 @@ export default function SignupPage() {
     document.cookie = `pending_marketing_consent=${marketingConsent ? "true" : "false"};path=/;max-age=600;SameSite=Lax`;
   }
 
+  // Konto med BankID utan lösenord: BankID först, sedan e-post + kod på
+  // /signup/bankid. Finns redan ett konto på personnumret loggas det in.
+  async function handleBankIdCreate() {
+    setBankidVerifying(true);
+    setBankidError("");
+    const rawNext = searchParams.get("next") || "";
+    try {
+      const res = await fetch("/api/auth/bankid/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "login",
+          role: selectedRole,
+          next: rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.authenticationUrl) {
+        setBankidError(data.error || t("bankidStartError"));
+        setBankidVerifying(false);
+        return;
+      }
+      window.location.href = data.authenticationUrl;
+    } catch {
+      setBankidError(t("bankidStartError"));
+      setBankidVerifying(false);
+    }
+  }
+
   async function handleGoogleSignup() {
     if (!selectedRole) return;
     storeRoleForOAuth();
@@ -642,6 +671,20 @@ export default function SignupPage() {
         </label>
 
         {/* OAuth buttons — only available after BankID for creator/experience */}
+        {!NEEDS_BANKID.includes(selectedRole!) && !bankidVerified && (
+          <>
+            <button
+              onClick={handleBankIdCreate}
+              disabled={bankidVerifying}
+              className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
+            >
+              <ShieldCheck size={16} />
+              {bankidVerifying ? t("openingBankid") : t("createWithBankid")}
+            </button>
+            {bankidError && <p className="mb-2 text-xs text-red-400">{bankidError}</p>}
+          </>
+        )}
+
         {(!NEEDS_BANKID.includes(selectedRole!) || bankidVerified) && (
           <>
             <button

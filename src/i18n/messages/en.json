@@ -535,7 +535,24 @@
     "marketingConsent": "Yes, send me email about offers and news from Usha. You can change this any time in settings.",
     "signupTaglineCreator": "{role} — free to get started. You pay commission only when you sell.",
     "signupTaglineVenue": "{role} — a free account. You pay only what you agreed per night.",
-    "signupTaglineCustomer": "{role} — a free account, no subscription. You pay for what you attend."
+    "signupTaglineCustomer": "{role} — a free account, no subscription. You pay for what you attend.",
+    "createWithBankid": "Create account with BankID",
+    "bankidCreateTitle": "Almost done",
+    "bankidCreateIntro": "Enter your email and we'll send you a code. Receipts and tickets go there. No password needed.",
+    "sendCode": "Send code",
+    "sendingCode": "Sending…",
+    "codeSentTo": "We sent a code to {email}.",
+    "enterCode": "Code from the email",
+    "confirmCode": "Create account",
+    "confirmingCode": "Creating account…",
+    "resendCode": "Send a new code",
+    "changeEmail": "Change email address",
+    "codeWrong": "Wrong code. Check the email and try again.",
+    "codeExpired": "The code has expired. Send a new one.",
+    "bankidSessionExpired": "The BankID identification has expired. Start over with BankID.",
+    "startOverBankid": "Start over with BankID",
+    "accountOtherBankid": "The account with this email is already linked to another BankID. Log in with that one or use a different address.",
+    "createFailed": "Something went wrong creating the account. Try again."
   },
   "landing": {
     "whatsOn": {
@@ -4159,7 +4176,10 @@
     "passwordResetSubject": "Choose a new password for Usha",
     "passwordResetIntro": "You asked to change your password. Tap the button and choose a new one. The link works on any device.",
     "passwordResetCta": "Choose new password",
-    "passwordResetFooter": "Didn’t ask for this? Ignore this email and nothing happens – your password is unchanged."
+    "passwordResetFooter": "Didn’t ask for this? Ignore this email and nothing happens – your password is unchanged.",
+    "signupCodeSubject": "{code} is your Usha code",
+    "signupCodeIntro": "Enter the code on the page where you are creating your account. It is valid for 10 minutes.",
+    "signupCodeFooter": "Didn't try to create an account on Usha? Ignore this email and nothing will happen."
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

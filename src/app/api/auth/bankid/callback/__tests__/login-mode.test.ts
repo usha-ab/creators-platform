@@ -53,11 +53,18 @@ describe("BankID-callback, inloggning", () => {
     expect(res.headers.get("location")).not.toContain("th");
   });
 
-  it("skickar tillbaka till /login när inget konto finns", async () => {
+  it("går vidare till att skapa konto när inget konto finns", async () => {
     findTarget.mockResolvedValue({ ok: false, reason: "no_account" });
     const res = await GET(req());
-    expect(res.headers.get("location")).toBe("https://usha.se/login?bankid=no_account");
+    expect(res.headers.get("location")).toBe("https://usha.se/signup/bankid?next=%2Fapp%2Fevents");
+    expect(res.cookies.get("bankid_verified")?.value).toBe("signed");
     expect(generateLink).not.toHaveBeenCalled();
+  });
+
+  it("obekräftad e-post skickas tillbaka till /login", async () => {
+    findTarget.mockResolvedValue({ ok: false, reason: "email_unconfirmed" });
+    const res = await GET(req());
+    expect(res.headers.get("location")).toBe("https://usha.se/login?bankid=email_unconfirmed");
   });
 
   it("felar säkert om sessionen inte kan skapas", async () => {

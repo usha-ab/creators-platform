@@ -21,8 +21,9 @@ export async function POST(req: NextRequest) {
     // bara BankID-fälten — så där får även Publik-konton verifiera sig, t.ex.
     // taxidansare som måste ha Mobilt BankID.
     const allowedRoles = resolvedMode === "add" ? ["creator", "venue", "customer"] : ["creator", "venue"];
-    // Vid inloggning finns ingen roll att välja; kontot har redan en.
-    if (resolvedMode !== "login" && (!role || !allowedRoles.includes(role))) {
+    // "login" betyder fortsätt med BankID: ett befintligt konto loggas in,
+    // annars skapas ett nytt med rollen som valdes (Publik om ingen valts).
+    if (resolvedMode === "login" ? role != null && !["customer", "creator", "venue"].includes(role) : !role || !allowedRoles.includes(role)) {
       return NextResponse.json(
         { error: "Ogiltig roll" },
         { status: 400 }
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest) {
     // callback acts on, so it must not be attacker-forgeable plaintext.
     response.cookies.set("bankid_session", signCookieValue({
       sessionId: session.id,
-      role: resolvedMode === "login" ? null : role,
+      role: resolvedMode === "login" ? role ?? "customer" : role,
       subcategory: resolvedSubcategory,
       mode: resolvedMode,
       next: safeNext,
