@@ -29,6 +29,18 @@ export default function LoginPage() {
   const [status, setStatus] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  const [bankidStarting, setBankidStarting] = useState(false);
+
+  // Återkomst från en misslyckad BankID-inloggning (/api/auth/bankid/callback).
+  const bankidStatus = searchParams.get("bankid");
+  const BANKID_LOGIN_ERRORS: Record<string, string> = {
+    no_account: t("bankidNoAccount"),
+    email_unconfirmed: t("bankidEmailUnconfirmed"),
+    aborted: t("bankidAborted"),
+    failed: t("bankidFailed"),
+    error: t("bankidError"),
+  };
+  const bankidLoginError = bankidStatus ? BANKID_LOGIN_ERRORS[bankidStatus] ?? "" : "";
 
   useEffect(() => {
     if (prefilledEmail) setEmail(prefilledEmail);
@@ -181,6 +193,31 @@ export default function LoginPage() {
     });
   }
 
+  async function handleBankIdLogin() {
+    setBankidStarting(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/bankid/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "login", next: nextPath }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.authenticationUrl) {
+        setError(data.error || t("bankidStartError"));
+        setBankidStarting(false);
+        return;
+      }
+      // Den nya sessionen skapas av servern; rensa en gammal först.
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      purgeAuthCookies();
+      window.location.href = data.authenticationUrl;
+    } catch {
+      setError(t("bankidStartError"));
+      setBankidStarting(false);
+    }
+  }
+
   async function handleFacebookLogin() {
     await supabase.auth.signOut({ scope: "local" }).catch(() => {});
     purgeAuthCookies();
@@ -210,6 +247,21 @@ export default function LoginPage() {
             </p>
           </div>
         )}
+
+        {bankidLoginError && (
+          <p className="mb-4 rounded-lg border border-red-400/30 bg-red-400/5 px-4 py-3 text-sm text-red-400">
+            {bankidLoginError}
+          </p>
+        )}
+
+        <button
+          onClick={handleBankIdLogin}
+          disabled={bankidStarting}
+          className="mb-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--usha-gold)] to-[var(--usha-accent)] py-3 text-sm font-semibold text-black transition hover:opacity-90 disabled:opacity-60"
+        >
+          <ShieldCheck size={16} />
+          {bankidStarting ? t("openingBankid") : t("loginWithBankid")}
+        </button>
 
         <button
           onClick={handleGoogleLogin}

@@ -6,14 +6,23 @@ export async function POST(req: NextRequest) {
   try {
     const { role, subcategory, mode, next } = await req.json();
 
-    const resolvedMode: "signup" | "add" = mode === "add" ? "add" : "signup";
+    const resolvedMode: "signup" | "add" | "login" =
+      mode === "add" ? "add" : mode === "login" ? "login" : "signup";
+
+    // Varje start skapar en session hos Signicat; begränsa per IP.
+    const { rateLimit, getRateLimitKey } = await import("@/lib/rate-limit");
+    const rl = rateLimit(getRateLimitKey(req, "bankid-start"), 10, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json({ error: "För många försök. Försök igen om en stund." }, { status: 429 });
+    }
 
     // Vid registrering avgör rollen vilket konto som skapas. När ett befintligt
     // konto verifierar sig ("add") används rollen inte alls — callbacken skriver
     // bara BankID-fälten — så där får även Publik-konton verifiera sig, t.ex.
     // taxidansare som måste ha Mobilt BankID.
     const allowedRoles = resolvedMode === "add" ? ["creator", "venue", "customer"] : ["creator", "venue"];
-    if (!role || !allowedRoles.includes(role)) {
+    // Vid inloggning finns ingen roll att välja; kontot har redan en.
+    if (resolvedMode !== "login" && (!role || !allowedRoles.includes(role))) {
       return NextResponse.json(
         { error: "Ogiltig roll" },
         { status: 400 }
@@ -38,7 +47,7 @@ export async function POST(req: NextRequest) {
     // callback acts on, so it must not be attacker-forgeable plaintext.
     response.cookies.set("bankid_session", signCookieValue({
       sessionId: session.id,
-      role,
+      role: resolvedMode === "login" ? null : role,
       subcategory: resolvedSubcategory,
       mode: resolvedMode,
       next: safeNext,

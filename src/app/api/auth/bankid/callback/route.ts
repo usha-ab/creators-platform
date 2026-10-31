@@ -6,6 +6,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { computeAge } from "@/lib/age";
 import type { BankIdVerifiedData } from "@/types/bankid";
+import { findBankIdLoginTarget } from "@/lib/bankid/login";
+import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
+import { locales, LOCALE_COOKIE_NAME } from "@/i18n/config";
 
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
@@ -22,7 +25,7 @@ export async function GET(req: NextRequest) {
     sessionId: string;
     role: string;
     subcategory?: string;
-    mode?: "signup" | "add";
+    mode?: "signup" | "add" | "login";
     next?: string | null;
   }>(sessionCookie);
   if (!sessionData) {
@@ -30,9 +33,14 @@ export async function GET(req: NextRequest) {
   }
 
   const isAddMode = sessionData.mode === "add";
+  const isLoginMode = sessionData.mode === "login";
   const safeNext = typeof sessionData.next === "string" && sessionData.next.startsWith("/") && !sessionData.next.startsWith("//") ? sessionData.next : null;
   const addSuccessBase = safeNext ? `${baseUrl}${safeNext}` : `${baseUrl}/dashboard/profile`;
-  const errorBase = isAddMode ? `${baseUrl}/dashboard/profile` : `${baseUrl}/signup`;
+  const errorBase = isAddMode
+    ? `${baseUrl}/dashboard/profile`
+    : isLoginMode
+      ? `${baseUrl}/login`
+      : `${baseUrl}/signup`;
 
   if (status !== "success") {
     const response = NextResponse.redirect(
@@ -67,6 +75,47 @@ export async function GET(req: NextRequest) {
     const hashedNin = hashPersonalNumber(nin.value);
 
     const admin = createAdminClient();
+
+    // Inloggning med BankID: hitta kontot på personnummer-hashen och skapa en
+    // session på servern. Engångstoken (magiclink) genereras och löses in här i
+    // samma anrop, så den hamnar aldrig i en URL eller ett mejl.
+    if (isLoginMode) {
+      const target = await findBankIdLoginTarget(admin, hashedNin);
+      if (!target.ok) {
+        const response = NextResponse.redirect(`${errorBase}?bankid=${target.reason}`);
+        response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+        return response;
+      }
+
+      const { data: link, error: linkErr } = await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email: target.email,
+      });
+      const tokenHash = link?.properties?.hashed_token;
+      if (linkErr || !tokenHash) throw new Error(`generateLink: ${linkErr?.message ?? "no token"}`);
+
+      const supabase = await createClient();
+      const { error: otpErr } = await supabase.auth.verifyOtp({ type: "magiclink", token_hash: tokenHash });
+      if (otpErr) throw new Error(`verifyOtp: ${otpErr.message}`);
+
+      // Samma efterarbete som /callback och /confirm: gamla gästköp och kontots språk.
+      await adoptGuestBookings(admin, target.userId, target.email);
+      const response = NextResponse.redirect(`${baseUrl}${safeNext ?? "/app"}`);
+      response.cookies.set("bankid_session", "", { path: "/", maxAge: 0 });
+      const { data: prefs } = await admin
+        .from("profiles")
+        .select("locale")
+        .eq("id", target.userId)
+        .maybeSingle();
+      if (prefs?.locale && (locales as readonly string[]).includes(prefs.locale)) {
+        response.cookies.set(LOCALE_COOKIE_NAME, prefs.locale, {
+          path: "/",
+          maxAge: 60 * 60 * 24 * 365,
+          sameSite: "lax",
+        });
+      }
+      return response;
+    }
 
     let currentUserId: string | null = null;
     if (isAddMode) {
