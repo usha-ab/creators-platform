@@ -535,7 +535,24 @@
     "marketingConsent": "Ja, jag vill få mejl om erbjudanden och nyheter från Usha. Du kan ändra det när som helst i inställningarna.",
     "signupTaglineCreator": "{role} — gratis att komma igång. Du betalar provision först när du säljer.",
     "signupTaglineVenue": "{role} — gratis konto. Ni betalar bara det ni kommit överens om per kväll.",
-    "signupTaglineCustomer": "{role} — gratis konto, ingen prenumeration. Du betalar för det du går på."
+    "signupTaglineCustomer": "{role} — gratis konto, ingen prenumeration. Du betalar för det du går på.",
+    "createWithBankid": "Skapa konto med BankID",
+    "bankidCreateTitle": "Nästan klart",
+    "bankidCreateIntro": "Ange din e-post, så skickar vi en kod. Kvitton och biljetter hamnar där. Inget lösenord behövs.",
+    "sendCode": "Skicka kod",
+    "sendingCode": "Skickar…",
+    "codeSentTo": "Vi har skickat en kod till {email}.",
+    "enterCode": "Kod från mejlet",
+    "confirmCode": "Skapa konto",
+    "confirmingCode": "Skapar konto…",
+    "resendCode": "Skicka en ny kod",
+    "changeEmail": "Byt e-postadress",
+    "codeWrong": "Fel kod. Kontrollera mejlet och försök igen.",
+    "codeExpired": "Koden har gått ut. Skicka en ny.",
+    "bankidSessionExpired": "BankID-identifieringen har gått ut. Börja om med BankID.",
+    "startOverBankid": "Börja om med BankID",
+    "accountOtherBankid": "Kontot med den här e-postadressen är redan kopplat till ett annat BankID. Logga in med det eller använd en annan adress.",
+    "createFailed": "Något gick fel när kontot skulle skapas. Försök igen."
   },
   "landing": {
     "whatsOn": {
@@ -4159,7 +4176,10 @@
     "passwordResetSubject": "Välj ett nytt lösenord för Usha",
     "passwordResetIntro": "Du har bett om att få byta lösenord. Tryck på knappen och välj ett nytt. Länken fungerar på vilken enhet som helst.",
     "passwordResetCta": "Välj nytt lösenord",
-    "passwordResetFooter": "Bad du inte om detta? Ignorera mejlet, så händer inget – ditt lösenord är oförändrat."
+    "passwordResetFooter": "Bad du inte om detta? Ignorera mejlet, så händer inget – ditt lösenord är oförändrat.",
+    "signupCodeSubject": "{code} är din kod till Usha",
+    "signupCodeIntro": "Skriv in koden på sidan där du skapar ditt konto. Den gäller i 10 minuter.",
+    "signupCodeFooter": "Har du inte försökt skapa ett konto på Usha? Ignorera mejlet, så händer inget."
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",

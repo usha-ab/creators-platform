@@ -535,7 +535,24 @@
     "marketingConsent": "Sí, quiero recibir correos sobre ofertas y novedades de Usha. Puedes cambiarlo cuando quieras en los ajustes.",
     "signupTaglineCreator": "{role}: empezar es gratis. Solo pagas comisión cuando vendes.",
     "signupTaglineVenue": "{role}: cuenta gratuita. Solo pagáis lo acordado por noche.",
-    "signupTaglineCustomer": "{role}: cuenta gratuita, sin suscripción. Pagas por aquello a lo que asistes."
+    "signupTaglineCustomer": "{role}: cuenta gratuita, sin suscripción. Pagas por aquello a lo que asistes.",
+    "createWithBankid": "Crear cuenta con BankID",
+    "bankidCreateTitle": "Casi listo",
+    "bankidCreateIntro": "Introduce tu correo y te enviaremos un código. Los recibos y las entradas llegan allí. No necesitas contraseña.",
+    "sendCode": "Enviar código",
+    "sendingCode": "Enviando…",
+    "codeSentTo": "Hemos enviado un código a {email}.",
+    "enterCode": "Código del correo",
+    "confirmCode": "Crear cuenta",
+    "confirmingCode": "Creando cuenta…",
+    "resendCode": "Enviar un código nuevo",
+    "changeEmail": "Cambiar correo",
+    "codeWrong": "Código incorrecto. Revisa el correo e inténtalo de nuevo.",
+    "codeExpired": "El código ha caducado. Envía uno nuevo.",
+    "bankidSessionExpired": "La identificación con BankID ha caducado. Empieza de nuevo con BankID.",
+    "startOverBankid": "Empezar de nuevo con BankID",
+    "accountOtherBankid": "La cuenta con este correo ya está vinculada a otro BankID. Inicia sesión con ese o usa otra dirección.",
+    "createFailed": "Algo salió mal al crear la cuenta. Inténtalo de nuevo."
   },
   "landing": {
     "whatsOn": {
@@ -4159,7 +4176,10 @@
     "passwordResetSubject": "Elige una nueva contraseña para Usha",
     "passwordResetIntro": "Has pedido cambiar tu contraseña. Pulsa el botón y elige una nueva. El enlace funciona en cualquier dispositivo.",
     "passwordResetCta": "Elegir nueva contraseña",
-    "passwordResetFooter": "¿No lo pediste? Ignora este correo y no pasará nada: tu contraseña no cambia."
+    "passwordResetFooter": "¿No lo pediste? Ignora este correo y no pasará nada: tu contraseña no cambia.",
+    "signupCodeSubject": "{code} es tu código de Usha",
+    "signupCodeIntro": "Introduce el código en la página donde estás creando tu cuenta. Es válido durante 10 minutos.",
+    "signupCodeFooter": "¿No has intentado crear una cuenta en Usha? Ignora este correo y no pasará nada."
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",
