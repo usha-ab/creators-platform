@@ -322,6 +322,9 @@ export default function SignupPage() {
     }
 
     if (data.session) {
+      // Partnerkoden knyts annars bara i /callback, som den här vägen (direkt
+      // session, ingen bekräftelselänk) aldrig passerar.
+      await fetch("/api/referral", { method: "POST" }).catch(() => {});
       const rawNext = searchParams.get("next") || "";
       const nextPath = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/app";
       trackEvent("sign_up", { method: "email", role: selectedRole ?? "unknown" });
