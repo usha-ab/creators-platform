@@ -7,6 +7,7 @@ import { verifyCookieValue } from "@/lib/signicat/crypto";
 import type { BankIdVerifiedData } from "@/types/bankid";
 import { normalizeRole } from "@/lib/roles";
 import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
+import { applyBankIdVerification } from "@/lib/bankid/apply-verification";
 
 /**
  * Skapades kontot av det OAuth-flöde vi just kom tillbaka från?
@@ -85,7 +86,8 @@ export async function GET(req: NextRequest) {
         //     isFreshSignup-skydd: bara ett nyskapat konto kan knytas.
         await claimReferral(admin, {
           userId: user.id,
-          code: req.cookies.get(REF_COOKIE)?.value,
+          // Formulärets ?ref-kod i andra hand, som i /api/referral.
+          code: req.cookies.get(REF_COOKIE)?.value ?? user.user_metadata?.referred_by_code,
           createdAt: user.created_at,
         });
 
@@ -94,33 +96,16 @@ export async function GET(req: NextRequest) {
         //     deltagare någonstans. Idempotent, så den får köras varje gång.
         await adoptGuestBookings(admin, user.id, user.email);
 
-        // 2. Apply BankID verification cookie if present — independent of
-        //    pending_role so it works for existing-user merge logins too.
+        // 2. BankID-cookien, om den finns — oberoende av pending_role så att
+        //    den också gäller när ett befintligt konto loggar in. Rollen sätts
+        //    aldrig härifrån (det gör pending_role, och bara vid färsk
+        //    registrering); underkategorin bara när kontot nyss skapades.
         const bankidCookie = req.cookies.get("bankid_verified")?.value;
-        if (bankidCookie) {
-          const bankidData = verifyCookieValue<BankIdVerifiedData>(bankidCookie);
-          if (bankidData) {
-            // Defense-in-depth dup check: another profile already claims this pno.
-            const { data: dup } = await admin
-              .from("profiles")
-              .select("id")
-              .eq("bankid_personal_number", bankidData.hashedNin)
-              .neq("id", user.id)
-              .maybeSingle();
-
-            if (!dup) {
-              const update: Record<string, unknown> = {
-                bankid_verified_at: bankidData.verifiedAt,
-                bankid_personal_number: bankidData.hashedNin,
-                bankid_name: bankidData.name,
-                role: bankidData.role,
-              };
-              if (bankidData.subcategory) {
-                update.creator_subcategory = bankidData.subcategory;
-              }
-              await admin.from("profiles").update(update).eq("id", user.id);
-            }
-          }
+        const bankidData = bankidCookie ? verifyCookieValue<BankIdVerifiedData>(bankidCookie) : null;
+        if (bankidData) {
+          await applyBankIdVerification(admin, user.id, bankidData, {
+            subcategory: isFreshSignup(user.created_at) ? bankidData.subcategory : undefined,
+          });
         }
 
         const destination = "/app";
