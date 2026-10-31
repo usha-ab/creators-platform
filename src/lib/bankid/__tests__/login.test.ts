@@ -26,7 +26,7 @@ function fakeAdmin(profile: { id: string } | null, user: { id: string; email?: s
 describe("findBankIdLoginTarget", () => {
   it("hittar kontot på hashen och hoppar över raderade", async () => {
     const { admin, filters } = fakeAdmin({ id: "u1" }, { id: "u1", email: "a@b.se", email_confirmed_at: "2026-01-01" });
-    expect(await findBankIdLoginTarget(admin, "hash")).toEqual({ ok: true, userId: "u1", email: "a@b.se" });
+    expect(await findBankIdLoginTarget(admin, "hash")).toEqual({ ok: true, userId: "u1", email: "a@b.se", emailProven: false });
     expect(filters).toEqual(["bankid_personal_number", "deleted_at"]);
   });
 

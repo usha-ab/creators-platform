@@ -8,6 +8,7 @@ import type { BankIdVerifiedData } from "@/types/bankid";
 import { normalizeRole } from "@/lib/roles";
 import { adoptGuestBookings } from "@/lib/bookings/adopt-guest";
 import { applyBankIdVerification } from "@/lib/bankid/apply-verification";
+import { isEmailProven } from "@/lib/auth/email-proven";
 
 /**
  * Skapades kontot av det OAuth-flöde vi just kom tillbaka från?
@@ -94,7 +95,7 @@ export async function GET(req: NextRequest) {
         // 1d. Knyt gamla gästköp på samma mejladress till kontot. Utan det
         //     ser den nya användaren sina biljetter men räknas inte som
         //     deltagare någonstans. Idempotent, så den får köras varje gång.
-        await adoptGuestBookings(admin, user.id, user.email);
+        await adoptGuestBookings(admin, user.id, user.email, { emailProven: isEmailProven(user) });
 
         // 2. BankID-cookien, om den finns — oberoende av pending_role så att
         //    den också gäller när ett befintligt konto loggar in. Rollen sätts

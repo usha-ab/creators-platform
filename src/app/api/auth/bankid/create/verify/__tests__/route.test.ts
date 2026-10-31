@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 
 const existingProfile = vi.fn();
 const createUser = vi.fn();
+const updateUserById = vi.fn(async () => ({ error: null }));
 const apply = vi.fn();
 const signIn = vi.fn();
 const finish = vi.fn();
@@ -26,7 +27,7 @@ vi.mock("@/lib/affiliate/attribution", () => ({ REF_COOKIE: "usha_ref", claimRef
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
     from: () => ({ select: () => ({ eq: () => ({ is: () => ({ maybeSingle: existingProfile }) }) }) }),
-    auth: { admin: { createUser } },
+    auth: { admin: { createUser, updateUserById } },
   }),
 }));
 
@@ -67,7 +68,7 @@ describe("POST /api/auth/bankid/create/verify", () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true, next: "/app/events", created: true });
     const arg = createUser.mock.calls[0][0];
-    expect(arg).toMatchObject({ email: "a@b.se", email_confirm: true });
+    expect(arg).toMatchObject({ email: "a@b.se", email_confirm: true, app_metadata: { email_proven: "a@b.se" } });
     expect(arg.user_metadata).toMatchObject({ full_name: "Anna Andersson", role: "customer", marketing_consent: "true", locale: "en" });
     expect(apply).toHaveBeenCalledWith(expect.anything(), "new", bankid, { subcategory: "general" });
     expect(claim).toHaveBeenCalled();
@@ -81,6 +82,8 @@ describe("POST /api/auth/bankid/create/verify", () => {
     expect(createUser).not.toHaveBeenCalled();
     expect(apply).toHaveBeenCalledWith(expect.anything(), "old", bankid, { subcategory: undefined });
     expect(claim).not.toHaveBeenCalled();
+    expect(updateUserById).toHaveBeenCalledWith("old", { app_metadata: { email_proven: "a@b.se" } });
+    expect(finish).toHaveBeenCalledWith(expect.anything(), expect.anything(), { id: "old", email: "a@b.se", emailProven: true });
   });
 
   it("befintligt konto med någon annans BankID: nekas", async () => {

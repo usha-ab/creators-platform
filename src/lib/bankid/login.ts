@@ -1,7 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isEmailProven } from "@/lib/auth/email-proven";
 
 export type BankIdLoginTarget =
-  | { ok: true; userId: string; email: string }
+  | { ok: true; userId: string; email: string; emailProven: boolean }
   | { ok: false; reason: "no_account" | "email_unconfirmed" };
 
 /**
@@ -29,5 +30,7 @@ export async function findBankIdLoginTarget(
   const user = data?.user;
   if (error || !user?.email) return { ok: false, reason: "no_account" };
   if (!user.email_confirmed_at) return { ok: false, reason: "email_unconfirmed" };
-  return { ok: true, userId: user.id, email: user.email };
+  // BankID bevisar personen, inte adressen: gästköp kopplas bara om adressen
+  // är bevisad på annat sätt.
+  return { ok: true, userId: user.id, email: user.email, emailProven: isEmailProven(user) };
 }

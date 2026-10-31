@@ -24,9 +24,9 @@ export async function signInServerSide(admin: SupabaseClient, email: string): Pr
 export async function finishSignIn(
   admin: SupabaseClient,
   response: NextResponse,
-  user: { id: string; email: string }
+  user: { id: string; email: string; emailProven: boolean }
 ): Promise<void> {
-  await adoptGuestBookings(admin, user.id, user.email);
+  await adoptGuestBookings(admin, user.id, user.email, { emailProven: user.emailProven });
   const { data: prefs } = await admin.from("profiles").select("locale").eq("id", user.id).maybeSingle();
   if (prefs?.locale && (locales as readonly string[]).includes(prefs.locale)) {
     response.cookies.set(LOCALE_COOKIE_NAME, prefs.locale, {

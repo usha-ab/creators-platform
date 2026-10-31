@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { isEmailProven } from "@/lib/auth/email-proven";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/email/normalize";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
@@ -66,7 +67,9 @@ export default async function TicketsPage() {
       // These have customer_id = null, so RLS hides them from the user client —
       // fetch them narrowly by exact email via the admin client and merge.
       let guest: any[] = [];
-      const ownEmail = normalizeEmail(user.email);
+      // Bara om kontot bevisat att det äger adressen — annars kunde vem som
+      // helst registrera en annans adress och se (och använda) dennes biljetter.
+      const ownEmail = isEmailProven(user) ? normalizeEmail(user.email) : null;
       if (ownEmail) {
         const { data } = await createAdminClient()
           .from("bookings")
