@@ -4829,8 +4829,8 @@
     "assignmentsCta": "Se uppdragen"
   },
   "djWishes": {
-    "title": "Önska DJ till månadsfesten",
-    "body": "Vilken DJ vill du höra på vår månadsfest eller festival? När en DJ når {goal} röster lovar vi att försöka boka hen.",
+    "title": "Rösta fram din favorit-DJ",
+    "body": "Rösta fram dina favorit-DJ:s till bokning på kommande månadsfester och festivaler. När en DJ når {goal} röster försöker vi boka hen.",
     "vote": "Rösta",
     "voted": "Du har röstat",
     "booking": "Vi försöker boka",

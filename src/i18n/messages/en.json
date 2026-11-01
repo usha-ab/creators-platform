@@ -4829,8 +4829,8 @@
     "assignmentsCta": "See assignments"
   },
   "djWishes": {
-    "title": "Request a DJ for the monthly party",
-    "body": "Which DJ do you want to hear at our monthly party or festival? When a DJ reaches {goal} votes we promise to try to book them.",
+    "title": "Vote for your favourite DJ",
+    "body": "Vote for your favourite DJs to be booked for upcoming monthly parties and festivals. When a DJ reaches {goal} votes we try to book them.",
     "vote": "Vote",
     "voted": "You voted",
     "booking": "We’re trying to book",

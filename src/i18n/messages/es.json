@@ -4829,8 +4829,8 @@
     "assignmentsCta": "Ver encargos"
   },
   "djWishes": {
-    "title": "Pide un DJ para la fiesta mensual",
-    "body": "¿Qué DJ quieres escuchar en nuestra fiesta mensual o festival? Cuando un DJ llegue a {goal} votos prometemos intentar reservarlo.",
+    "title": "Vota por tu DJ favorito",
+    "body": "Vota por tus DJ favoritos para que los contratemos en las próximas fiestas mensuales y festivales. Cuando un DJ llegue a {goal} votos intentamos contratarlo.",
     "vote": "Votar",
     "voted": "Has votado",
     "booking": "Intentamos reservarlo",
