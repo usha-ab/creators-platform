@@ -4714,7 +4714,7 @@
     "notice_applicationApproved": "Approved – the person can now book shifts in the role.",
     "notice_applicationDeclinedOrg": "Application declined.",
     "djWishesOrgTitle": "DJ requests",
-    "djWishesOrgBody": "Guests’ requests for the practicas. At {goal} votes you have promised to try to book the DJ.",
+    "djWishesOrgBody": "Guests’ requests for the monthly party and the festival. At {goal} votes you have promised to try to book the DJ.",
     "djWishesNone": "No requests yet.",
     "djStatus_open": "open",
     "djStatus_booking": "trying to book",
@@ -4829,8 +4829,8 @@
     "assignmentsCta": "See assignments"
   },
   "djWishes": {
-    "title": "Request a DJ for the practica",
-    "body": "No DJ is booked – request who you want to hear. When a DJ reaches {goal} votes we promise to try to book them.",
+    "title": "Vote for your favourite DJ",
+    "body": "Vote for your favourite DJs to be booked for upcoming monthly parties and festivals. When a DJ reaches {goal} votes we try to book them.",
     "vote": "Vote",
     "voted": "You voted",
     "booking": "We’re trying to book",

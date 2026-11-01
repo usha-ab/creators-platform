@@ -4714,7 +4714,7 @@
     "notice_applicationApproved": "Aprobado: la persona ya puede reservar turnos en el rol.",
     "notice_applicationDeclinedOrg": "Solicitud rechazada.",
     "djWishesOrgTitle": "Peticiones de DJ",
-    "djWishesOrgBody": "Peticiones de los invitados para las prácticas. Con {goal} votos habéis prometido intentar reservar al DJ.",
+    "djWishesOrgBody": "Las peticiones de los invitados para la fiesta mensual y el festival. Con {goal} votos habéis prometido intentar reservar al DJ.",
     "djWishesNone": "Aún no hay peticiones.",
     "djStatus_open": "abierta",
     "djStatus_booking": "intentando reservar",
@@ -4829,8 +4829,8 @@
     "assignmentsCta": "Ver encargos"
   },
   "djWishes": {
-    "title": "Pide un DJ para la práctica",
-    "body": "No hay DJ reservado: pide a quién quieres escuchar. Cuando un DJ llegue a {goal} votos prometemos intentar reservarlo.",
+    "title": "Vota por tu DJ favorito",
+    "body": "Vota por tus DJ favoritos para que los contratemos en las próximas fiestas mensuales y festivales. Cuando un DJ llegue a {goal} votos intentamos contratarlo.",
     "vote": "Votar",
     "voted": "Has votado",
     "booking": "Intentamos reservarlo",
