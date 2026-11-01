@@ -13,7 +13,7 @@ import {
   Download,
 } from "lucide-react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface AnalyticsData {
   summary: {
@@ -36,6 +36,7 @@ interface AnalyticsData {
     category: string;
     count: number;
     revenue: number;
+    eventDate: string | null;
   }[];
   statusCounts: {
     pending: number;
@@ -77,6 +78,7 @@ function TrendBadge({
 
 export default function AnalyticsPage() {
   const t = useTranslations("analytics");
+  const locale = useLocale();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -84,6 +86,11 @@ export default function AnalyticsPage() {
     const [, m] = ym.split("-");
     const idx = parseInt(m, 10) - 1;
     return MONTH_KEYS[idx] ? t(MONTH_KEYS[idx]) : m;
+  }
+
+  // Kvällarna i en serie heter likadant; datumet skiljer dem åt.
+  function formatDate(ymd: string) {
+    return new Date(`${ymd}T12:00:00`).toLocaleDateString(locale, { day: "numeric", month: "short" });
   }
 
   useEffect(() => {
@@ -124,7 +131,7 @@ export default function AnalyticsPage() {
           <ArrowLeft size={14} />
           {t("back")}
         </Link>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <BarChart3 size={24} className="text-[var(--usha-gold)]" />
             <h1 className="text-3xl font-bold">{t("title")}</h1>
@@ -225,9 +232,12 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/* grid-cols-1 + min-w-0: ett grid-spår är annars minst lika brett som
+          sitt längsta obrytbara innehåll, och en lång evenemangstitel drev ut
+          båda korten förbi skärmkanten på mobil. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Top services */}
-        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+        <div className="min-w-0 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <h2 className="mb-4 text-sm font-semibold">{t("topServices")}</h2>
           {topServices.length === 0 ? (
             <p className="text-xs text-[var(--usha-muted)]">{t("noBookings")}</p>
@@ -235,9 +245,10 @@ export default function AnalyticsPage() {
             <div className="space-y-3">
               {topServices.map((s, i) => (
                 <div key={i} className="flex items-center justify-between">
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{s.title}</p>
                     <p className="text-[10px] text-[var(--usha-muted)]">
+                      {s.eventDate && `${formatDate(s.eventDate)} · `}
                       {t("serviceMeta", { count: s.count, revenue: s.revenue })}
                     </p>
                   </div>
@@ -258,7 +269,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Status breakdown */}
-        <div className="rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
+        <div className="min-w-0 rounded-xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
           <h2 className="mb-4 text-sm font-semibold">{t("bookingStatus")}</h2>
           <div className="space-y-3">
             {[

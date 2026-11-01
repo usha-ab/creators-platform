@@ -6,8 +6,9 @@ import { loadDjWishes } from "@/lib/taxi/dj-wishes-data";
 import { addDjWish, voteDjWish } from "./dj-actions";
 
 /**
- * "Önska DJ" på en practica. Gästerna önskar och röstar; vid 50 röster
- * lovar arrangören att försöka boka DJ:n.
+ * "Önska DJ" visas på practicorna men gäller månadsfesten och festivalen:
+ * practican har medvetet ingen bokad DJ. Gästerna önskar och röstar; vid 50
+ * röster lovar arrangören att försöka boka DJ:n.
  */
 export async function DjWishes({
   listingId,

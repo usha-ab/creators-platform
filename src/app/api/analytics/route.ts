@@ -17,7 +17,7 @@ export async function GET() {
   // Fetch all completed bookings for this creator in the last 6 months
   const { data: bookings } = await supabase
     .from('bookings')
-    .select('id, status, created_at, updated_at, listing_id, listings(title, price, category)')
+    .select('id, status, created_at, updated_at, listing_id, listings(title, price, category, event_date)')
     .eq('creator_id', user.id)
     .gte('created_at', sixMonthsAgo.toISOString())
     .order('created_at', { ascending: true });
@@ -46,13 +46,14 @@ export async function GET() {
   }
 
   // Top services by booking count
-  const serviceMap = new Map<string, { title: string; category: string; count: number; revenue: number }>();
+  const serviceMap = new Map<string, { title: string; category: string; eventDate: string | null; count: number; revenue: number }>();
   for (const b of allBookings) {
     const listing = b.listings as any;
     if (!listing) continue;
     const existing = serviceMap.get(b.listing_id) ?? {
       title: listing.title,
       category: listing.category,
+      eventDate: listing.event_date ?? null,
       count: 0,
       revenue: 0,
     };

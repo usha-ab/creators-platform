@@ -4714,7 +4714,7 @@
     "notice_applicationApproved": "Godkänd – personen kan nu boka pass i rollen.",
     "notice_applicationDeclinedOrg": "Ansökan är avslagen.",
     "djWishesOrgTitle": "DJ-önskemål",
-    "djWishesOrgBody": "Gästernas önskemål till practicorna. Vid {goal} röster har ni lovat att försöka boka DJ:n.",
+    "djWishesOrgBody": "Gästernas önskemål till månadsfesten och festivalen. Vid {goal} röster har ni lovat att försöka boka DJ:n.",
     "djWishesNone": "Inga önskemål än.",
     "djStatus_open": "öppen",
     "djStatus_booking": "försöker boka",
@@ -4829,8 +4829,8 @@
     "assignmentsCta": "Se uppdragen"
   },
   "djWishes": {
-    "title": "Önska DJ till practican",
-    "body": "Ingen DJ är bokad – här önskar du vem du vill höra. När en DJ når {goal} röster lovar vi att försöka boka hen.",
+    "title": "Önska DJ till månadsfesten",
+    "body": "Vilken DJ vill du höra på vår månadsfest eller festival? När en DJ når {goal} röster lovar vi att försöka boka hen.",
     "vote": "Rösta",
     "voted": "Du har röstat",
     "booking": "Vi försöker boka",
