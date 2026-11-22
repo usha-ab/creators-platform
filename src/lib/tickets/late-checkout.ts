@@ -16,6 +16,7 @@ import { stripe } from "@/lib/stripe/client";
 import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { computeServiceFeeOre, serviceFeeMode } from "@/lib/tickets/service-fee";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import {
   resolvePayeeFlow,
   buildConnectPaymentIntentData,
@@ -163,7 +164,7 @@ export async function createLateCheckoutSession(args: {
     if (!creator.stripe_account_id) {
       return { ok: false, status: 400, error: "Kreatören har inget anslutet Stripe-konto." };
     }
-    if (!canReceivePayments({ id: listing.user_id, company_verified_at: creator.company_verified_at })) {
+    if (!canReceivePayments(await loadPayeeEligibility(listing.user_id))) {
       return { ok: false, status: 403, error: PAYMENTS_BETA_BLOCKED_MESSAGE };
     }
   }

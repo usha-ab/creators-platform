@@ -3,6 +3,7 @@ import { stripe } from "@/lib/stripe/client";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, type PayeeContext } from "@/lib/stripe/checkout";
 import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
@@ -57,9 +58,9 @@ export async function POST(
     );
   }
 
-  // Beta gate: the recipient (crew member) may only receive real payments if
-  // they are the owner or a verified company.
-  if (!canReceivePayments({ id: g.collaborator_user_id, company_verified_at: payee.company_verified_at })) {
+  // Mottagarspärren: crew får bara betalt med godkänd bolagsform, svenskt
+  // org-nr och kontrollerad F-skatt (lib/payments/beta-gate.ts).
+  if (!canReceivePayments(await loadPayeeEligibility(g.collaborator_user_id))) {
     return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE, code: "payee_beta_blocked" }, { status: 403 });
   }
 

@@ -17,6 +17,7 @@ import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listin
 import { buildTldr } from "@/lib/listings/tldr";
 import { buildMapsHref } from "@/lib/listings/maps";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { cache } from "react";
 import { safeJsonLd } from "@/lib/json-ld";
 import {
@@ -532,15 +533,11 @@ export default async function EventPage(props: Params) {
   // Priset för knappen högst upp. Biljettyperna kan spänna över flera priser
   // (50/100/130/200 på The Lab) — då är lägsta priset rätt att visa, med
   // "från", eftersom inget val är gjort ännu.
-  // Betalspärren under beta: bara plattformsägaren och verifierade bolag får ta
-  // emot riktiga betalningar. Alla checkout-rutter kontrollerar det redan, men
+  // Mottagarspärren: bara Usha och mottagare med bolagsform, svenskt org-nr och
+  // kontrollerad F-skatt får ta emot riktiga betalningar. Alla checkout-rutter kontrollerar det redan, men
   // den här sidan gjorde det inte — så en besökare kunde trycka Köp och mötas
   // av ett fel först efteråt. Bättre att aldrig visa knappen.
-  const payeeCanReceive = canReceivePayments({
-    id: listing.user_id,
-    company_verified_at:
-      (host as { company_verified_at?: string | null } | null)?.company_verified_at ?? null,
-  });
+  const payeeCanReceive = canReceivePayments(await loadPayeeEligibility(listing.user_id));
   const beskrivning = splitBilingualDescription(listing.description);
   // Eget fält om det finns, annars det vi kan läsa ur texten. Fältet vinner
   // alltid: det är skrivet för att vara en sammanfattning, punktlistan är en

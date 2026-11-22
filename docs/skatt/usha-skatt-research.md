@@ -65,13 +65,13 @@ Verksamhet mot ersättning som är: (1) uthyrning av fast egendom, (2) **personl
 
 ### Två modeller, radikalt olika momsutfall
 - **Förmedling i *annans* namn** (ren mellanhand): kreatören är säljare mot venue/kund. Usha säljer bara sin **förmedlingstjänst** → moms **endast på provisionen** (25 %). Pengaflöde över plattformen ändrar inte detta så länge Usha agerar i kreatörens namn.
-- **Förmedling i *eget* namn** (kommissionärsliknande, **6 kap. 7 § ML**): om Usha framstår som kundens motpart och har kontroll över tillhandahållandet, anses Usha ha **både köpt och sålt** tjänsten (kreatör→Usha, Usha→kund). Då moms på **hela transaktionsbeloppet**.
+- **Förmedling i *eget* namn** (kommissionärsliknande, **5 kap. 27 § ML**): om Usha framstår som kundens motpart och har kontroll över tillhandahållandet, anses Usha ha **både köpt och sålt** tjänsten (kreatör→Usha, Usha→kund). Då moms på **hela transaktionsbeloppet**.
 
 ### Avgörande test (Skatteverket)
 Usha anses agera i *eget namn* om båda: (a) Usha har **kontroll över tillhandahållandet** till köparen, och (b) Usha **framstår som köparens motpart**. Båda uppfyllda = eget namn = moms på allt. Annars = annans namn = moms enbart på provision.
 
 ### Lagrum
-- **6 kap. 7 § mervärdesskattelagen (2023:200)** — kommissionärsfiktionen (motsvarar art. 14.2 c / art. 28 i momsdirektivet).
+- **5 kap. 27 § mervärdesskattelagen (2023:200)** — kommissionärsfiktionen: den som säljer i eget namn för annans räkning anses själv ha köpt och sålt tjänsten (motsvarar art. 14.2 c / art. 28 i momsdirektivet). Rättat 2026-11-22: tidigare stod 6 kap. 7 §, som gäller unionsintern distansförsäljning av varor.
 - **9 kap. 2 § ML** — normalskattesats 25 %.
 - **9 kap. 14 § ML** — reducerad 6 %.
 - **10 kap. 30 § ML** — artistundantaget.
@@ -265,6 +265,6 @@ Näringsverksamhet kräver tre kriterier **samtidigt**: **självständighet**, *
 ## Punkter att verifiera mot fulltext innan officiell användning
 1. POL 2 kap. 10 § (berörda verksamheter) + exakta plattformsavgifter (2 500/5 000 kr) + frist 31 jan vs 31 mar.
 2. Exakta § i lag 2010:751 (1 kap. 2 §, 4 §, 6–7 §; 2 kap. 1 §, 3 §) + FI:s aktuella avgifter och 3 MEUR-tröskel.
-3. ML §: 6 kap. 7 §, 9 kap. 2 §/14 §, 10 kap. 30 §, 18 kap. — samt status för Prop. 2025/26:109 (danstillställningar).
+3. ML §: 5 kap. 27 §, 9 kap. 2 §/14 §, 10 kap. 30 §, 18 kap. — samt status för Prop. 2025/26:109 (danstillställningar).
 4. Aktuella belopp 2026: egenavgifter 28,97 %, omsättningsgräns 120 000 kr, 4 pbb = 236 800 kr, livsmedelsmoms 6 % fr.o.m. 2026-04-01.
 5. Exakt momssats för dansklass/workshop (idrott 6 % vs utbildning 25 %) — fallberoende.

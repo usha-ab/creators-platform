@@ -13,6 +13,7 @@
 
 import { splitEventRevenue, type Split } from "./split";
 import { aggregateEventBookings, type SettlementBookingRow } from "./aggregate";
+import { payeeBlockCode, PAYEE_BLOCK_REASON } from "@/lib/payments/beta-gate";
 
 /**
  * Överföringar är AVSTÄNGDA om inte flaggan uttryckligen står på. Utan den kör
@@ -50,7 +51,12 @@ export function isPayoutDue(eventDate: string, delayDays: number, today: string)
 export interface PartnerPayoutProfile {
   id: string;
   stripe_account_id: string | null;
-  company_verified_at: string | null;
+  /** VIES-giltigt momsnummer. Visas, men är inget krav för utbetalning. */
+  company_verified_at?: string | null;
+  /** Mottagarkravet, se lib/payments/beta-gate.ts. */
+  company_form?: string | null;
+  org_number?: string | null;
+  f_tax_verified_at?: string | null;
   stripe_charges_enabled: boolean | null;
   /**
    * Kan kontot betala ut till bank? Null = osynkat, och då blockerar vi
@@ -68,9 +74,16 @@ export interface PartnerPayoutProfile {
  * loggen och i felkolumnen — "hoppades över" utan orsak är obrukbart när någon
  * undrar var pengarna tog vägen.
  */
-export function payoutBlockedReason(partner: PartnerPayoutProfile | null | undefined): string | null {
+export function payoutBlockedReason(
+  partner: PartnerPayoutProfile | null | undefined,
+  now: Date = new Date(),
+): string | null {
   if (!partner) return "partner saknas";
-  if (!partner.company_verified_at) return "partnerns bolag är inte verifierat";
+  // Samma mottagarkrav som kassorna: godkänd bolagsform, svenskt org-nr och
+  // kontrollerad F-skatt. Momsregistrering (company_verified_at) krävs inte.
+  // Ushas eget konto går förbi, som förut.
+  const code = payeeBlockCode(partner, now);
+  if (code) return PAYEE_BLOCK_REASON[code];
   if (!partner.stripe_account_id) return "partnern har inget anslutet Stripe-konto";
   if (!partner.stripe_charges_enabled) return "partnerns Stripe-konto kan inte ta emot ännu";
   // charges_enabled säger bara att kontot kan TA EMOT. En överföring till ett

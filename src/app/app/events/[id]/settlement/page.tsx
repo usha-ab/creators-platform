@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { canReceivePayments, type PayeeEligibility } from "@/lib/payments/beta-gate";
 import { createAdminClient } from "@/lib/supabase/admin";
 import ShareForm from "./share-form";
 import { redirect, notFound } from "next/navigation";
@@ -70,7 +71,7 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   // .eq("user_id", user.id), så bara ägaren kommer hit.
   const { data: share } = await createAdminClient()
     .from("event_revenue_shares")
-    .select("partner_profile_id, partner_percent, vat_rate, payout_delay_days, partner:profiles!partner_profile_id(full_name, company_name, company_verified_at, stripe_charges_enabled)")
+    .select("partner_profile_id, partner_percent, vat_rate, payout_delay_days, partner:profiles!partner_profile_id(id, full_name, company_name, company_verified_at, company_form, org_number, f_tax_verified_at, stripe_charges_enabled)")
     .eq("listing_id", listing.id)
     .maybeSingle();
 
@@ -132,9 +133,11 @@ export default async function SettlementPage(props: { params: Promise<{ id: stri
   const harForsaljning = grossOre > 0;
 
   const partnerName = partner?.company_name || partner?.full_name || "Partner";
-  // Utbetalning kräver både verifierat bolag och ett Stripe-konto som kan ta
-  // emot. Saknas något går underlaget att visa, men inte att föra över.
-  const partnerCanReceive = !!partner?.company_verified_at && !!partner?.stripe_charges_enabled;
+  // Utbetalning kräver mottagarkravet (bolagsform, svenskt org-nr, kontrollerad
+  // F-skatt) och ett Stripe-konto som kan ta emot. Saknas något går underlaget
+  // att visa, men inte att föra över.
+  const partnerCanReceive =
+    !!partner && canReceivePayments(partner as PayeeEligibility) && !!partner.stripe_charges_enabled;
 
   const swishNetOre = swish.grossOre - swish.refundedOre;
   const swishPartnerOre = split ? swishPartnerShareOre(swish, split.vatRate, split.partnerPercent) : 0;

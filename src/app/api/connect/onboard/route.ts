@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { isSeller } from '@/lib/roles';
+import { getTranslations } from 'next-intl/server';
+import { decideConnectAccount, type ConnectProfile } from '@/lib/payments/connect-eligibility';
 
 export async function POST() {
   try {
@@ -19,21 +20,17 @@ export async function POST() {
     const adminSupabase = createAdminClient();
     const { data: profile } = await adminSupabase
       .from('profiles')
-      .select('stripe_account_id, full_name, email, role, bankid_verified_at, bankid_grandfathered_at')
+      .select('id, stripe_account_id, full_name, email, role, bankid_verified_at, bankid_grandfathered_at, company_form, org_number, f_tax_verified_at')
       .eq('id', user.id)
       .single();
 
-    // Only BankID-cleared sellers may set up payouts. A customer/audience account
-    // must never be able to receive money — mirrors the listings creation gate.
-    const cleared =
-      !!profile &&
-      isSeller(profile.role) &&
-      (profile.bankid_verified_at != null || profile.bankid_grandfathered_at != null);
-    if (!cleared) {
-      return NextResponse.json(
-        { error: 'Endast BankID-verifierade kreatörer och platser kan koppla utbetalningar.' },
-        { status: 403 }
-      );
+    // Samma spärrar som /api/stripe/connect (BankID-säljare, bolagsform,
+    // F-skatt för enskild firma, inga utländska konton), så att den här äldre
+    // vägen inte blir en väg förbi.
+    const decision = decideConnectAccount(profile as ConnectProfile | null);
+    if (!decision.ok) {
+      const t = await getTranslations('payeeGate');
+      return NextResponse.json({ error: t(`connect_${decision.code}`), code: decision.code }, { status: 403 });
     }
 
     let accountId = profile?.stripe_account_id;
@@ -44,6 +41,7 @@ export async function POST() {
         type: 'express',
         country: 'SE',
         email: profile?.email || user.email,
+        ...(!decision.existing ? { business_type: decision.businessType } : {}),
         capabilities: {
           transfers: { requested: true },
           // card_payments enables on_behalf_of (organizer as merchant of record).

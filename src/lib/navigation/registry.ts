@@ -19,7 +19,7 @@ import {
   Wallet, BarChart3, CreditCard, Tag, Search, Store, FileText, Heart, Trophy,
   ShoppingBag, Ticket, MessageCircle, BookMarked, Gift, Bell, User, Settings,
   Users, Home, Sparkles, Box, LayoutGrid, KeyRound, Languages, Layers, Mail,
-  Banknote, DoorOpen, FileSignature,
+  Banknote, DoorOpen, FileSignature, BadgeCheck,
 } from "lucide-react";
 
 /** Kanoniska roller. Se roll-modellen: creator/venue säljer, customer köper. */
@@ -286,6 +286,9 @@ export const ADMIN_DESTINATIONS: AdminDestination[] = [
     requires: "partners" },
   // Löneunderlaget bär personnummer och löner. Det delegeras inte.
   { path: "/dashboard/admin/lon", labelKey: "payrollLabel", descKey: "payrollDesc", icon: Banknote,
+    requires: "full" },
+  // F-skattekontrollen öppnar för utbetalningar. Den delegeras inte.
+  { path: "/dashboard/admin/fskatt", labelKey: "fTaxLabel", descKey: "fTaxDesc", icon: BadgeCheck,
     requires: "full" },
   // Att dela ut behörighet går inte att delegera: en partner som kan bredda sin
   // egen behörighet har i praktiken ingen begränsning.

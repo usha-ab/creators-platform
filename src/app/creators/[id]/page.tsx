@@ -19,6 +19,7 @@ import { CreatorGallery } from "@/components/creator-gallery";
 import { CreatorProducts } from "@/components/creator-products";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { filterByGoldExclusivity } from "@/lib/listings/early-bird";
 import { FollowButton } from "@/components/follow-button";
 import { ShareEventButton } from "@/components/share-event-button";
@@ -258,10 +259,7 @@ export default async function CreatorProfilePage(props: Props) {
   // booleanet via SECURITY DEFINER-funktionen has_stripe_connect.
   const { data: hasConnectData } = await supabase.rpc("has_stripe_connect", { p_id: profile.id });
   const hasConnect = !!hasConnectData;
-  const payeeCanReceive = canReceivePayments({
-    id: profile.id,
-    company_verified_at: (profile as { company_verified_at?: string | null }).company_verified_at ?? null,
-  });
+  const payeeCanReceive = canReceivePayments(await loadPayeeEligibility(profile.id));
   const wl = (profile as any).whitelabel_enabled;
   const wlBrand = (profile as any).whitelabel_brand_name;
   const wlLogo = (profile as any).whitelabel_logo_url;

@@ -23,6 +23,7 @@ import { EventMap } from "@/components/event-map";
 import { CATEGORY_LABELS } from "@/lib/categories";
 import { calculateDiscountedPrice } from "@/lib/stripe/commission";
 import { canReceivePayments } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { indexable } from "@/lib/seo/metadata";
 import { plainDescription, serviceJsonLd } from "@/lib/seo/event-json-ld";
 
@@ -180,10 +181,7 @@ export default async function ListingDetailPage(props: Props) {
   // härled bara booleanet via SECURITY DEFINER-funktionen has_stripe_connect.
   const { data: hasConnectData } = await supabase.rpc("has_stripe_connect", { p_id: creator.id });
   const hasConnect = !!hasConnectData;
-  const payeeCanReceive = canReceivePayments({
-    id: creator.id,
-    company_verified_at: (creator as { company_verified_at?: string | null }).company_verified_at ?? null,
-  });
+  const payeeCanReceive = canReceivePayments(await loadPayeeEligibility(creator.id));
   const details = listing.experience_details as ExperienceDetails | null;
   const creatorUrl = creator.slug ? `/${creator.slug}` : `/creators/${creator.id}`;
 

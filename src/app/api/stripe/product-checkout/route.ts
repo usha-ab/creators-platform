@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 import { isNativeAppRequest, viaAppReturn } from "@/lib/native-return";
 
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
       if (!creator.stripe_account_id) {
         return NextResponse.json({ error: "Kreatören har inte kopplat Stripe ännu." }, { status: 400 });
       }
-      if (!canReceivePayments({ id: product.creator_id, company_verified_at: creator.company_verified_at })) {
+      if (!canReceivePayments(await loadPayeeEligibility(product.creator_id))) {
         return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
       }
     }

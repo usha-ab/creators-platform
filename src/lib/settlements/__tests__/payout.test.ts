@@ -13,6 +13,10 @@ const okPartner: PartnerPayoutProfile = {
   id: "p1",
   stripe_account_id: "acct_123",
   company_verified_at: "2026-08-01T00:00:00Z",
+  company_form: "aktiebolag",
+  org_number: "5566778899",
+  // Färsk kontroll i förhållande till klockan när testet körs.
+  f_tax_verified_at: new Date(Date.now() - 86_400_000).toISOString(),
   stripe_charges_enabled: true, stripe_payouts_enabled: true,
 };
 
@@ -67,8 +71,34 @@ describe("payoutBlockedReason", () => {
     expect(payoutBlockedReason(okPartner)).toBeNull();
   });
 
-  it("stoppar overifierat bolag", () => {
-    expect(payoutBlockedReason({ ...okPartner, company_verified_at: null })).toMatch(/verifierat/);
+  it("stoppar partner utan kontrollerad F-skatt", () => {
+    expect(payoutBlockedReason({ ...okPartner, f_tax_verified_at: null })).toMatch(/F-skatt/);
+  });
+
+  it("stoppar partner med för gammal F-skattekontroll", () => {
+    expect(payoutBlockedReason({ ...okPartner, f_tax_verified_at: "2026-01-01T00:00:00Z" }, new Date("2026-11-22T00:00:00Z"))).toMatch(/äldre än/);
+  });
+
+  it("stoppar partner utan bolagsform", () => {
+    expect(payoutBlockedReason({ ...okPartner, company_form: null })).toMatch(/bolagsform/);
+  });
+
+  it("stoppar utländsk partner", () => {
+    expect(payoutBlockedReason({ ...okPartner, org_number: "EL123456789" })).toMatch(/utländska/);
+  });
+
+  it("kräver inte momsregistrering (VIES)", () => {
+    expect(payoutBlockedReason({ ...okPartner, company_verified_at: null })).toBeNull();
+  });
+
+  it("förening med F-skatt får avräkning", () => {
+    expect(payoutBlockedReason({ ...okPartner, company_form: "forening", company_verified_at: null })).toBeNull();
+  });
+
+  it("Ushas eget konto går förbi bolagskraven men inte Stripe-kraven", () => {
+    const usha = { id: "15d852ed-1f33-446f-9bcb-821c2444c84f", stripe_account_id: "acct_usha", stripe_charges_enabled: true, stripe_payouts_enabled: true };
+    expect(payoutBlockedReason(usha)).toBeNull();
+    expect(payoutBlockedReason({ ...usha, stripe_payouts_enabled: false })).toMatch(/betala ut/);
   });
 
   it("stoppar saknat Stripe-konto", () => {
@@ -117,8 +147,8 @@ describe("decidePayout", () => {
   });
 
   it("blockerar när partnern inte får ta emot", () => {
-    const d = decidePayout(candidate({ partner: { ...okPartner, company_verified_at: null } }));
-    expect(d.blocked).toMatch(/verifierat/);
+    const d = decidePayout(candidate({ partner: { ...okPartner, f_tax_verified_at: null } }));
+    expect(d.blocked).toMatch(/F-skatt/);
   });
 
   it("blockerar en helt återbetald kväll", () => {
@@ -178,6 +208,9 @@ describe("payoutBlockedReason: utbetalning till bank", () => {
     id: "p1",
     stripe_account_id: "acct_123",
     company_verified_at: "2026-09-01T00:00:00Z",
+    company_form: "aktiebolag",
+    org_number: "5566778899",
+    f_tax_verified_at: new Date(Date.now() - 86_400_000).toISOString(),
     stripe_charges_enabled: true,
     stripe_payouts_enabled: true,
   };
@@ -206,9 +239,9 @@ describe("payoutBlockedReason: utbetalning till bank", () => {
     ).toBe("partnerns Stripe-konto kan inte ta emot ännu");
   });
 
-  it("bolagsverifiering vägs före båda", () => {
+  it("mottagarkravet (F-skatt) vägs före båda", () => {
     expect(
-      payoutBlockedReason({ ...ok, company_verified_at: null, stripe_payouts_enabled: false })
-    ).toBe("partnerns bolag är inte verifierat");
+      payoutBlockedReason({ ...ok, f_tax_verified_at: null, stripe_payouts_enabled: false })
+    ).toBe("mottagarens F-skatt är inte kontrollerad");
   });
 });

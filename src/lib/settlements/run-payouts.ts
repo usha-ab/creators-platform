@@ -50,6 +50,9 @@ interface ShareRow {
     id: string;
     stripe_account_id: string | null;
     company_verified_at: string | null;
+    company_form: string | null;
+    org_number: string | null;
+    f_tax_verified_at: string | null;
     stripe_charges_enabled: boolean | null;
     stripe_payouts_enabled: boolean | null;
   } | null;
@@ -85,7 +88,7 @@ export async function runSettlementPayouts(now: Date = new Date()): Promise<Payo
     .select(
       "listing_id, partner_percent, vat_rate, payout_delay_days, " +
         "listing:listings!listing_id(id, title, event_date), " +
-        "partner:profiles!partner_profile_id(id, full_name, company_name, stripe_account_id, company_verified_at, stripe_charges_enabled, stripe_payouts_enabled)"
+        "partner:profiles!partner_profile_id(id, full_name, company_name, stripe_account_id, company_verified_at, company_form, org_number, f_tax_verified_at, stripe_charges_enabled, stripe_payouts_enabled)"
     );
 
   if (error) throw new Error(`Kunde inte läsa delningsavtal: ${error.message}`);

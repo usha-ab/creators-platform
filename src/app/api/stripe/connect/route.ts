@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/client';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { stripeAccountCountry } from '@/lib/stripe/account-country';
+import { getTranslations } from 'next-intl/server';
+import { decideConnectAccount, type ConnectProfile } from '@/lib/payments/connect-eligibility';
 
 /**
  * POST /api/stripe/connect
  * Creates a Stripe Connect Express account for the authenticated creator
  * and returns the onboarding URL.
+ *
+ * Spärrar (lib/payments/connect-eligibility.ts): BankID-verifierad säljare,
+ * verifierad bolagsform, svenskt org-nr, F-skatt för enskild firma, inga
+ * utländska konton. business_type följer bolagsformen.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -20,12 +25,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if creator already has a connected account
-    const { data: profile } = await supabase
+    // Läses via service-role: stripe_account_id, BankID- och bolagsfälten är
+    // kolumn-låsta för authenticated. Uppslaget sker på den inloggades eget id.
+    const admin = createAdminClient();
+    const { data: profile } = await admin
       .from('profiles')
-      .select('stripe_account_id, email, full_name')
+      .select('id, role, bankid_verified_at, bankid_grandfathered_at, stripe_account_id, email, full_name, company_form, org_number, f_tax_verified_at')
       .eq('id', user.id)
-      .single();
+      .maybeSingle();
+
+    const decision = decideConnectAccount(profile as ConnectProfile | null);
+    if (!decision.ok) {
+      const t = await getTranslations('payeeGate');
+      return NextResponse.json(
+        { error: t(`connect_${decision.code}`), code: decision.code },
+        { status: 403 }
+      );
+    }
 
     if (profile?.stripe_account_id) {
       // Account exists — request card_payments (needed for on_behalf_of / merchant
@@ -47,37 +63,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: accountLink.url });
     }
 
-    // Bolagsuppgifterna är kolumn-låsta för authenticated – läs via service-role
-    // på den inloggades eget id.
-    const { data: company } = await createAdminClient()
-      .from('profiles')
-      .select('org_number, company_verified_at')
-      .eq('id', user.id)
-      .maybeSingle();
-    const country = stripeAccountCountry(company?.org_number, !!company?.company_verified_at);
+    if (decision.existing) {
+      // Kan inte hända: ett befintligt konto hanteras ovan.
+      return NextResponse.json({ error: 'Unexpected state' }, { status: 500 });
+    }
 
-    // Create new Express account – i kreatörens land (svenskt som förut, annars
-    // det EU-land där bolaget är verifierat).
+    // Nytt Express-konto, alltid svenskt (utländska spärras ovan), med
+    // business_type efter den verifierade bolagsformen.
     const account = await stripe.accounts.create({
       type: 'express',
-      country,
+      country: decision.country,
       email: user.email,
+      business_type: decision.businessType,
       capabilities: {
         transfers: { requested: true },
         // card_payments is required to make the organizer merchant of record
         // (on_behalf_of) for third-party ticket sales.
         card_payments: { requested: true },
       },
-      // Svenska kreatörer säljer som privatperson eller enskild firma som förut.
-      // Utländska har alltid ett verifierat bolag; Stripe frågar själv om formen.
-      ...(country === 'SE' ? { business_type: 'individual' as const } : {}),
       metadata: {
         userId: user.id,
+        companyForm: profile?.company_form ?? '',
       },
     });
 
     // Save the account ID to the profile
-    const admin = createAdminClient();
     const { error: updateError } = await admin
       .from('profiles')
       .update({ stripe_account_id: account.id })

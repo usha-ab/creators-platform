@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getCreatorCommissionRate, platformCommissionOre } from "@/lib/stripe/commission";
 import { priceForMinutes, isMinuteOption, MIN_PRICE_SEK } from "@/lib/coaching/minute-pricing";
 import { canReceivePayments, PAYMENTS_BETA_BLOCKED_MESSAGE } from "@/lib/payments/beta-gate";
+import { loadPayeeEligibility } from "@/lib/payments/load-payee";
 import { resolvePayeeFlow, buildConnectPaymentIntentData, buildPaymentMetadata, buildTermsCustomText, type PayeeContext } from "@/lib/stripe/checkout";
 import { assignmentRoute, payrollRouteLive } from "@/lib/assignments/route";
 import { MINUTES_PAYROLL_NOT_LIVE_MESSAGE } from "@/lib/coaching/minutes-payroll";
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
       if (!instructor.stripe_account_id) {
         return NextResponse.json({ error: "Instruktören kan inte ta emot betalningar ännu." }, { status: 400 });
       }
-      if (!canReceivePayments({ id: instructorId, company_verified_at: instructor.company_verified_at })) {
+      if (!canReceivePayments(await loadPayeeEligibility(instructorId))) {
         return NextResponse.json({ error: PAYMENTS_BETA_BLOCKED_MESSAGE }, { status: 403 });
       }
     }

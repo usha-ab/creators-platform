@@ -8,11 +8,24 @@ describe("kvartal och utbetalningsväg", () => {
     expect(previousQuarterLabel(new Date("2026-09-11T00:00:00Z"))).toBe("2026-Q2");
     expect(previousQuarterLabel(new Date("2027-01-05T00:00:00Z"))).toBe("2026-Q4");
   });
-  const bolag = { company_verified_at: "2026-01-01", stripe_account_id: "acct_1", stripe_charges_enabled: true, stripe_payouts_enabled: true };
+  const bolag = {
+    id: "p1",
+    company_verified_at: "2026-01-01",
+    company_form: "aktiebolag",
+    org_number: "5566778899",
+    f_tax_verified_at: new Date(Date.now() - 86_400_000).toISOString(),
+    stripe_account_id: "acct_1",
+    stripe_charges_enabled: true,
+    stripe_payouts_enabled: true,
+  };
   it("betalar kontant bara till bolag med Stripe och över gränsen", () => {
     expect(payoutRouteFor({ sumOre: PAYOUT_MIN_ORE, profile: bolag })).toBe("transfer");
     expect(payoutRouteFor({ sumOre: PAYOUT_MIN_ORE - 1, profile: bolag })).toBe("credit");
-    expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, company_verified_at: null } })).toBe("credit");
+    // Momsen (VIES) krävs inte, F-skatten gör det.
+    expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, company_verified_at: null } })).toBe("transfer");
+    expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, f_tax_verified_at: null } })).toBe("credit");
+    expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, company_form: null } })).toBe("credit");
+    expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, org_number: "EL123456789" } })).toBe("credit");
     expect(payoutRouteFor({ sumOre: 50000, profile: { ...bolag, stripe_charges_enabled: false, stripe_payouts_enabled: false } })).toBe("credit");
     expect(payoutRouteFor({ sumOre: 50000, profile: null })).toBe("credit");
   });
