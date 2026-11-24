@@ -905,7 +905,8 @@
       "copyright": "© 2026 Usha AB. All rights reserved.",
       "builtWith": "Built with love in Sweden",
       "instructors": "Instructors",
-      "haveYourSay": "Have your say"
+      "haveYourSay": "Have your say",
+      "guide": "Guide: how Usha works"
     },
     "doors": {
       "heading": "Where do you start?",
@@ -2114,24 +2115,87 @@
   "forVenues": {
     "meta": {
       "title": "For venues – Usha Platform",
-      "description": "A living programme without becoming a booker. Curated, BankID-verified creators, tickets and check-in that run themselves, and settlement per night."
+      "description": "A living programme without becoming a booker. Organisers put on nights at your venue, you approve them, we handle tickets, check-in and settlement. Free profile, terms in your own agreement."
     },
     "hero": {
       "h1": "A living programme – without becoming a booker",
-      "sub": "Fill the calendar with curated, BankID-verified creators. No monthly cost, no booking admin — you set the terms and your share is settled per night.",
-      "cta": "Connect your venue"
+      "sub": "Organisers put on nights at your venue, you approve what is shown, and we handle tickets, check-in and settlement. The profile is free. We agree the terms in a separate agreement with each venue.",
+      "cta": "Create a venue account"
     },
     "loop": {
       "title": "How the cycle works for you",
-      "body": "More creators means more to fill your stage with. And more visitors discover your venue through the experiences you offer."
+      "body": "More creators means more to fill your stage with. And more visitors find your venue through the nights that happen there."
     },
     "values": {
       "one": "A curated supply",
-      "oneDesc": "BankID-verified creators, ready to perform.",
+      "oneDesc": "Creators verify themselves with BankID before they can sell.",
       "two": "No booking admin",
-      "twoDesc": "We handle requests and payments – you skip the legwork.",
+      "twoDesc": "We handle tickets, check-in and settlement – you skip the legwork.",
       "three": "You stay in control",
-      "threeDesc": "Say yes to what fits your venue. No obligations."
+      "threeDesc": "Nothing appears at your venue until you have said yes. Say yes to what fits your venue."
+    },
+    "steps": {
+      "title": "How it works",
+      "s1Title": "Create a venue account",
+      "s1Body": "Sign up as a venue and fill in your venue page: name, image, address and a few lines about you. It takes a few minutes and costs nothing.",
+      "s2Title": "We sign an agreement",
+      "s2Body": "We talk through how you want it to work and sign a separate agreement with you. It sets out what applies to your venue.",
+      "s3Title": "Organisers put on nights at your venue",
+      "s3Body": "When an organiser names you as the venue, you get a request. You approve it or decline. If you want to put on your own nights, you do that yourselves; the account then needs to be verified with BankID.",
+      "s4Title": "The night",
+      "s4Body": "Guests get their ticket with a QR code by email. At the door you check them in with an ordinary phone, and your staff can be allowed to scan.",
+      "s5Title": "Settlement and money",
+      "s5Body": "Each night is settled on its own, with a statement. The money is transferred the day after the night and is usually in the account within a couple of days."
+    },
+    "control": {
+      "title": "You decide over your venue",
+      "sub": "This is in the app for venues today.",
+      "approvalTitle": "Approval",
+      "approvalBody": "Nothing appears on your page until you have approved it under Requests. An approval covers one event at a time.",
+      "teamTitle": "The venue team",
+      "teamBody": "Invite colleagues and choose what each of them can do: create events, see bookings, scan at the door, send messages, see statistics or manage the venue page. The finances always stay with the owner account.",
+      "pageTitle": "The venue page",
+      "pageBody": "Your own page on usha.se gathers the nights at your venue, upcoming ones first. You can share it in your own channels.",
+      "followersTitle": "Follower emails",
+      "followersBody": "Visitors can follow you. When a new night at your venue is approved, your followers get an email about it."
+    },
+    "cost": {
+      "title": "What it costs",
+      "free": "0 SEK",
+      "freeSub": "for the profile, no monthly fee",
+      "fee": "Whoever sells tickets pays 3.5% + SEK 3.50 per ticket sold.",
+      "freeEvents": "Free events cost nothing.",
+      "agreementTitle": "Your agreement",
+      "agreementBody": "We agree the terms in a separate agreement with each venue. There is no standard model. One venue shares the revenue, another rents out the space and a third lends it for free as marketing.",
+      "payout": "If you get a share of the night, the money is transferred the day after the night and is usually in the account within a couple of days.",
+      "payee": "To receive money, the venue needs to be a limited company, a sole trader or an association with a Swedish organisation number and F-tax."
+    },
+    "example": {
+      "eyebrow": "Example",
+      "title": "Bacchi Syre in Stockholm",
+      "body": "At Bacchi Syre, The Lab runs on Thursdays and Brazilian Zouk on Tuesdays. The organisers put on the nights, Bacchi approves them, and the nights appear on Bacchi's own page.",
+      "cta": "See Bacchi Syre's page"
+    },
+    "faq": {
+      "title": "Questions &",
+      "titleHighlight": "answers",
+      "q1": "What does it cost to be a venue?",
+      "a1": "The profile is free and there is no monthly fee. Whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is in your agreement.",
+      "q2": "Can anything appear at our venue without our yes?",
+      "a2": "No. A night an organiser puts on at your venue lands under Requests and only appears on your page once you have approved it.",
+      "q3": "Do we need BankID?",
+      "a3": "Not to approve other people's nights. To put on your own nights, the account needs to be verified with BankID.",
+      "q4": "When do we get the money?",
+      "a4": "Each night is settled on its own. The money is transferred the day after the night and is usually in the account within a couple of days.",
+      "q5": "Who can receive money?",
+      "a5": "A limited company, a sole trader or an association with a Swedish organisation number and F-tax. We check this before the first payout.",
+      "q6": "Can staff help without seeing the finances?",
+      "a6": "Yes. In the venue team you choose what each person can do, for example scan at the door or put on nights. Payouts and company details cannot be shared."
+    },
+    "contact": {
+      "title": "Want to talk first?",
+      "body": "Write to us and we will tell you how it could work at your venue. The full walkthrough of the platform is in the guide.",
+      "guide": "Read the guide"
     }
   },
   "forAudience": {
@@ -4365,16 +4429,17 @@
     },
     "meta": {
       "title": "Venues – Usha Platform",
-      "description": "Explore venues, studios, clubs and places where creative experiences happen.",
+      "description": "Venues with upcoming nights on Usha: dance, music and experiences.",
       "ogTitle": "Venues – Usha Platform",
-      "ogDescription": "Venues and places for creative experiences."
+      "ogDescription": "Venues with upcoming nights on Usha."
     },
     "title": "Venues",
-    "subtitle": "Venues, studios and places where experiences happen",
+    "subtitle": "Venues with upcoming nights on Usha",
     "searchPlaceholder": "Search venue or city...",
-    "eventCount": "{count, plural, =1 {# experience} other {# experiences}}",
     "emptySearch": "No venues found.",
-    "empty": "No venues yet."
+    "empty": "No venues with upcoming nights right now.",
+    "upcomingCount": "{count, plural, =1 {# upcoming night} other {# upcoming nights}}",
+    "registryHeading": "More places with upcoming events"
   },
   "taxidansarePage": {
     "meta": {

@@ -905,7 +905,8 @@
       "copyright": "© 2026 Usha AB. Alla rättigheter förbehållna.",
       "builtWith": "Byggd med kärlek i Sverige",
       "instructors": "Instruktörer",
-      "haveYourSay": "Tyck till"
+      "haveYourSay": "Tyck till",
+      "guide": "Guide: så fungerar Usha"
     },
     "doors": {
       "heading": "Var börjar du?",
@@ -1394,7 +1395,7 @@
     "services": {
       "heading": "Tjänster",
       "empty": "Inga tjänster publicerade ännu.",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} gäster"
     },
@@ -1439,7 +1440,7 @@
       "perksLabel": "Förmåner: {perks}",
       "openButton": "Boka",
       "modalTitle": "Boka: {title}",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "queueInQueueTitle": "Du är i kön!",
       "queuePosition": "Plats {position}",
@@ -1508,7 +1509,7 @@
       "loading": "Laddar...",
       "buy": "Köp biljett",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "chooseTicket": "Välj biljett"
     },
     "report": {
@@ -1543,7 +1544,7 @@
       "heading": "Digitalt innehåll",
       "errorSomethingWrong": "Något gick fel",
       "errorCouldNotStartPurchase": "Kunde inte starta köp",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "buy": "Köp"
     },
     "promo": {
@@ -2113,25 +2114,88 @@
   },
   "forVenues": {
     "meta": {
-      "title": "För platser – Usha Platform",
-      "description": "Levande program utan att bli bokare. Kuraterade, BankID-verifierade kreatörer, biljetter och incheckning som sköter sig själva, och avräkning per kväll."
+      "title": "För lokaler – Usha Platform",
+      "description": "Levande program utan att bli bokare. Arrangörer lägger upp kvällar hos er, ni godkänner, vi sköter biljetter, incheckning och avräkning. Gratis profil, villkoren i ett eget avtal."
     },
     "hero": {
       "h1": "Levande program – utan att bli bokare",
-      "sub": "Fyll kalendern med kuraterade, BankID-verifierade kreatörer. Ingen månadskostnad, ingen bokningsadministration — ni sätter villkoren och får er andel avräknad per kväll.",
-      "cta": "Anslut din plats"
+      "sub": "Arrangörer lägger upp kvällar hos er, ni godkänner vad som syns och vi sköter biljetter, incheckning och avräkning. Profilen är gratis. Villkoren bestämmer vi i ett eget avtal med varje lokal.",
+      "cta": "Skapa lokalkonto"
     },
     "loop": {
-      "title": "Så snurrar kretsloppet för dig",
-      "body": "Fler kreatörer betyder mer att fylla din scen med. Och fler besökare upptäcker din plats genom upplevelserna du erbjuder."
+      "title": "Så snurrar kretsloppet för er",
+      "body": "Fler kreatörer betyder mer att fylla er scen med. Och fler besökare hittar er lokal genom kvällarna som händer hos er."
     },
     "values": {
       "one": "Kuraterat utbud",
-      "oneDesc": "BankID-verifierade kreatörer, redo att uppträda.",
+      "oneDesc": "Kreatörerna verifierar sig med BankID innan de kan sälja.",
       "two": "Ingen bokningsadmin",
-      "twoDesc": "Vi sköter förfrågningar och betalningar – du slipper jobbet.",
-      "three": "Du behåller kontrollen",
-      "threeDesc": "Säg ja till det som passar din plats. Inget tvång."
+      "twoDesc": "Vi sköter biljetter, incheckning och avräkning – ni slipper jobbet.",
+      "three": "Ni behåller kontrollen",
+      "threeDesc": "Inget syns hos er förrän ni sagt ja. Säg ja till det som passar er lokal."
+    },
+    "steps": {
+      "title": "Så går det till",
+      "s1Title": "Skapa ett lokalkonto",
+      "s1Body": "Registrera er som lokal och fyll i lokalsidan: namn, bild, adress och några rader om er. Det tar några minuter och kostar ingenting.",
+      "s2Title": "Vi skriver ett avtal",
+      "s2Body": "Vi pratar igenom hur ni vill ha det och skriver ett eget avtal med er. Där står vad som gäller för just er lokal.",
+      "s3Title": "Arrangörer lägger upp kvällar hos er",
+      "s3Body": "När en arrangör anger er som lokal får ni en förfrågan. Ni godkänner eller tackar nej. Vill ni lägga upp egna kvällar gör ni det själva; då behöver kontot vara verifierat med BankID.",
+      "s4Title": "Kvällen",
+      "s4Body": "Gästerna får sin biljett med QR-kod på mejl. I dörren checkar ni in med en vanlig telefon, och er personal kan få rätt att skanna.",
+      "s5Title": "Avräkning och pengar",
+      "s5Body": "Varje kväll räknas av för sig, med underlag. Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar."
+    },
+    "control": {
+      "title": "Ni bestämmer över er lokal",
+      "sub": "Det här finns i appen för lokaler i dag.",
+      "approvalTitle": "Godkännandet",
+      "approvalBody": "Ingenting syns på er sida förrän ni godkänt det under Förfrågningar. Ett godkännande gäller ett arrangemang i taget.",
+      "teamTitle": "Lokalteamet",
+      "teamBody": "Bjud in kollegor och välj vad var och en får göra: skapa evenemang, se bokningar, skanna i dörren, skicka utskick, se statistik eller sköta lokalsidan. Ekonomin stannar alltid hos ägarkontot.",
+      "pageTitle": "Lokalsidan",
+      "pageBody": "Er egen sida på usha.se samlar kvällarna hos er, de kommande först. Den kan ni dela i era egna kanaler.",
+      "followersTitle": "Följarmejlen",
+      "followersBody": "Besökare kan följa er. När en ny kväll hos er är godkänd får följarna ett mejl om den."
+    },
+    "cost": {
+      "title": "Vad det kostar",
+      "free": "0 kr",
+      "freeSub": "för profilen, utan månadskostnad",
+      "fee": "Den som säljer biljetter betalar 3,5 % + 3,50 kr per såld biljett.",
+      "freeEvents": "Gratis evenemang kostar ingenting.",
+      "agreementTitle": "Avtalet med er",
+      "agreementBody": "Villkoren bestämmer vi i ett eget avtal med varje lokal. Det finns ingen standardmodell. En lokal delar intäkterna, en annan hyr ut ytan och en tredje lånar ut den gratis som marknadsföring.",
+      "payout": "Får ni en andel av kvällen förs pengarna över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
+      "payee": "För att ta emot pengar behöver lokalen vara ett aktiebolag, en enskild firma eller en förening med svenskt organisationsnummer och F-skatt."
+    },
+    "example": {
+      "eyebrow": "Exempel",
+      "title": "Bacchi Syre i Stockholm",
+      "body": "Hos Bacchi Syre går The Lab på torsdagar och Brazilian Zouk på tisdagar. Arrangörerna lägger upp kvällarna, Bacchi godkänner dem, och kvällarna syns på Bacchis egen sida.",
+      "cta": "Se Bacchi Syres sida"
+    },
+    "faq": {
+      "title": "Frågor &",
+      "titleHighlight": "svar",
+      "q1": "Vad kostar det att vara lokal?",
+      "a1": "Profilen är gratis och det finns ingen månadskostnad. Den som säljer biljetter betalar 3,5 % + 3,50 kr per biljett. Allt annat står i avtalet med er.",
+      "q2": "Syns något hos oss utan att vi sagt ja?",
+      "a2": "Nej. En kväll som en arrangör lägger upp hos er hamnar under Förfrågningar och syns på er sida först när ni godkänt den.",
+      "q3": "Behöver vi BankID?",
+      "a3": "För att godkänna andras kvällar behövs det inte. För att lägga upp egna kvällar behöver kontot vara verifierat med BankID.",
+      "q4": "När får vi pengarna?",
+      "a4": "Varje kväll räknas av för sig. Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
+      "q5": "Vem kan ta emot pengar?",
+      "a5": "Ett aktiebolag, en enskild firma eller en förening med svenskt organisationsnummer och F-skatt. Vi kontrollerar det innan första utbetalningen.",
+      "q6": "Kan personalen hjälpa till utan att se ekonomin?",
+      "a6": "Ja. I lokalteamet väljer ni vad var och en får göra, till exempel skanna i dörren eller lägga upp kvällar. Utbetalningar och bolagsuppgifter kan inte delas ut."
+    },
+    "contact": {
+      "title": "Vill ni prata först?",
+      "body": "Skriv till oss, så berättar vi hur det kan se ut hos er. Hela genomgången av plattformen finns i guiden.",
+      "guide": "Läs guiden"
     }
   },
   "forAudience": {
@@ -4364,17 +4428,18 @@
       "seeAll": "Se alla upplevelser"
     },
     "meta": {
-      "title": "Platser – Usha Platform",
-      "description": "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
-      "ogTitle": "Platser – Usha Platform",
-      "ogDescription": "Lokaler och platser för kreativa upplevelser."
+      "title": "Lokaler – Usha Platform",
+      "description": "Lokaler med kommande kvällar på Usha: dans, musik och upplevelser.",
+      "ogTitle": "Lokaler – Usha Platform",
+      "ogDescription": "Lokaler med kommande kvällar på Usha."
     },
-    "title": "Platser",
-    "subtitle": "Lokaler, studior och platser där upplevelser händer",
-    "searchPlaceholder": "Sök plats eller stad...",
-    "eventCount": "{count, plural, =1 {# upplevelse} other {# upplevelser}}",
-    "emptySearch": "Inga platser hittade.",
-    "empty": "Inga platser ännu."
+    "title": "Lokaler",
+    "subtitle": "Lokaler med kommande kvällar hos oss",
+    "searchPlaceholder": "Sök lokal eller stad...",
+    "emptySearch": "Inga lokaler hittade.",
+    "empty": "Inga lokaler med kommande kvällar just nu.",
+    "upcomingCount": "{count, plural, =1 {# kommande kväll} other {# kommande kvällar}}",
+    "registryHeading": "Fler platser med kommande evenemang"
   },
   "taxidansarePage": {
     "meta": {

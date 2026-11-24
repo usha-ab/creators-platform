@@ -905,7 +905,8 @@
       "copyright": "© 2026 Usha AB. Todos los derechos reservados.",
       "builtWith": "Hecho con cariño en Suecia",
       "instructors": "Instructores",
-      "haveYourSay": "Opina"
+      "haveYourSay": "Opina",
+      "guide": "Guía: cómo funciona Usha"
     },
     "doors": {
       "heading": "¿Por dónde empiezas?",
@@ -2114,24 +2115,87 @@
   "forVenues": {
     "meta": {
       "title": "Para locales – Usha Platform",
-      "description": "Un programa vivo sin convertirte en programador. Creadores curados y verificados con BankID, entradas y registro que funcionan solos, y liquidación por noche."
+      "description": "Una programación viva sin convertirte en programador. Los organizadores montan noches en tu local, tú las apruebas y nosotros gestionamos entradas, registro y liquidación. Perfil gratis, condiciones en un acuerdo propio."
     },
     "hero": {
       "h1": "Una programación viva – sin convertirte en representante",
-      "sub": "Llena el calendario con creadores curados y verificados con BankID. Sin coste mensual ni gestión de reservas: vosotros ponéis las condiciones y se liquida vuestra parte por noche.",
-      "cta": "Conecta tu local"
+      "sub": "Los organizadores montan noches en tu local, tú apruebas lo que se ve y nosotros gestionamos entradas, registro y liquidación. El perfil es gratis. Las condiciones las fijamos en un acuerdo propio con cada local.",
+      "cta": "Crea una cuenta de local"
     },
     "loop": {
       "title": "Cómo funciona el ciclo para ti",
-      "body": "Más creadores significa más con lo que llenar tu escenario. Y más visitantes descubren tu local a través de las experiencias que ofreces."
+      "body": "Más creadores significa más con lo que llenar tu escenario. Y más visitantes descubren tu local a través de las noches que se celebran en él."
     },
     "values": {
       "one": "Una oferta seleccionada",
-      "oneDesc": "Creadores verificados con BankID, listos para actuar.",
+      "oneDesc": "Los creadores se verifican con BankID antes de poder vender.",
       "two": "Sin gestión de reservas",
-      "twoDesc": "Nosotros gestionamos las solicitudes y los pagos – tú te ahorras el trabajo.",
+      "twoDesc": "Nosotros gestionamos entradas, registro y liquidación – tú te ahorras el trabajo.",
       "three": "Tú mantienes el control",
-      "threeDesc": "Di sí a lo que encaje con tu local. Sin compromisos."
+      "threeDesc": "Nada aparece en tu local hasta que dices que sí. Di sí a lo que encaje con tu local."
+    },
+    "steps": {
+      "title": "Cómo funciona",
+      "s1Title": "Crea una cuenta de local",
+      "s1Body": "Regístrate como local y completa la página del local: nombre, imagen, dirección y unas líneas sobre ti. Son unos minutos y no cuesta nada.",
+      "s2Title": "Firmamos un acuerdo",
+      "s2Body": "Hablamos de cómo quieres que funcione y firmamos un acuerdo propio contigo. En él consta lo que aplica a tu local.",
+      "s3Title": "Los organizadores montan noches en tu local",
+      "s3Body": "Cuando un organizador te indica como local, recibes una solicitud. La apruebas o la rechazas. Si quieres publicar tus propias noches, lo haces tú; entonces la cuenta debe estar verificada con BankID.",
+      "s4Title": "La noche",
+      "s4Body": "Los asistentes reciben su entrada con código QR por correo. En la puerta registras la entrada con un teléfono normal, y tu personal puede tener permiso para escanear.",
+      "s5Title": "Liquidación y dinero",
+      "s5Body": "Cada noche se liquida por separado, con justificante. El dinero se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días."
+    },
+    "control": {
+      "title": "Tú decides sobre tu local",
+      "sub": "Esto ya está en la app para locales.",
+      "approvalTitle": "La aprobación",
+      "approvalBody": "Nada aparece en tu página hasta que lo apruebas en Solicitudes. Cada aprobación vale para un evento.",
+      "teamTitle": "El equipo del local",
+      "teamBody": "Invita a compañeros y elige qué puede hacer cada uno: crear eventos, ver reservas, escanear en la puerta, enviar mensajes, ver estadísticas o gestionar la página del local. Las finanzas siempre se quedan en la cuenta del titular.",
+      "pageTitle": "La página del local",
+      "pageBody": "Tu propia página en usha.se reúne las noches en tu local, primero las próximas. Puedes compartirla en tus propios canales.",
+      "followersTitle": "Correos a seguidores",
+      "followersBody": "Los visitantes pueden seguirte. Cuando se aprueba una nueva noche en tu local, tus seguidores reciben un correo."
+    },
+    "cost": {
+      "title": "Lo que cuesta",
+      "free": "0 SEK",
+      "freeSub": "por el perfil, sin cuota mensual",
+      "fee": "Quien vende entradas paga un 3,5 % + 3,50 SEK por entrada vendida.",
+      "freeEvents": "Los eventos gratuitos no cuestan nada.",
+      "agreementTitle": "Tu acuerdo",
+      "agreementBody": "Las condiciones las fijamos en un acuerdo propio con cada local. No hay un modelo estándar. Un local comparte los ingresos, otro alquila el espacio y un tercero lo presta gratis como promoción.",
+      "payout": "Si recibes una parte de la noche, el dinero se transfiere al día siguiente y suele estar en la cuenta en un par de días.",
+      "payee": "Para recibir dinero, el local debe ser una sociedad, un autónomo o una asociación con número de organización sueco y F-skatt."
+    },
+    "example": {
+      "eyebrow": "Ejemplo",
+      "title": "Bacchi Syre en Estocolmo",
+      "body": "En Bacchi Syre, The Lab se celebra los jueves y Brazilian Zouk los martes. Los organizadores publican las noches, Bacchi las aprueba y aparecen en la página de Bacchi.",
+      "cta": "Ver la página de Bacchi Syre"
+    },
+    "faq": {
+      "title": "Preguntas y",
+      "titleHighlight": "respuestas",
+      "q1": "¿Cuánto cuesta ser local?",
+      "a1": "El perfil es gratis y no hay cuota mensual. Quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Todo lo demás consta en tu acuerdo.",
+      "q2": "¿Puede aparecer algo en mi local sin mi aprobación?",
+      "a2": "No. Una noche que un organizador publica en tu local queda en Solicitudes y solo aparece en tu página cuando la apruebas.",
+      "q3": "¿Necesito BankID?",
+      "a3": "No para aprobar las noches de otros. Para publicar tus propias noches, la cuenta debe estar verificada con BankID.",
+      "q4": "¿Cuándo recibo el dinero?",
+      "a4": "Cada noche se liquida por separado. El dinero se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días.",
+      "q5": "¿Quién puede recibir dinero?",
+      "a5": "Una sociedad, un autónomo o una asociación con número de organización sueco y F-skatt. Lo comprobamos antes del primer pago.",
+      "q6": "¿Puede ayudar el personal sin ver las finanzas?",
+      "a6": "Sí. En el equipo del local eliges qué puede hacer cada persona, por ejemplo escanear en la puerta o publicar noches. Los pagos y los datos de la empresa no se pueden compartir."
+    },
+    "contact": {
+      "title": "¿Prefieres hablar primero?",
+      "body": "Escríbenos y te contamos cómo podría funcionar en tu local. La guía completa de la plataforma está en la guía.",
+      "guide": "Leer la guía"
     }
   },
   "forAudience": {
@@ -4364,17 +4428,18 @@
       "seeAll": "Ver todas las experiencias"
     },
     "meta": {
-      "title": "Espacios – Usha Platform",
-      "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
-      "ogTitle": "Espacios – Usha Platform",
-      "ogDescription": "Locales y espacios para experiencias creativas."
+      "title": "Locales – Usha Platform",
+      "description": "Locales con próximas noches en Usha: baile, música y experiencias.",
+      "ogTitle": "Locales – Usha Platform",
+      "ogDescription": "Locales con próximas noches en Usha."
     },
-    "title": "Espacios",
-    "subtitle": "Locales, estudios y espacios donde suceden las experiencias",
-    "searchPlaceholder": "Busca un espacio o una ciudad...",
-    "eventCount": "{count, plural, =1 {# experiencia} other {# experiencias}}",
-    "emptySearch": "No se encontraron espacios.",
-    "empty": "Todavía no hay espacios."
+    "title": "Locales",
+    "subtitle": "Locales con próximas noches en Usha",
+    "searchPlaceholder": "Busca un local o una ciudad...",
+    "emptySearch": "No se encontraron locales.",
+    "empty": "No hay locales con próximas noches ahora mismo.",
+    "upcomingCount": "{count, plural, =1 {# próxima noche} other {# próximas noches}}",
+    "registryHeading": "Más lugares con próximos eventos"
   },
   "taxidansarePage": {
     "meta": {
