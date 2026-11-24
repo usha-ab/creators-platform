@@ -19,7 +19,9 @@ import type { Role } from "@/lib/roles";
 type CreatorSubcategory = "general" | "taxi_dancer";
 
 // Only creators must verify with BankID at signup. Venues sign up normally and
-// verify their company (org-nr) in the dashboard; BankID is optional for them.
+// verify their company (org-nr) in the dashboard. BankID is NOT optional for a
+// venue that wants to create its own events: events/actions.ts requires BankID
+// clearance for every seller. Approving other organisers' events needs none.
 const NEEDS_BANKID: Role[] = ["creator"];
 
 /**

@@ -98,11 +98,11 @@
   "roles": {
     "customer": "Público",
     "creator": "Creador",
-    "venue": "Espacio"
+    "venue": "Local"
   },
   "roleToggle": {
     "locked": "{role} está bloqueado",
-    "lockedHint": "Ve a Suscripción para cambiar de rol",
+    "lockedHint": "Ve a Ajustes → Cuenta para cambiar de rol",
     "switchTo": "Cambiar a la vista de {role}",
     "lockedLabel": "{role} – bloqueado"
   },
@@ -146,7 +146,7 @@
     "back": "Atrás",
     "title": "Sobre nosotros",
     "lead": "Usha es la empresa detrás de Usha Platform — la plataforma para la expresión humana.",
-    "p1": "Creemos que los mejores momentos ocurren cuando las personas se encuentran de verdad — en el movimiento, en el juego y al crear juntas. Usha Platform reúne a creadores, experiencias y participantes en un solo lugar, donde la pasión se une a la profesionalidad y cada reserva se siente segura. Todos los creadores están verificados con BankID y todos los pagos se gestionan de forma segura, para que puedas centrarte en lo que de verdad importa: la experiencia.",
+    "p1": "Creemos que los mejores momentos ocurren cuando las personas se encuentran de verdad — en el movimiento, en el juego y al crear juntas. Usha Platform reúne a creadores, locales y participantes en un solo lugar, donde la pasión se une a la profesionalidad y cada reserva se siente segura. Los creadores tienen la identidad verificada y todos los pagos se gestionan de forma segura, para que puedas centrarte en lo que de verdad importa: la experiencia.",
     "p2": "Usha fue fundada por Pablo Acosta, que trabaja en la intersección entre el baile, la tecnología y la creación de comunidad. La visión es sencilla: construir un lugar donde la creatividad pueda florecer, el talento pueda verse y las personas puedan acercarse.",
     "roadmapTitle": "Hacia dónde nos dirigimos",
     "p3": "Estamos construyendo paso a paso, con experiencias reales desde el primer día. La base son noches recurrentes en Estocolmo — entrenamiento de baile abierto cada semana, donde todos son bienvenidos sin importar el nivel. A partir de ahí crecemos hacia fiestas mensuales y, más adelante, un festival anual que reúna a toda la comunidad.",
@@ -307,7 +307,7 @@
     "progress": "{done}/{total} completados",
     "completeProfile": "Completa tu perfil",
     "verifyBankid": "Verifícate con BankID",
-    "verifyBankidOptional": "Verifícate con BankID (opcional)",
+    "verifyBankidOptional": "Verifícate con BankID (necesario para tus propios eventos)",
     "verifyCompany": "Verifica tu empresa (nº de org.)",
     "addTerms": "Añade tus condiciones de compra",
     "createFirstService": "Crea tu primer servicio",
@@ -414,7 +414,7 @@
     "topCreators": "Mejores creadores",
     "noCreatorsYet": "Aún no hay creadores",
     "clubsAndStudios": "Clubes y estudios",
-    "noVenuesYet": "Aún no hay espacios que mostrar",
+    "noVenuesYet": "Aún no hay locales que mostrar",
     "commission": "{commission} de comisión",
     "calendar": "Calendario",
     "revenue": "Ingresos",
@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Conecta tu cuenta bancaria y consulta tus pagos",
     "noPlansTitle": "No hay suscripción que contratar",
     "noPlansCustomer": "Tu cuenta es gratuita y ya tiene todo lo necesario para comprar entradas, verlas en la app y seguir lo que te gusta. Si vienes a menudo, el bono es lo que baja el precio: se compra en la página de la noche, no aquí.",
-    "noPlansVenue": "Los locales no se suscriben con nosotros. Las condiciones de un local se fijan por acuerdo, con el reparto que acordéis. Escríbenos y lo vemos.",
+    "noPlansVenue": "Los locales no se suscriben con nosotros. El perfil es gratis, y quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local. Escribe a pablo.acosta@usha.se.",
     "subtitle": "Gestiona tu plan y tus pagos.",
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",
@@ -497,7 +497,7 @@
       "loginTitle": "Iniciar sesión – Usha Platform",
       "loginDescription": "Inicia sesión en tu cuenta de Usha para gestionar eventos, entradas y reservas.",
       "signupTitle": "Crear cuenta – Usha Platform",
-      "signupDescription": "Crea una cuenta como creador, espacio o visitante. Los creadores se verifican con BankID."
+      "signupDescription": "Crea una cuenta como creador, local o visitante. Los creadores se verifican con BankID."
     },
     "welcomeBack": "Te damos la bienvenida de nuevo",
     "loginToAccount": "Inicia sesión en tu cuenta",
@@ -628,7 +628,7 @@
       "menuAriaLabel": "Menú",
       "login": "Iniciar sesión",
       "forCreators": "Creadores",
-      "forVenues": "Espacios",
+      "forVenues": "Locales",
       "forAudience": "Público",
       "shop": "Tienda",
       "sellTickets": "Vender entradas",
@@ -816,7 +816,7 @@
       "subtitle": "Nos tomamos la seguridad en serio. Todos los que ofrecen servicios y experiencias en Usha Platform tienen su identidad verificada con el BankID sueco.",
       "bankid": {
         "title": "Creadores verificados con BankID",
-        "desc": "Todos los creadores y experiencias verifican su identidad con Mobile BankID antes de crear una cuenta. Siempre sabes a quién reservas."
+        "desc": "Los creadores verifican su identidad con Mobile BankID antes de crear una cuenta, y quien publica un evento está verificado con BankID. Sabes a quién reservas."
       },
       "payment": {
         "title": "Pago seguro",
@@ -836,7 +836,7 @@
       "subtitle": "Sin coste mensual y sin niveles que comprar. Pagas 3,5 % + 3,50 kr por entrada vendida, y todo está incluido desde el primer día.",
       "roleUser": "Público",
       "roleCreator": "Creador",
-      "roleExperience": "Espacio",
+      "roleExperience": "Local",
       "free": "Gratis",
       "freeDesc": "Todo lo que hay, para todos los que venden",
       "ctaFree": "Empieza gratis",
@@ -844,20 +844,20 @@
       "publikFree1": "Compra tu entrada sin crear cuenta",
       "publikFree2": "La entrada con QR llega directamente a tu correo",
       "publikFree3": "Lista de espera que te avisa cuando se libera un sitio",
-      "upplevelseFree1": "Publica vuestras noches sin coste mensual",
-      "upplevelseFree2": "Elegís el modelo: reparto de ingresos o comisión",
-      "upplevelseFree3": "Liquidación por noche, pago al día siguiente",
-      "subtitleVenue": "Recibe a creadores, llena tus noches y mantén las cuentas en un solo sitio. El local pone las condiciones; la plataforma se encarga de las entradas, el registro y la liquidación.",
+      "upplevelseFree1": "Perfil gratis, sin cuota mensual",
+      "upplevelseFree2": "Quien vende paga un 3,5 % + 3,50 SEK por entrada",
+      "upplevelseFree3": "Liquidación por noche. El dinero se transfiere al día siguiente y suele estar en la cuenta en un par de días",
+      "subtitleVenue": "Recibe a creadores, llena tus noches y mantén las cuentas en un solo sitio. Las condiciones las fijamos en un acuerdo propio con cada local, y la plataforma se encarga de las entradas, el registro y la liquidación.",
       "subtitleCustomer": "La cuenta no cuesta nada. Pagas por aquello a lo que asistes, y la entrada funciona sin cuenta.",
       "publikFreeDesc": "Todo lo necesario para asistir",
       "ctaVenue": "Crear cuenta de local",
       "publikFree5": "Entradas, bonos y calendario en un solo sitio",
-      "upplevelseFreeDesc": "El local pone las condiciones",
+      "upplevelseFreeDesc": "Condiciones en un acuerdo propio con cada local",
       "upplevelseFree4": "Vuestro personal escanea en la puerta, permiso por noche",
       "upplevelseFree5": "Estadísticas y listas de asistentes de vuestras noches",
       "footnoteCreator": "La comisión se cobra solo cuando vendes: 3,5 % + 3,50 kr por entrada, es decir, 8,05 kr en una entrada de 130 kr. Los eventos gratuitos cuestan 0 kr, y no hay cuota inicial, permanencia ni nada a lo que subir de nivel. Las mismas condiciones para todos, sea cual sea tu tamaño.",
       "footnoteCustomer": "No te cobramos ninguna suscripción. Los bonos y las membresías los vende el propio creador.",
-      "footnoteVenue": "Ser local con nosotros no cuesta nada. Nos quedamos con nuestra parte de la noche según lo acordado — reparto de ingresos o comisión, nunca las dos y nunca una cuota fija.",
+      "footnoteVenue": "El perfil es gratis. Quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local.",
       "kreatorOne1": "Eventos, series y servicios ilimitados",
       "kreatorOne2": "3,5 % + 3,50 kr por entrada vendida, 0 kr en eventos gratuitos",
       "kreatorOne3": "Entradas QR, varios tipos de entrada, códigos de descuento y lista de espera",
@@ -875,7 +875,7 @@
       "q2": "¿Necesito BankID?",
       "a2": "Los anfitriones y creadores se verifican con BankID: así todos están más seguros. Los asistentes normalmente pueden comprar una entrada sin verificarse.",
       "q3": "¿Cómo cobro?",
-      "a3": "Los ingresos de las entradas van a tu cuenta a través de Stripe. Puedes retirar rápido: el primer pago instantáneo de cada mes es gratis.",
+      "a3": "El dinero de las entradas pasa por Stripe. Se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días.",
       "q4": "¿Pueden los invitados comprar sin cuenta?",
       "a4": "Sí. Los invitados pueden comprar una entrada solo con un email y reciben un código QR para mostrar en la entrada, sin necesidad de cuenta.",
       "q5": "¿Puedo recibir ayuda de otras personas?",
@@ -901,17 +901,19 @@
       "privacy": "Política de privacidad",
       "refundPolicy": "Cancelaciones y reembolsos",
       "cookies": "Política de cookies",
+      "refund": "Reembolsos",
       "security": "Seguridad",
       "copyright": "© 2026 Usha AB. Todos los derechos reservados.",
       "builtWith": "Hecho con cariño en Suecia",
       "instructors": "Instructores",
-      "haveYourSay": "Opina"
+      "haveYourSay": "Opina",
+      "guide": "Guía: cómo funciona Usha"
     },
     "doors": {
       "heading": "¿Por dónde empiezas?",
       "creatorLabel": "Soy creador",
       "creatorDesc": "Encuentra trabajo y escenarios",
-      "venueLabel": "Tengo un espacio",
+      "venueLabel": "Tengo un local",
       "venueDesc": "Llena tu calendario con creadores seleccionados",
       "audienceLabel": "Quiero vivir experiencias",
       "audienceDesc": "Descubre experiencias cerca de ti"
@@ -1361,7 +1363,7 @@
   "appProfile": {
     "defaultName": "Usuario",
     "roleCreator": "Creador",
-    "roleExperience": "Espacio",
+    "roleExperience": "Local",
     "roleUser": "Público",
     "memberSinceFallback": "hace poco",
     "points": "{points} puntos",
@@ -1610,7 +1612,6 @@
       "contactPhonePlaceholder": "+46 70 123 45 67",
       "contactHint": "Se muestra en tu perfil público si quieres que te contacten directamente.",
       "whitelabelTitle": "Marca blanca",
-      "whitelabelBadge": "Premium",
       "whitelabelHintPremium": "Muestra tu propia marca en lugar de Usha Platform en tu perfil público.",
       "whitelabelHintLocked": "Mejora a Premium para usar tu propia marca.",
       "whitelabelBrandNameLabel": "Nombre de la marca",
@@ -1942,7 +1943,7 @@
     "net": "Neto",
     "amountSek": "{amount} SEK",
     "amountSekNegative": "-{amount} SEK",
-    "nextPayout": "Próximo pago: viernes a las 23:00",
+    "nextPayout": "El dinero se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días.",
     "statTotalEarned": "Total ganado",
     "statCommission": "Comisión",
     "statPaidOut": "Pagado",
@@ -2101,11 +2102,11 @@
   "forCreators": {
     "meta": {
       "title": "Para creadores: las herramientas para llevar tus noches | Usha Platform",
-      "description": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local, en una sola herramienta. Sin coste mensual, 8 % de comisión cuando vendes."
+      "description": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local, en una sola herramienta. Sin coste mensual, 3,5 % + 3,50 SEK por entrada vendida."
     },
     "hero": {
       "h1": "Todo lo que hace falta para llevar una noche",
-      "sub": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local. Sin coste mensual: 8 % de comisión cuando vendes, 0 SEK si la noche es gratuita.",
+      "sub": "Entradas, bonos, membresías, registro en la puerta y liquidación con el local. Sin coste mensual: 3,5 % + 3,50 SEK por entrada vendida, 0 SEK si la noche es gratuita.",
       "cta": "Crea tu perfil gratis"
     },
     "loop": {
@@ -2116,34 +2117,97 @@
   "forVenues": {
     "meta": {
       "title": "Para locales – Usha Platform",
-      "description": "Un programa vivo sin convertirte en programador. Creadores curados y verificados con BankID, entradas y registro que funcionan solos, y liquidación por noche."
+      "description": "Una programación viva sin convertirte en programador. Los organizadores montan noches en tu local, tú las apruebas y nosotros gestionamos entradas, registro y liquidación. Perfil gratis, condiciones en un acuerdo propio."
     },
     "hero": {
       "h1": "Una programación viva – sin convertirte en representante",
-      "sub": "Llena el calendario con creadores curados y verificados con BankID. Sin coste mensual ni gestión de reservas: vosotros ponéis las condiciones y se liquida vuestra parte por noche.",
-      "cta": "Conecta tu local"
+      "sub": "Los organizadores montan noches en tu local, tú apruebas lo que se ve y nosotros gestionamos entradas, registro y liquidación. El perfil es gratis. Las condiciones las fijamos en un acuerdo propio con cada local.",
+      "cta": "Crea una cuenta de local"
     },
     "loop": {
       "title": "Cómo funciona el ciclo para ti",
-      "body": "Más creadores significa más con lo que llenar tu escenario. Y más visitantes descubren tu local a través de las experiencias que ofreces."
+      "body": "Más creadores significa más con lo que llenar tu escenario. Y más visitantes descubren tu local a través de las noches que se celebran en él."
     },
     "values": {
       "one": "Una oferta seleccionada",
-      "oneDesc": "Creadores verificados con BankID, listos para actuar.",
+      "oneDesc": "Los creadores se verifican con BankID antes de poder vender.",
       "two": "Sin gestión de reservas",
-      "twoDesc": "Nosotros gestionamos las solicitudes y los pagos – tú te ahorras el trabajo.",
+      "twoDesc": "Nosotros gestionamos entradas, registro y liquidación – tú te ahorras el trabajo.",
       "three": "Tú mantienes el control",
-      "threeDesc": "Di sí a lo que encaje con tu local. Sin compromisos."
+      "threeDesc": "Nada aparece en tu local hasta que dices que sí. Di sí a lo que encaje con tu local."
+    },
+    "steps": {
+      "title": "Cómo funciona",
+      "s1Title": "Crea una cuenta de local",
+      "s1Body": "Regístrate como local y completa la página del local: nombre, imagen, dirección y unas líneas sobre ti. Son unos minutos y no cuesta nada.",
+      "s2Title": "Firmamos un acuerdo",
+      "s2Body": "Hablamos de cómo quieres que funcione y firmamos un acuerdo propio contigo. En él consta lo que aplica a tu local.",
+      "s3Title": "Los organizadores montan noches en tu local",
+      "s3Body": "Cuando un organizador te indica como local, recibes una solicitud. La apruebas o la rechazas. Si quieres publicar tus propias noches, lo haces tú; entonces la cuenta debe estar verificada con BankID.",
+      "s4Title": "La noche",
+      "s4Body": "Los asistentes reciben su entrada con código QR por correo. En la puerta registras la entrada con un teléfono normal, y tu personal puede tener permiso para escanear.",
+      "s5Title": "Liquidación y dinero",
+      "s5Body": "Cada noche se liquida por separado, con justificante. El dinero se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días."
+    },
+    "control": {
+      "title": "Tú decides sobre tu local",
+      "sub": "Esto ya está en la app para locales.",
+      "approvalTitle": "La aprobación",
+      "approvalBody": "Nada aparece en tu página hasta que lo apruebas en Solicitudes. Cada aprobación vale para un evento.",
+      "teamTitle": "El equipo del local",
+      "teamBody": "Invita a compañeros y elige qué puede hacer cada uno: crear eventos, ver reservas, escanear en la puerta, enviar mensajes, ver estadísticas o gestionar la página del local. Las finanzas siempre se quedan en la cuenta del titular.",
+      "pageTitle": "La página del local",
+      "pageBody": "Tu propia página en usha.se reúne las noches en tu local, primero las próximas. Puedes compartirla en tus propios canales.",
+      "followersTitle": "Correos a seguidores",
+      "followersBody": "Los visitantes pueden seguirte. Cuando se aprueba una nueva noche en tu local, tus seguidores reciben un correo."
+    },
+    "cost": {
+      "title": "Lo que cuesta",
+      "free": "0 SEK",
+      "freeSub": "por el perfil, sin cuota mensual",
+      "fee": "Quien vende entradas paga un 3,5 % + 3,50 SEK por entrada vendida.",
+      "freeEvents": "Los eventos gratuitos no cuestan nada.",
+      "agreementTitle": "Tu acuerdo",
+      "agreementBody": "Las condiciones las fijamos en un acuerdo propio con cada local. No hay un modelo estándar. Un local comparte los ingresos, otro alquila el espacio y un tercero lo presta gratis como promoción.",
+      "payout": "Si recibes una parte de la noche, el dinero se transfiere al día siguiente y suele estar en la cuenta en un par de días.",
+      "payee": "Para recibir dinero, el local debe ser una sociedad, un autónomo o una asociación con número de organización sueco y F-skatt."
+    },
+    "example": {
+      "eyebrow": "Ejemplo",
+      "title": "Bacchi Syre en Estocolmo",
+      "body": "En Bacchi Syre, The Lab se celebra los jueves y Brazilian Zouk los martes. Los organizadores publican las noches, Bacchi las aprueba y aparecen en la página de Bacchi.",
+      "cta": "Ver la página de Bacchi Syre"
+    },
+    "faq": {
+      "title": "Preguntas y",
+      "titleHighlight": "respuestas",
+      "q1": "¿Cuánto cuesta ser local?",
+      "a1": "El perfil es gratis y no hay cuota mensual. Quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Todo lo demás consta en tu acuerdo.",
+      "q2": "¿Puede aparecer algo en mi local sin mi aprobación?",
+      "a2": "No. Una noche que un organizador publica en tu local queda en Solicitudes y solo aparece en tu página cuando la apruebas.",
+      "q3": "¿Necesito BankID?",
+      "a3": "No para aprobar las noches de otros. Para publicar tus propias noches, la cuenta debe estar verificada con BankID.",
+      "q4": "¿Cuándo recibo el dinero?",
+      "a4": "Cada noche se liquida por separado. El dinero se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días.",
+      "q5": "¿Quién puede recibir dinero?",
+      "a5": "Una sociedad, un autónomo o una asociación con número de organización sueco y F-skatt. Lo comprobamos antes del primer pago.",
+      "q6": "¿Puede ayudar el personal sin ver las finanzas?",
+      "a6": "Sí. En el equipo del local eliges qué puede hacer cada persona, por ejemplo escanear en la puerta o publicar noches. Los pagos y los datos de la empresa no se pueden compartir."
+    },
+    "contact": {
+      "title": "¿Prefieres hablar primero?",
+      "body": "Escríbenos y te contamos cómo podría funcionar en tu local. La guía completa de la plataforma está en la guía.",
+      "guide": "Leer la guía"
     }
   },
   "forAudience": {
     "meta": {
       "title": "Descubre experiencias – Usha Platform",
-      "description": "Encuentra y reserva experiencias creativas cerca de ti – con seguridad. Cada creador y local está verificado con BankID, pago a través de Stripe."
+      "description": "Encuentra y reserva experiencias creativas cerca de ti – con seguridad. Los creadores están verificados con BankID, pago a través de Stripe."
     },
     "hero": {
       "h1": "Descubre experiencias creativas cerca de ti",
-      "sub": "Encuentra y reserva con confianza. Cada creador y local está verificado con BankID, y el pago se realiza a través de Stripe.",
+      "sub": "Encuentra y reserva con confianza. Los creadores están verificados con BankID, y el pago se realiza a través de Stripe.",
       "cta": "Explorar experiencias"
     },
     "loop": {
@@ -4368,17 +4432,18 @@
       "seeAll": "Ver todas las experiencias"
     },
     "meta": {
-      "title": "Espacios – Usha Platform",
-      "description": "Explora locales, estudios, clubes y espacios donde suceden las experiencias creativas.",
-      "ogTitle": "Espacios – Usha Platform",
-      "ogDescription": "Locales y espacios para experiencias creativas."
+      "title": "Locales – Usha Platform",
+      "description": "Locales con próximas noches en Usha: baile, música y experiencias.",
+      "ogTitle": "Locales – Usha Platform",
+      "ogDescription": "Locales con próximas noches en Usha."
     },
-    "title": "Espacios",
-    "subtitle": "Locales, estudios y espacios donde suceden las experiencias",
-    "searchPlaceholder": "Busca un espacio o una ciudad...",
-    "eventCount": "{count, plural, =1 {# experiencia} other {# experiencias}}",
-    "emptySearch": "No se encontraron espacios.",
-    "empty": "Todavía no hay espacios."
+    "title": "Locales",
+    "subtitle": "Locales con próximas noches en Usha",
+    "searchPlaceholder": "Busca un local o una ciudad...",
+    "emptySearch": "No se encontraron locales.",
+    "empty": "No hay locales con próximas noches ahora mismo.",
+    "upcomingCount": "{count, plural, =1 {# próxima noche} other {# próximas noches}}",
+    "registryHeading": "Más lugares con próximos eventos"
   },
   "taxidansarePage": {
     "meta": {
@@ -4463,7 +4528,7 @@
   "connections": {
     "title": "Conexiones",
     "subtitle": "Cuentas que has conectado a Usha y su estado.",
-    "creatorOnly": "Las conexiones son para cuentas de creador y de espacio. Cambia tu rol en tu perfil para conectar cuentas.",
+    "creatorOnly": "Las conexiones son para cuentas de creador y de local. Cambia tu rol en Ajustes → Cuenta para conectar cuentas.",
     "instagramPurpose": "Importa fotos y clips a tu galería.",
     "facebookPurpose": "Importa medios y sincroniza eventos con tu página.",
     "tiktokPurpose": "Importa clips a tu galería.",
@@ -4892,13 +4957,13 @@
       "creator": "Creador — ofreces servicios: baile, fotografía, música, talleres.",
       "venue": "Local — gestionas un espacio y quieres llenarlo de eventos.",
       "customer": "Público — quieres reservar y asistir.",
-      "roleNote": "Si te equivocas puedes cambiarlo después en Suscripción → Cambiar de rol. Pero es más sencillo acertar desde el principio, y es el error más habitual que vemos.",
+      "roleNote": "Si te equivocas puedes cambiarlo después en Ajustes → Cuenta. Pero es más sencillo acertar desde el principio, y es el error más habitual que vemos.",
       "companyTitle": "Particular o empresa",
       "companyBody": "Si vendes algo, también indicas si lo haces como particular o a través de una empresa. Las empresas verifican su número de registro y aparecen con él en el recibo. Se puede cambiar después."
     },
     "s2": {
       "title": "Verifícate",
-      "p1": "Todos los que venden en la plataforma verifican su identidad con el BankID móvil sueco. No es un trámite — es la razón por la que un desconocido se atreve a reservarte.",
+      "p1": "Todos los que publican algo a la venta en la plataforma verifican su identidad con el BankID móvil sueco. No es un trámite — es la razón por la que un desconocido se atreve a reservarte.",
       "p2": "Lo encuentras en Perfil. Tarda menos de un minuto y solo hay que hacerlo una vez.",
       "companyTitle": "Si tienes empresa",
       "companyBody": "Introduce también el número de registro en Perfil y pulsa Verificar empresa. Lo comprobamos contra el registro mercantil de la UE y rellenamos el nombre automáticamente."
@@ -4908,7 +4973,7 @@
       "profileTitle": "Completa tu perfil",
       "profileBody": "Una foto, un texto breve sobre lo que haces y dónde estás. Tu perfil es lo que la gente ve antes de reservar, así que unos minutos aquí valen la pena.",
       "servicesTitle": "Añade servicios",
-      "servicesBody": "Un servicio es algo que alguien puede reservar: una clase particular, una sesión de fotos, un set de DJ. Pon precio y duración. En el plan gratuito puedes tener tres.",
+      "servicesBody": "Un servicio es algo que alguien puede reservar: una clase particular, una sesión de fotos, un set de DJ. Pon precio y duración.",
       "calendarTitle": "Abre tu calendario",
       "calendarBody": "Marca cuándo estás disponible y la gente podrá reservar esas horas directamente sin preguntar antes. Puedes suscribirte a tu calendario de Usha desde el móvil.",
       "eventsTitle": "O crea eventos",
@@ -4934,7 +4999,7 @@
       "commissionBody": "Cobramos un 3,5 por ciento más 3,50 kr por entrada vendida de comisión, igual para todos. Los eventos gratuitos no cuestan nada. Siempre ves tu parte antes de publicar.",
       "betaNote": "Durante la beta todos los planes son gratuitos.",
       "payoutTitle": "Cuándo llega el dinero",
-      "payoutBody": "El dinero pasa por Stripe hasta tu cuenta. Puedes retirarlo cuando esté disponible — los pagos con tarjeta no se liberan al instante, sino tras la liquidación de Stripe."
+      "payoutBody": "El dinero va a tu cuenta a través de Stripe. Se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días."
     },
     "faq": {
       "title": "Preguntas frecuentes",
@@ -4943,7 +5008,7 @@
       "q2": "¿Pueden comprar los invitados sin cuenta?",
       "a2": "Sí. Dan un correo y reciben un código QR para mostrar en la puerta.",
       "q3": "Elegí el rol equivocado al registrarme",
-      "a3": "Ve a Suscripción y elige Cambiar de rol. Allí están los planes de los otros roles.",
+      "a3": "Ve a Ajustes → Cuenta y cámbialo en Tu rol.",
       "q4": "¿Pueden varias personas gestionar la misma cuenta?",
       "a4": "Los locales pueden formar un equipo y repartir permisos. Los creadores pueden invitar a coorganizadores y equipo por evento.",
       "q5": "¿Y si tengo que cancelar?",
@@ -5283,7 +5348,7 @@
       "paidTitle": "Cobro directo",
       "paidBody": "El dinero va a tu propia cuenta de Stripe. Usha gestiona el pago.",
       "trustTitle": "Verificado con BankID",
-      "trustBody": "Todos los creadores se identifican con Mobile BankID, así los alumnos saben a quién reservan."
+      "trustBody": "Los creadores se identifican con Mobile BankID, así los alumnos saben a quién reservan."
     },
     "steps": {
       "heading": "Cómo empezar",
@@ -5428,7 +5493,7 @@
       },
       "payout": {
         "label": "Liquidación",
-        "usha": "El dinero llega a tu propia cuenta de Stripe en el momento de la compra y pasa a tu banco según el calendario de Stripe.",
+        "usha": "El dinero pasa por Stripe. Se transfiere al día siguiente de la noche y suele estar en la cuenta en un par de días.",
         "tickster": "Sin información pública.",
         "billetto": "3–5 días laborables después del evento. Compras con tarjeta de forma continua vía Stripe Connect; Swish y PayPal tras el evento."
       },

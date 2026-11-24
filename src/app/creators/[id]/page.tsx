@@ -28,6 +28,9 @@ import { readShareToken, shareTokenMatches } from "@/lib/profiles/share-link";
 import { isAdminById } from "@/lib/admin/check";
 import { InstructorMinutesCard } from "@/components/instructor-minutes-card";
 import { indexable } from "@/lib/seo/metadata";
+import { visibleVenueEvents, formatEventDate, isTestEvent } from "@/lib/venues/public-events";
+import { isCancelled } from "@/lib/entrance/door-link";
+import { stockholmDay } from "@/lib/tickets/event-day";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -101,7 +104,7 @@ export default async function CreatorProfilePage(props: Props) {
     createAdminClient()
       .from("profiles")
       .select(
-        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_title, coaching_credentials, slug, is_public, share_token"
+        "id, full_name, avatar_url, bio, category, location, hourly_rate, website, company_verified_at, categories, locations, rates, websites, social_instagram, social_x, social_facebook, contact_email, contact_phone, whitelabel_enabled, whitelabel_brand_name, whitelabel_logo_url, whitelabel_primary_color, whitelabel_accent_color, whitelabel_accent_color_2, whitelabel_accent_color_3, bankid_verified_at, bankid_name, offers_coaching, coaching_hourly_rate_sek, coaching_specialties, coaching_title, coaching_credentials, slug, is_public, share_token, role"
       )
       .eq(column, params.id)
       .maybeSingle(),
@@ -147,7 +150,11 @@ export default async function CreatorProfilePage(props: Props) {
   //
   // Bara bekräftade kopplingar visas: annars kunde vem som helst tagga en
   // populär lokal och göra sitt evenemang synligt på dess sida.
-  const { data: hostedEvents } = await supabase
+  //
+  // Passerade, inställda och testkvällar visas inte: det här är det första en
+  // lokal ser av sig själv hos oss, och då ska det vara vad som händer härnäst.
+  // Klippkort (utan datum) kommer efter kvällarna.
+  const { data: hostedRows } = await supabase
     .from("listings")
     .select("id, title, event_date, event_time, event_location, price, profiles!user_id(full_name)")
     .eq("venue_profile_id", profile.id)
@@ -155,7 +162,9 @@ export default async function CreatorProfilePage(props: Props) {
     .neq("user_id", profile.id)
     .eq("is_active", true)
     .eq("is_public", true)
+    .or(`event_date.gte.${stockholmDay(new Date())},event_date.is.null`)
     .order("event_date", { ascending: true });
+  const hostedEvents = visibleVenueEvents(hostedRows ?? [], stockholmDay(new Date()));
 
   // Coaching på The Lab säljs som instruktörsminuter på ett öppet event, inte
   // från profilen. Profilen visar därför nästa öppna kväll och låter minuterna
@@ -555,7 +564,7 @@ export default async function CreatorProfilePage(props: Props) {
                       )}
                     </div>
                     <p className="text-xs text-[var(--usha-muted)]">
-                      {[ev.event_date, ev.event_time?.slice(0, 5)].filter(Boolean).join(" · ")}
+                      {ev.event_date ? formatEventDate(ev.event_date, ev.event_time, locale) : null}
                     </p>
                     {organiser?.full_name && (
                       <p className="mt-1 text-xs text-[var(--usha-muted)]">
@@ -732,9 +741,18 @@ export default async function CreatorProfilePage(props: Props) {
         {(() => {
           const eventsWithDates = (listings || []).filter((l) => l.event_date);
           if (eventsWithDates.length === 0 && passListings.length === 0) return null;
-          const today = new Date().toISOString().split("T")[0];
-          const upcoming = eventsWithDates.filter((l) => l.event_date! >= today).sort((a, b) => a.event_date!.localeCompare(b.event_date!));
-          const past = eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
+          const today = stockholmDay(new Date());
+          // Inställda kvällar och testevenemang hör inte hemma bland det som
+          // kommer. En lokals sida visar inte heller passerade kvällar: den
+          // lokal som tittar på sig själv ska se vad som händer härnäst.
+          const isVenue = (profile as { role?: string | null }).role === "venue";
+          const upcoming = eventsWithDates
+            .filter((l) => l.event_date! >= today && !isCancelled(l.title) && !isTestEvent(l.title))
+            .sort((a, b) => a.event_date!.localeCompare(b.event_date!));
+          const past = isVenue
+            ? []
+            : eventsWithDates.filter((l) => l.event_date! < today).sort((a, b) => b.event_date!.localeCompare(a.event_date!));
+          if (upcoming.length === 0 && past.length === 0 && passListings.length === 0) return null;
           return (
             <div className="mt-10">
               <div className="mb-4 flex items-center justify-between gap-3">

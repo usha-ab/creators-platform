@@ -1,20 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 import { ChevronDown } from "lucide-react";
 
-export function Faq() {
-  const t = useTranslations("landing");
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+/**
+ * Frågor och svar som dragspel. Texterna kommer färdigöversatta från
+ * serversidan: de publika sidornas klientprovider bär bara ett fåtal
+ * namespace (lib/i18n/client-namespaces.ts), och en sidas FAQ ska inte
+ * tvinga in hela sin namespace i varje besökares HTML.
+ */
+export function Faq({ title, titleHighlight, items }: { title: string; titleHighlight?: string; items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
-  const items = [1, 2, 3, 4, 5].map((n) => ({ q: t(`faq.q${n}`), a: t(`faq.a${n}`) }));
 
   return (
     <section className="relative py-16 px-4 sm:py-24 sm:px-6">
       <div className="relative z-10 mx-auto max-w-3xl">
         <div className="mb-10 text-center sm:mb-14">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-            {t("faq.title")} <span className="text-gradient">{t("faq.titleHighlight")}</span>
+            {title} {titleHighlight && <span className="text-gradient">{titleHighlight}</span>}
           </h2>
         </div>
         <div className="space-y-3">
@@ -26,6 +34,8 @@ export function Faq() {
                 className={`rounded-2xl border bg-[var(--usha-card)] transition-all ${isOpen ? "border-[var(--usha-gold)]/30" : "border-[var(--usha-border)] hover:border-[var(--usha-gold)]/20"}`}
               >
                 <button
+                  type="button"
+                  aria-expanded={isOpen}
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="flex w-full items-center justify-between gap-4 p-5 text-left"
                 >

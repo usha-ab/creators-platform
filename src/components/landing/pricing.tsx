@@ -20,8 +20,9 @@ interface Card {
  * EN NIVÅ, FÖR ALLA ROLLER. Guld och Premium för kreatörer togs bort
  * 2026-11-13: ingen betalade för dem (sex konton, alla beviljade utan
  * kostnad) och nivåerna låste just det som gör Usha annorlunda — kiosken,
- * statistiken, att låta någon annan skanna. Kreatören betalar 8 % när hen
- * säljer, lokalen enligt avtal, publiken ingenting. Publik- och venue-nivåerna
+ * statistiken, att låta någon annan skanna. Den som säljer betalar 3,5 % +
+ * 3,50 kr per biljett (#586), lokalen enligt sitt eget avtal, publiken
+ * ingenting. Publik- och venue-nivåerna
  * avvecklades redan 2026-09-29 (se lib/stripe/config.ts).
  *
  * Sidan får aldrig visa ett pris som inte går att teckna, eller en förmån som

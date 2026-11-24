@@ -103,8 +103,9 @@ export function buildOnboardingSteps(ctx: OnboardingContext): OnboardingStep[] {
     required: true,
   });
 
-  // BankID — required for creators; for venues an optional alternative to company
-  // verification (marketplace visibility needs company OR bankid).
+  // BankID — required for creators. For venues it is not needed to approve other
+  // organisers' events, but it IS required to create their own (events/actions.ts),
+  // so the label says so instead of "optional".
   if (!isVenue) {
     steps.push({
       key: "bankid",

@@ -57,6 +57,10 @@ const nextConfig = {
       { source: "/taxi/chatt", destination: "/taxi?utm_source=chatt&utm_medium=dm&utm_campaign=taxidansare", permanent: false },
       { source: "/undervisa/insta", destination: "/undervisa?utm_source=instagram&utm_medium=social&utm_campaign=instruktor&utm_content=reel", permanent: false },
       { source: "/undervisa/chatt", destination: "/undervisa?utm_source=chatt&utm_medium=dm&utm_campaign=instruktor", permanent: false },
+      // Lokaler kallar sig lokaler, inte platser: "usha.se/for-lokaler" ska
+      // fungera när någon säger det högt. Utan regeln tolkades den som en
+      // kreatörsadress ([slug]) och gav 404.
+      { source: "/for-lokaler", destination: "/for-platser", permanent: false },
       // Jämförelsen med Tickster och Billetto: "usha.se/vs" går att säga högt.
       { source: "/vs", destination: "/jamfor", permanent: false },
       { source: "/vs/insta", destination: "/jamfor?utm_source=instagram&utm_medium=social&utm_campaign=jamfor&utm_content=reel", permanent: false },

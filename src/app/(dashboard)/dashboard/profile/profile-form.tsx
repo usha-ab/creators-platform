@@ -605,15 +605,13 @@ export default function ProfileForm({ profile, isPaidTier, isPremium, isCustomer
         </div>
       </div>}
 
-      {/* White label - Premium only. Ankare, se kommentaren vid slug. */}
+      {/* White label. Öppet för alla sedan nivåerna togs bort (#584); märket
+          "Premium" är därför borta. Ankare, se kommentaren vid slug. */}
       {!isCustomer && <div id="whitelabel" style={{ scrollMarginTop: "5rem" }} className={`space-y-4 rounded-xl border p-5 ${isPremium ? "border-[var(--usha-premium)]/20 bg-[var(--usha-premium)]/5" : "border-[var(--usha-border)] opacity-60"}`}>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold flex items-center gap-2">
               {t("whitelabelTitle")}
-              <span className="rounded-full bg-[var(--usha-premium)]/15 px-2 py-0.5 text-[10px] font-bold uppercase text-[var(--usha-premium)]">
-                {t("whitelabelBadge")}
-              </span>
             </h3>
             <p className="mt-0.5 text-[10px] text-[var(--usha-muted)]">
               {isPremium

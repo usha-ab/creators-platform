@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SeriesCard } from "@/components/series-card";
 import { groupBySeries } from "@/lib/listings/group-series";
 import { BROWSABLE_TYPES } from "@/lib/listings/browse";
-import { upcomingOrUndated } from "@/lib/listings/time-window";
+import { todayStockholm } from "@/lib/listings/time-window";
 import { getBookingCounts } from "@/lib/listings/popularity";
 import { loadEveningCrew } from "@/lib/taxi/crew";
 
@@ -17,9 +17,9 @@ import { loadEveningCrew } from "@/lib/taxi/crew";
  * en hel skärm innan något konkret dök upp, trots att frågan nästan alltid är
  * densamma: vad händer, och när?
  *
- * Här ligger svaret i stället. Samma kort som på /upplevelser, samma
- * filtrering — kommande plus det som saknar datum, utan klippkort — så att
- * sidan aldrig visar något annat än listan gör.
+ * Här ligger svaret i stället. Samma kort som på /upplevelser, men bara
+ * kvällar med datum från i dag och framåt — inte tjänster utan datum och inte
+ * klippkort. Frågan här är "vad händer, och när?".
  *
  * Renderas inte alls när utbudet är tomt. En rubrik över ett tomrum är sämre
  * än ingen rubrik.
@@ -36,7 +36,10 @@ export async function WhatsOn() {
     .eq("is_active", true)
     .eq("is_public", true)
     .or(BROWSABLE_TYPES)
-    .or(upcomingOrUndated())
+    // Bara kvällar med datum. Datumlösa tjänster (PT-pass, företagsevent)
+    // fick knappen "Köp biljett" bredvid danskvällarna och fick startsidan att
+    // se ut som en annan sorts plattform. De finns kvar på /upplevelser.
+    .gte("event_date", todayStockholm())
     // Närmast i tiden först; det som saknar datum hamnar sist, som i listan.
     .order("event_date", { ascending: true, nullsFirst: false })
     // Hämta brett och välj ut nedan — sex rader rakt av blev sex kvällar ur

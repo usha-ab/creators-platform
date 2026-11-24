@@ -98,11 +98,11 @@
   "roles": {
     "customer": "Publik",
     "creator": "Kreatör",
-    "venue": "Venue"
+    "venue": "Lokal"
   },
   "roleToggle": {
     "locked": "{role} är låst",
-    "lockedHint": "Gå till Prenumeration för att byta roll",
+    "lockedHint": "Gå till Inställningar → Konto för att byta roll",
     "switchTo": "Byt till {role}-vy",
     "lockedLabel": "{role} – låst"
   },
@@ -146,7 +146,7 @@
     "back": "Tillbaka",
     "title": "Om oss",
     "lead": "Usha är bolaget bakom Usha Platform — plattformen för mänskligt uttryck.",
-    "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usha Platform samlar kreatörer, upplevelser och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Alla kreatörer är BankID-verifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
+    "p1": "Vi tror att de bästa stunderna uppstår när människor möts på riktigt — i rörelse, i lek och i skapande. Usha Platform samlar kreatörer, lokaler och deltagare på ett och samma ställe, där passion möter professionalism och varje bokning känns trygg. Kreatörerna är identitetsverifierade och alla betalningar hanteras säkert, så att du kan fokusera på det som faktiskt betyder något: upplevelsen.",
     "p2": "Usha grundades av Pablo Acosta, som arbetar i skärningspunkten mellan dans, teknik och community-building. Visionen är enkel: bygga en plats där kreativitet får leva, talanger får synas och människor får komma närmare varandra.",
     "roadmapTitle": "Vart vi är på väg",
     "p3": "Vi bygger steg för steg, med riktiga upplevelser från dag ett. Grunden är återkommande kvällar i Stockholm — öppen dansträning varje vecka, där alla är välkomna oavsett nivå. Därifrån växer vi vidare till månadsfester och, längre fram, en årlig festival som samlar hela gemenskapen.",
@@ -307,7 +307,7 @@
     "progress": "{done}/{total} klart",
     "completeProfile": "Komplettera din profil",
     "verifyBankid": "Verifiera med BankID",
-    "verifyBankidOptional": "Verifiera med BankID (valfritt)",
+    "verifyBankidOptional": "Verifiera med BankID (krävs för egna evenemang)",
     "verifyCompany": "Verifiera ditt bolag (org.nr)",
     "addTerms": "Lägg till dina köpvillkor",
     "createFirstService": "Skapa din första tjänst",
@@ -414,7 +414,7 @@
     "topCreators": "Topp Kreatörer",
     "noCreatorsYet": "Inga kreatörer ännu",
     "clubsAndStudios": "Klubbar & Studios",
-    "noVenuesYet": "Inga platser att visa ännu",
+    "noVenuesYet": "Inga lokaler att visa ännu",
     "commission": "{commission} provision",
     "calendar": "Kalender",
     "revenue": "Intäkter",
@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Anslut bankkonto och se dina utbetalningar",
     "noPlansTitle": "Ingen prenumeration att teckna",
     "noPlansCustomer": "Ditt konto är gratis och har allt du behöver för att köpa biljetter, se dem i appen och följa det du gillar. Går du ofta är klippkortet det som sänker priset — det köper du på kvällens sida, inte här.",
-    "noPlansVenue": "Lokaler har ingen prenumeration hos oss. Villkoren för en lokal skrivs i stället per avtal, med den fördelning ni kommer överens om. Hör av dig så tar vi det därifrån.",
+    "noPlansVenue": "Lokaler har ingen prenumeration hos oss. Profilen är gratis, och den som säljer biljetter betalar 3,5 % + 3,50 kr per biljett. Villkoren i övrigt bestämmer vi i ett eget avtal med varje lokal. Skriv till pablo.acosta@usha.se.",
     "subtitle": "Hantera din plan och betalningar.",
     "paymentSuccess": "Betalningen lyckades! Din plan är nu aktiv.",
     "betaNotice": "Beta-period — alla funktioner är upplåsta gratis för alla användare.",
@@ -497,7 +497,7 @@
       "loginTitle": "Logga in – Usha Platform",
       "loginDescription": "Logga in på ditt Usha-konto för att hantera event, biljetter och bokningar.",
       "signupTitle": "Skapa konto – Usha Platform",
-      "signupDescription": "Skapa ett konto som kreatör, plats eller besökare. Kreatörer verifieras med BankID."
+      "signupDescription": "Skapa ett konto som kreatör, lokal eller besökare. Kreatörer verifieras med BankID."
     },
     "welcomeBack": "Välkommen tillbaka",
     "loginToAccount": "Logga in på ditt konto",
@@ -538,7 +538,7 @@
     "howToUse": "Hur vill du använda Usha Platform?",
     "roleCreator": "Kreatör",
     "roleCreatorDesc": "Jag erbjuder kreativa tjänster",
-    "roleExperience": "Venue",
+    "roleExperience": "Lokal",
     "roleExperienceDesc": "Jag driver en verksamhet",
     "roleCustomer": "Publik",
     "roleCustomerDesc": "Jag vill boka upplevelser",
@@ -628,7 +628,7 @@
       "menuAriaLabel": "Meny",
       "login": "Logga in",
       "forCreators": "Kreatör",
-      "forVenues": "Plats",
+      "forVenues": "Lokal",
       "forAudience": "Publik",
       "shop": "Shop",
       "sellTickets": "Sälj biljetter",
@@ -816,7 +816,7 @@
       "subtitle": "Vi tar säkerhet på allvar. Alla som erbjuder tjänster och upplevelser på Usha Platform är identitetsverifierade med svenskt BankID.",
       "bankid": {
         "title": "BankID-verifierade kreatörer",
-        "desc": "Alla kreatörer och upplevelser verifierar sin identitet med Mobilt BankID innan de skapar konto. Du vet alltid vem du bokar."
+        "desc": "Kreatörer verifierar sin identitet med Mobilt BankID innan de skapar konto, och den som lägger upp ett evenemang är BankID-verifierad. Du vet vem du bokar."
       },
       "payment": {
         "title": "Säker betalning",
@@ -836,7 +836,7 @@
       "subtitle": "Ingen månadskostnad och ingen nivå att köpa. Du betalar 3,5 % + 3,50 kr per såld biljett, och allt ingår från första dagen.",
       "roleUser": "Publik",
       "roleCreator": "Kreatör",
-      "roleExperience": "Venue",
+      "roleExperience": "Lokal",
       "free": "Gratis",
       "freeDesc": "Allt som finns, för alla som säljer",
       "ctaFree": "Kom igång gratis",
@@ -844,20 +844,20 @@
       "publikFree1": "Köp biljett utan att skapa konto",
       "publikFree2": "QR-biljetten kommer direkt på mejl",
       "publikFree3": "Väntelista som hör av sig när en plats blir ledig",
-      "upplevelseFree1": "Lägg upp era kvällar utan månadskostnad",
-      "upplevelseFree2": "Ni väljer modell: intäktsdelning eller provision",
-      "upplevelseFree3": "Avräkning per kväll, utbetalning dagen efter",
-      "subtitleVenue": "Ta emot kreatörer, fyll kvällarna och håll ekonomin samlad. Lokalen sätter villkoren, plattformen sköter biljetter, incheckning och avräkning.",
+      "upplevelseFree1": "Gratis profil, ingen månadskostnad",
+      "upplevelseFree2": "Den som säljer betalar 3,5 % + 3,50 kr per biljett",
+      "upplevelseFree3": "Avräkning per kväll. Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar",
+      "subtitleVenue": "Ta emot kreatörer, fyll kvällarna och håll ekonomin samlad. Villkoren bestämmer vi i ett eget avtal med varje lokal, och plattformen sköter biljetter, incheckning och avräkning.",
       "subtitleCustomer": "Kontot kostar ingenting. Du betalar för det du går på, och biljetten fungerar även utan konto.",
       "publikFreeDesc": "Allt du behöver för att gå på saker",
       "ctaVenue": "Skapa lokalkonto",
       "publikFree5": "Biljetter, klippkort och kalender samlat",
-      "upplevelseFreeDesc": "Lokalen sätter villkoren",
+      "upplevelseFreeDesc": "Villkoren i ett eget avtal med varje lokal",
       "upplevelseFree4": "Er personal kan skanna i dörren, behörighet per kväll",
       "upplevelseFree5": "Statistik och deltagarlistor för era kvällar",
       "footnoteCreator": "Provisionen tas bara när du säljer: 3,5 % + 3,50 kr per biljett, alltså 8,05 kr på en biljett för 130 kr. Gratis event kostar 0 kr, och det finns varken startavgift, bindningstid eller något att uppgradera till. Samma villkor för alla, oavsett storlek.",
       "footnoteCustomer": "Vi tar ingen prenumeration av dig. Klippkort och medlemskap säljs av kreatören själv.",
-      "footnoteVenue": "Det kostar ingenting att vara lokal hos oss. Vi tar vår del av kvällen enligt det ni kommit överens om — intäktsdelning eller provision, aldrig båda och aldrig en fast avgift.",
+      "footnoteVenue": "Profilen är gratis. Den som säljer biljetter betalar 3,5 % + 3,50 kr per biljett. Villkoren i övrigt bestämmer vi i ett eget avtal med varje lokal.",
       "kreatorOne1": "Obegränsat antal event, serier och tjänster",
       "kreatorOne2": "3,5 % + 3,50 kr per såld biljett, 0 kr på gratis event",
       "kreatorOne3": "QR-biljetter, flera biljettyper, rabattkoder och väntelista",
@@ -875,7 +875,7 @@
       "q2": "Behöver jag BankID?",
       "a2": "Värdar och kreatörer verifieras med BankID — det skapar trygghet för alla. Deltagare kan oftast köpa biljett utan att verifiera sig.",
       "q3": "Hur får jag betalt?",
-      "a3": "Pengar från biljettförsäljning går via Stripe direkt till ditt konto. Du kan ta ut snabbt — första snabbutbetalningen varje månad är avgiftsfri.",
+      "a3": "Pengarna från biljetterna går via Stripe. De förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
       "q4": "Kan gäster köpa utan konto?",
       "a4": "Ja. Gäster kan köpa en biljett med bara e-post och få en QR-kod att visa vid dörren — inget konto krävs.",
       "q5": "Kan jag ta hjälp av andra?",
@@ -901,17 +901,19 @@
       "privacy": "Integritetspolicy",
       "refundPolicy": "Avbokning och återbetalning",
       "cookies": "Cookiepolicy",
+      "refund": "Återbetalning",
       "security": "Säkerhet",
       "copyright": "© 2026 Usha AB. Alla rättigheter förbehållna.",
       "builtWith": "Byggd med kärlek i Sverige",
       "instructors": "Instruktörer",
-      "haveYourSay": "Tyck till"
+      "haveYourSay": "Tyck till",
+      "guide": "Guide: så fungerar Usha"
     },
     "doors": {
       "heading": "Var börjar du?",
       "creatorLabel": "Jag är kreatör",
       "creatorDesc": "Hitta uppdrag och scener",
-      "venueLabel": "Jag har en plats",
+      "venueLabel": "Jag har en lokal",
       "venueDesc": "Fyll kalendern med kuraterade kreatörer",
       "audienceLabel": "Jag vill uppleva",
       "audienceDesc": "Upptäck upplevelser nära dig"
@@ -1361,7 +1363,7 @@
   "appProfile": {
     "defaultName": "Användare",
     "roleCreator": "Kreatör",
-    "roleExperience": "Venue",
+    "roleExperience": "Lokal",
     "roleUser": "Publik",
     "memberSinceFallback": "nyligen",
     "points": "{points} poäng",
@@ -1395,7 +1397,7 @@
     "services": {
       "heading": "Tjänster",
       "empty": "Inga tjänster publicerade ännu.",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "guests": "{min}–{max} gäster"
     },
@@ -1440,7 +1442,7 @@
       "perksLabel": "Förmåner: {perks}",
       "openButton": "Boka",
       "modalTitle": "Boka: {title}",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "durationMin": "{minutes} min",
       "queueInQueueTitle": "Du är i kön!",
       "queuePosition": "Plats {position}",
@@ -1509,7 +1511,7 @@
       "loading": "Laddar...",
       "buy": "Köp biljett",
       "discountedPriceSek": "{discounted} SEK",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "chooseTicket": "Välj biljett"
     },
     "report": {
@@ -1544,7 +1546,7 @@
       "heading": "Digitalt innehåll",
       "errorSomethingWrong": "Något gick fel",
       "errorCouldNotStartPurchase": "Kunde inte starta köp",
-      "priceSek": "{price} SEK",
+      "priceSek": "{price} kr",
       "buy": "Köp"
     },
     "promo": {
@@ -1610,7 +1612,6 @@
       "contactPhonePlaceholder": "+46 70 123 45 67",
       "contactHint": "Visas på din publika profil om du vill bli kontaktad direkt.",
       "whitelabelTitle": "White label",
-      "whitelabelBadge": "Premium",
       "whitelabelHintPremium": "Visa din egen branding istället för Usha Platform på din publika profil.",
       "whitelabelHintLocked": "Uppgradera till Premium för att använda din egen branding.",
       "whitelabelBrandNameLabel": "Varumärkesnamn",
@@ -1942,7 +1943,7 @@
     "net": "Netto",
     "amountSek": "{amount} SEK",
     "amountSekNegative": "-{amount} SEK",
-    "nextPayout": "Nästa utbetalning: Fredag 23:00",
+    "nextPayout": "Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
     "statTotalEarned": "Totalt intjänat",
     "statCommission": "Commission",
     "statPaidOut": "Utbetalt",
@@ -2101,11 +2102,11 @@
   "forCreators": {
     "meta": {
       "title": "För kreatörer – verktygen för att driva dina kvällar | Usha Platform",
-      "description": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen — i ett verktyg. Ingen månadskostnad, 8 % provision när du säljer."
+      "description": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen — i ett verktyg. Ingen månadskostnad, 3,5 % + 3,50 kr per såld biljett."
     },
     "hero": {
       "h1": "Allt som krävs för att driva en kväll",
-      "sub": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen. Ingen månadskostnad — 8 % provision när du säljer, 0 kr när kvällen är gratis.",
+      "sub": "Biljetter, klippkort, medlemskap, incheckning i dörren och avräkning med lokalen. Ingen månadskostnad — 3,5 % + 3,50 kr per såld biljett, 0 kr när kvällen är gratis.",
       "cta": "Skapa profil gratis"
     },
     "loop": {
@@ -2115,35 +2116,98 @@
   },
   "forVenues": {
     "meta": {
-      "title": "För platser – Usha Platform",
-      "description": "Levande program utan att bli bokare. Kuraterade, BankID-verifierade kreatörer, biljetter och incheckning som sköter sig själva, och avräkning per kväll."
+      "title": "För lokaler – Usha Platform",
+      "description": "Levande program utan att bli bokare. Arrangörer lägger upp kvällar hos er, ni godkänner, vi sköter biljetter, incheckning och avräkning. Gratis profil, villkoren i ett eget avtal."
     },
     "hero": {
       "h1": "Levande program – utan att bli bokare",
-      "sub": "Fyll kalendern med kuraterade, BankID-verifierade kreatörer. Ingen månadskostnad, ingen bokningsadministration — ni sätter villkoren och får er andel avräknad per kväll.",
-      "cta": "Anslut din plats"
+      "sub": "Arrangörer lägger upp kvällar hos er, ni godkänner vad som syns och vi sköter biljetter, incheckning och avräkning. Profilen är gratis. Villkoren bestämmer vi i ett eget avtal med varje lokal.",
+      "cta": "Skapa lokalkonto"
     },
     "loop": {
-      "title": "Så snurrar kretsloppet för dig",
-      "body": "Fler kreatörer betyder mer att fylla din scen med. Och fler besökare upptäcker din plats genom upplevelserna du erbjuder."
+      "title": "Så snurrar kretsloppet för er",
+      "body": "Fler kreatörer betyder mer att fylla er scen med. Och fler besökare hittar er lokal genom kvällarna som händer hos er."
     },
     "values": {
       "one": "Kuraterat utbud",
-      "oneDesc": "BankID-verifierade kreatörer, redo att uppträda.",
+      "oneDesc": "Kreatörerna verifierar sig med BankID innan de kan sälja.",
       "two": "Ingen bokningsadmin",
-      "twoDesc": "Vi sköter förfrågningar och betalningar – du slipper jobbet.",
-      "three": "Du behåller kontrollen",
-      "threeDesc": "Säg ja till det som passar din plats. Inget tvång."
+      "twoDesc": "Vi sköter biljetter, incheckning och avräkning – ni slipper jobbet.",
+      "three": "Ni behåller kontrollen",
+      "threeDesc": "Inget syns hos er förrän ni sagt ja. Säg ja till det som passar er lokal."
+    },
+    "steps": {
+      "title": "Så går det till",
+      "s1Title": "Skapa ett lokalkonto",
+      "s1Body": "Registrera er som lokal och fyll i lokalsidan: namn, bild, adress och några rader om er. Det tar några minuter och kostar ingenting.",
+      "s2Title": "Vi skriver ett avtal",
+      "s2Body": "Vi pratar igenom hur ni vill ha det och skriver ett eget avtal med er. Där står vad som gäller för just er lokal.",
+      "s3Title": "Arrangörer lägger upp kvällar hos er",
+      "s3Body": "När en arrangör anger er som lokal får ni en förfrågan. Ni godkänner eller tackar nej. Vill ni lägga upp egna kvällar gör ni det själva; då behöver kontot vara verifierat med BankID.",
+      "s4Title": "Kvällen",
+      "s4Body": "Gästerna får sin biljett med QR-kod på mejl. I dörren checkar ni in med en vanlig telefon, och er personal kan få rätt att skanna.",
+      "s5Title": "Avräkning och pengar",
+      "s5Body": "Varje kväll räknas av för sig, med underlag. Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar."
+    },
+    "control": {
+      "title": "Ni bestämmer över er lokal",
+      "sub": "Det här finns i appen för lokaler i dag.",
+      "approvalTitle": "Godkännandet",
+      "approvalBody": "Ingenting syns på er sida förrän ni godkänt det under Förfrågningar. Ett godkännande gäller ett arrangemang i taget.",
+      "teamTitle": "Lokalteamet",
+      "teamBody": "Bjud in kollegor och välj vad var och en får göra: skapa evenemang, se bokningar, skanna i dörren, skicka utskick, se statistik eller sköta lokalsidan. Ekonomin stannar alltid hos ägarkontot.",
+      "pageTitle": "Lokalsidan",
+      "pageBody": "Er egen sida på usha.se samlar kvällarna hos er, de kommande först. Den kan ni dela i era egna kanaler.",
+      "followersTitle": "Följarmejlen",
+      "followersBody": "Besökare kan följa er. När en ny kväll hos er är godkänd får följarna ett mejl om den."
+    },
+    "cost": {
+      "title": "Vad det kostar",
+      "free": "0 kr",
+      "freeSub": "för profilen, utan månadskostnad",
+      "fee": "Den som säljer biljetter betalar 3,5 % + 3,50 kr per såld biljett.",
+      "freeEvents": "Gratis evenemang kostar ingenting.",
+      "agreementTitle": "Avtalet med er",
+      "agreementBody": "Villkoren bestämmer vi i ett eget avtal med varje lokal. Det finns ingen standardmodell. En lokal delar intäkterna, en annan hyr ut ytan och en tredje lånar ut den gratis som marknadsföring.",
+      "payout": "Får ni en andel av kvällen förs pengarna över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
+      "payee": "För att ta emot pengar behöver lokalen vara ett aktiebolag, en enskild firma eller en förening med svenskt organisationsnummer och F-skatt."
+    },
+    "example": {
+      "eyebrow": "Exempel",
+      "title": "Bacchi Syre i Stockholm",
+      "body": "Hos Bacchi Syre går The Lab på torsdagar och Brazilian Zouk på tisdagar. Arrangörerna lägger upp kvällarna, Bacchi godkänner dem, och kvällarna syns på Bacchis egen sida.",
+      "cta": "Se Bacchi Syres sida"
+    },
+    "faq": {
+      "title": "Frågor &",
+      "titleHighlight": "svar",
+      "q1": "Vad kostar det att vara lokal?",
+      "a1": "Profilen är gratis och det finns ingen månadskostnad. Den som säljer biljetter betalar 3,5 % + 3,50 kr per biljett. Allt annat står i avtalet med er.",
+      "q2": "Syns något hos oss utan att vi sagt ja?",
+      "a2": "Nej. En kväll som en arrangör lägger upp hos er hamnar under Förfrågningar och syns på er sida först när ni godkänt den.",
+      "q3": "Behöver vi BankID?",
+      "a3": "För att godkänna andras kvällar behövs det inte. För att lägga upp egna kvällar behöver kontot vara verifierat med BankID.",
+      "q4": "När får vi pengarna?",
+      "a4": "Varje kväll räknas av för sig. Pengarna förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
+      "q5": "Vem kan ta emot pengar?",
+      "a5": "Ett aktiebolag, en enskild firma eller en förening med svenskt organisationsnummer och F-skatt. Vi kontrollerar det innan första utbetalningen.",
+      "q6": "Kan personalen hjälpa till utan att se ekonomin?",
+      "a6": "Ja. I lokalteamet väljer ni vad var och en får göra, till exempel skanna i dörren eller lägga upp kvällar. Utbetalningar och bolagsuppgifter kan inte delas ut."
+    },
+    "contact": {
+      "title": "Vill ni prata först?",
+      "body": "Skriv till oss, så berättar vi hur det kan se ut hos er. Hela genomgången av plattformen finns i guiden.",
+      "guide": "Läs guiden"
     }
   },
   "forAudience": {
     "meta": {
       "title": "Upptäck upplevelser – Usha Platform",
-      "description": "Hitta och boka kreativa upplevelser nära dig – tryggt. Alla kreatörer och platser är BankID-verifierade, betalning via Stripe."
+      "description": "Hitta och boka kreativa upplevelser nära dig – tryggt. Kreatörerna är BankID-verifierade, betalning via Stripe."
     },
     "hero": {
       "h1": "Upptäck kreativa upplevelser nära dig",
-      "sub": "Hitta och boka tryggt. Alla kreatörer och platser är BankID-verifierade, och betalningen går via Stripe.",
+      "sub": "Hitta och boka tryggt. Kreatörerna är BankID-verifierade, och betalningen går via Stripe.",
       "cta": "Utforska upplevelser"
     },
     "loop": {
@@ -2180,7 +2244,7 @@
     "heading": "Utforska kretsloppet",
     "hub": "Tillbaka till startsidan",
     "creators": "För kreatörer",
-    "venues": "För platser",
+    "venues": "För lokaler",
     "audience": "För publik"
   },
   "tokens": {
@@ -4368,17 +4432,18 @@
       "seeAll": "Se alla upplevelser"
     },
     "meta": {
-      "title": "Platser – Usha Platform",
-      "description": "Utforska lokaler, studior, klubbar och platser där kreativa upplevelser händer.",
-      "ogTitle": "Platser – Usha Platform",
-      "ogDescription": "Lokaler och platser för kreativa upplevelser."
+      "title": "Lokaler – Usha Platform",
+      "description": "Lokaler med kommande kvällar på Usha: dans, musik och upplevelser.",
+      "ogTitle": "Lokaler – Usha Platform",
+      "ogDescription": "Lokaler med kommande kvällar på Usha."
     },
-    "title": "Platser",
-    "subtitle": "Lokaler, studior och platser där upplevelser händer",
-    "searchPlaceholder": "Sök plats eller stad...",
-    "eventCount": "{count, plural, =1 {# upplevelse} other {# upplevelser}}",
-    "emptySearch": "Inga platser hittade.",
-    "empty": "Inga platser ännu."
+    "title": "Lokaler",
+    "subtitle": "Lokaler med kommande kvällar hos oss",
+    "searchPlaceholder": "Sök lokal eller stad...",
+    "emptySearch": "Inga lokaler hittade.",
+    "empty": "Inga lokaler med kommande kvällar just nu.",
+    "upcomingCount": "{count, plural, =1 {# kommande kväll} other {# kommande kvällar}}",
+    "registryHeading": "Fler platser med kommande evenemang"
   },
   "taxidansarePage": {
     "meta": {
@@ -4463,7 +4528,7 @@
   "connections": {
     "title": "Kopplingar",
     "subtitle": "Konton du kopplat till Usha, och deras status.",
-    "creatorOnly": "Kopplingar är till för kreatörs- och platskonton. Byt roll på din profil för att koppla konton.",
+    "creatorOnly": "Kopplingar är till för kreatörs- och lokalkonton. Byt roll under Inställningar → Konto för att koppla konton.",
     "instagramPurpose": "Hämta bilder och klipp till ditt galleri.",
     "facebookPurpose": "Hämta media och synka event till din sida.",
     "tiktokPurpose": "Hämta klipp till ditt galleri.",
@@ -4892,13 +4957,13 @@
       "creator": "Kreatör — du erbjuder tjänster: dans, foto, musik, workshops.",
       "venue": "Venue — du driver en plats och vill fylla den med arrangemang.",
       "customer": "Publik — du vill boka och gå på saker.",
-      "roleNote": "Väljer du fel går det att ändra efteråt under Prenumeration → Byt roll. Men det är enklare att välja rätt från början, och det är det vanligaste misstaget vi ser.",
+      "roleNote": "Väljer du fel går det att ändra efteråt under Inställningar → Konto. Men det är enklare att välja rätt från början, och det är det vanligaste misstaget vi ser.",
       "companyTitle": "Privatperson eller företag",
       "companyBody": "Säljer du något får du också ange om du gör det som privatperson eller via företag. Företag verifierar organisationsnummer och visas med det på kvittot. Det går att ändra senare."
     },
     "s2": {
       "title": "Verifiera dig",
-      "p1": "Alla som säljer något på plattformen legitimerar sig med Mobilt BankID. Det är inte en formalitet — det är hela skälet till att en okänd person vågar boka dig.",
+      "p1": "Alla som lägger upp något att sälja på plattformen legitimerar sig med Mobilt BankID. Det är inte en formalitet — det är hela skälet till att en okänd person vågar boka dig.",
       "p2": "Du hittar det under Profil. Det tar under en minut och behöver bara göras en gång.",
       "companyTitle": "Har du företag",
       "companyBody": "Fyll också i organisationsnumret under Profil och tryck Verifiera bolag. Vi kontrollerar det mot EU:s företagsregister och fyller i firmanamnet automatiskt."
@@ -4908,7 +4973,7 @@
       "profileTitle": "Fyll din profil",
       "profileBody": "Bild, en kort text om vad du gör, och var du håller till. Profilen är det folk ser innan de bokar, så några minuter här är väl använda.",
       "servicesTitle": "Lägg upp tjänster",
-      "servicesBody": "En tjänst är något någon kan boka: en privatlektion, en fotografering, ett DJ-pass. Sätt pris och längd. På gratisplanen kan du ha tre stycken.",
+      "servicesBody": "En tjänst är något någon kan boka: en privatlektion, en fotografering, ett DJ-pass. Sätt pris och längd.",
       "calendarTitle": "Öppna kalendern",
       "calendarBody": "Markera när du är tillgänglig, så kan folk boka de tiderna direkt utan att fråga först. Du kan prenumerera på din Usha-kalender från telefonens kalenderapp.",
       "eventsTitle": "Eller skapa evenemang",
@@ -4934,7 +4999,7 @@
       "commissionBody": "Vi tar 3,5 procent plus 3,50 kr per såld biljett i provision, samma för alla. Gratis event kostar inget. Du ser alltid din andel innan du publicerar.",
       "betaNote": "Under betaperioden är alla planer gratis.",
       "payoutTitle": "När pengarna kommer",
-      "payoutBody": "Pengarna går via Stripe till ditt konto. Du kan ta ut dem när de blivit tillgängliga — kortbetalningar frisläpps inte i samma sekund, utan efter Stripes avräkning."
+      "payoutBody": "Pengarna går via Stripe till ditt konto. De förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar."
     },
     "faq": {
       "title": "Vanliga frågor",
@@ -4943,7 +5008,7 @@
       "q2": "Kan gäster köpa utan konto?",
       "a2": "Ja. De anger mejladress och får en QR-kod att visa i dörren.",
       "q3": "Jag valde fel roll vid registreringen",
-      "a3": "Gå till Prenumeration och välj Byt roll. Där finns de andra rollernas planer.",
+      "a3": "Gå till Inställningar → Konto och byt roll under Din roll.",
       "q4": "Kan flera personer sköta samma konto?",
       "a4": "Lokaler kan bygga ett team och dela ut behörigheter. Kreatörer kan bjuda in medarrangörer och crew per evenemang.",
       "q5": "Vad händer om jag ställer in?",
@@ -5283,7 +5348,7 @@
       "paidTitle": "Betalt direkt",
       "paidBody": "Pengarna går till ditt eget Stripe-konto. Usha sköter betalningen.",
       "trustTitle": "Verifierad med BankID",
-      "trustBody": "Alla kreatörer identifierar sig med Mobilt BankID, så eleverna vet vem de bokar."
+      "trustBody": "Kreatörerna identifierar sig med Mobilt BankID, så eleverna vet vem de bokar."
     },
     "steps": {
       "heading": "Så kommer du igång",
@@ -5428,7 +5493,7 @@
       },
       "payout": {
         "label": "Utbetalning",
-        "usha": "Pengarna landar på ditt eget Stripe-konto vid köpet och går vidare till banken enligt Stripes schema.",
+        "usha": "Pengarna går via Stripe. De förs över dagen efter kvällen och brukar finnas på kontot inom ett par dagar.",
         "tickster": "Ingen publik uppgift.",
         "billetto": "3–5 arbetsdagar efter eventet. Kortköp löpande via Stripe Connect; Swish och PayPal efter eventet."
       },

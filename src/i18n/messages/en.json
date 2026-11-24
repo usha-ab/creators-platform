@@ -102,7 +102,7 @@
   },
   "roleToggle": {
     "locked": "{role} is locked",
-    "lockedHint": "Go to Subscription to change your role",
+    "lockedHint": "Go to Settings → Account to change your role",
     "switchTo": "Switch to {role} view",
     "lockedLabel": "{role} – locked"
   },
@@ -146,7 +146,7 @@
     "back": "Back",
     "title": "About us",
     "lead": "Usha is the company behind Usha Platform — the platform for human expression.",
-    "p1": "We believe the best moments happen when people meet for real — in movement, in play, and in creating together. Usha Platform brings creators, experiences and participants together in one place, where passion meets professionalism and every booking feels safe. All creators are BankID-verified and all payments are handled securely, so you can focus on what actually matters: the experience.",
+    "p1": "We believe the best moments happen when people meet for real — in movement, in play, and in creating together. Usha Platform brings creators, venues and participants together in one place, where passion meets professionalism and every booking feels safe. Creators are identity-verified and all payments are handled securely, so you can focus on what actually matters: the experience.",
     "p2": "Usha was founded by Pablo Acosta, who works at the intersection of dance, technology and community-building. The vision is simple: to build a place where creativity can thrive, talent can be seen, and people can come closer together.",
     "roadmapTitle": "Where we're headed",
     "p3": "We're building step by step, with real experiences from day one. The foundation is recurring nights in Stockholm — open dance training every week, where everyone is welcome regardless of level. From there we grow into monthly parties and, further ahead, an annual festival that brings the whole community together.",
@@ -307,7 +307,7 @@
     "progress": "{done}/{total} done",
     "completeProfile": "Complete your profile",
     "verifyBankid": "Verify with BankID",
-    "verifyBankidOptional": "Verify with BankID (optional)",
+    "verifyBankidOptional": "Verify with BankID (required for your own events)",
     "verifyCompany": "Verify your company (org. no.)",
     "addTerms": "Add your purchase terms",
     "createFirstService": "Create your first service",
@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Connect your bank account and see your payouts",
     "noPlansTitle": "No subscription to buy",
     "noPlansCustomer": "Your account is free and already has everything you need to buy tickets, keep them in the app and follow what you like. If you come often, the class pass is what lowers the price — you buy it on the night's own page, not here.",
-    "noPlansVenue": "Venues don't subscribe with us. A venue's terms are set per agreement instead, with whatever split you agree on. Get in touch and we'll take it from there.",
+    "noPlansVenue": "Venues don't subscribe with us. The profile is free, and whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is set in a separate agreement with each venue. Write to pablo.acosta@usha.se.",
     "subtitle": "Manage your plan and payments.",
     "paymentSuccess": "Payment successful! Your plan is now active.",
     "betaNotice": "Beta period — all features are unlocked for free for all users.",
@@ -816,7 +816,7 @@
       "subtitle": "We take security seriously. Everyone offering services and experiences on Usha Platform is identity-verified with Swedish BankID.",
       "bankid": {
         "title": "BankID-verified creators",
-        "desc": "All creators and experiences verify their identity with Mobile BankID before creating an account. You always know who you're booking."
+        "desc": "Creators verify their identity with Mobile BankID before creating an account, and whoever puts on an event is BankID-verified. You know who you're booking."
       },
       "payment": {
         "title": "Secure payment",
@@ -844,20 +844,20 @@
       "publikFree1": "Buy a ticket without creating an account",
       "publikFree2": "The QR ticket arrives straight to your inbox",
       "publikFree3": "A waiting list that calls you when a spot opens",
-      "upplevelseFree1": "List your nights with no monthly cost",
-      "upplevelseFree2": "You choose the model: revenue share or commission",
-      "upplevelseFree3": "Settlement per night, payout the next day",
-      "subtitleVenue": "Host creators, fill your nights and keep the finances in one place. The venue sets the terms; the platform handles tickets, check-in and settlement.",
+      "upplevelseFree1": "Free profile, no monthly fee",
+      "upplevelseFree2": "Whoever sells pays 3.5% + SEK 3.50 per ticket",
+      "upplevelseFree3": "Settlement per night. The money is transferred the day after the night and is usually in the account within a couple of days",
+      "subtitleVenue": "Host creators, fill your nights and keep the finances in one place. We agree the terms in a separate agreement with each venue, and the platform handles tickets, check-in and settlement.",
       "subtitleCustomer": "An account costs nothing. You pay for what you attend, and the ticket works without an account.",
       "publikFreeDesc": "Everything you need to attend",
       "ctaVenue": "Create a venue account",
       "publikFree5": "Tickets, punch cards and calendar in one place",
-      "upplevelseFreeDesc": "The venue sets the terms",
+      "upplevelseFreeDesc": "Terms in a separate agreement with each venue",
       "upplevelseFree4": "Your staff can scan at the door, access per night",
       "upplevelseFree5": "Statistics and attendee lists for your nights",
       "footnoteCreator": "Commission is charged only when you sell: 3.5% + SEK 3.50 per ticket, which is SEK 8.05 on a SEK 130 ticket. Free events cost SEK 0, and there is no setup fee, no lock-in and nothing to upgrade to. The same terms for everyone, whatever your size.",
       "footnoteCustomer": "We take no subscription from you. Punch cards and memberships are sold by the creator.",
-      "footnoteVenue": "Being a venue with us costs nothing. We take our share of the night on the terms you agreed — revenue share or commission, never both and never a fixed fee.",
+      "footnoteVenue": "The profile is free. Whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is set in a separate agreement with each venue.",
       "kreatorOne1": "Unlimited events, series and services",
       "kreatorOne2": "3.5% + SEK 3.50 per sold ticket, SEK 0 on free events",
       "kreatorOne3": "QR tickets, multiple ticket types, discount codes and waitlist",
@@ -875,7 +875,7 @@
       "q2": "Do I need BankID?",
       "a2": "Hosts and creators verify with BankID — it keeps everyone safe. Attendees can usually buy a ticket without verifying.",
       "q3": "How do I get paid?",
-      "a3": "Ticket revenue flows via Stripe straight to your account. You can cash out fast — the first instant payout each month is free.",
+      "a3": "Ticket money goes through Stripe. It is transferred the day after the night and is usually in the account within a couple of days.",
       "q4": "Can guests buy without an account?",
       "a4": "Yes. Guests can buy a ticket with just an email and get a QR code to show at the door — no account needed.",
       "q5": "Can I get help from others?",
@@ -901,11 +901,13 @@
       "privacy": "Privacy Policy",
       "refundPolicy": "Cancellations and refunds",
       "cookies": "Cookie Policy",
+      "refund": "Refunds",
       "security": "Security",
       "copyright": "© 2026 Usha AB. All rights reserved.",
       "builtWith": "Built with love in Sweden",
       "instructors": "Instructors",
-      "haveYourSay": "Have your say"
+      "haveYourSay": "Have your say",
+      "guide": "Guide: how Usha works"
     },
     "doors": {
       "heading": "Where do you start?",
@@ -1610,7 +1612,6 @@
       "contactPhonePlaceholder": "+46 70 123 45 67",
       "contactHint": "Shown on your public profile if you want to be contacted directly.",
       "whitelabelTitle": "White label",
-      "whitelabelBadge": "Premium",
       "whitelabelHintPremium": "Show your own branding instead of Usha Platform on your public profile.",
       "whitelabelHintLocked": "Upgrade to Premium to use your own branding.",
       "whitelabelBrandNameLabel": "Brand name",
@@ -1942,7 +1943,7 @@
     "net": "Net",
     "amountSek": "{amount} SEK",
     "amountSekNegative": "-{amount} SEK",
-    "nextPayout": "Next payout: Friday 23:00",
+    "nextPayout": "The money is transferred the day after the night and is usually in the account within a couple of days.",
     "statTotalEarned": "Total earned",
     "statCommission": "Commission",
     "statPaidOut": "Paid out",
@@ -2101,11 +2102,11 @@
   "forCreators": {
     "meta": {
       "title": "For creators – the tools to run your nights | Usha Platform",
-      "description": "Tickets, punch cards, memberships, door check-in and settlement with the venue — in one tool. No monthly cost, 8% commission when you sell."
+      "description": "Tickets, punch cards, memberships, door check-in and settlement with the venue — in one tool. No monthly cost, 3.5% + SEK 3.50 per ticket sold."
     },
     "hero": {
       "h1": "Everything it takes to run a night",
-      "sub": "Tickets, punch cards, memberships, door check-in and settlement with the venue. No monthly cost — 8% commission when you sell, 0 SEK when the night is free.",
+      "sub": "Tickets, punch cards, memberships, door check-in and settlement with the venue. No monthly cost — 3.5% + SEK 3.50 per ticket sold, 0 SEK when the night is free.",
       "cta": "Create a profile for free"
     },
     "loop": {
@@ -2116,34 +2117,97 @@
   "forVenues": {
     "meta": {
       "title": "For venues – Usha Platform",
-      "description": "A living programme without becoming a booker. Curated, BankID-verified creators, tickets and check-in that run themselves, and settlement per night."
+      "description": "A living programme without becoming a booker. Organisers put on nights at your venue, you approve them, we handle tickets, check-in and settlement. Free profile, terms in your own agreement."
     },
     "hero": {
       "h1": "A living programme – without becoming a booker",
-      "sub": "Fill the calendar with curated, BankID-verified creators. No monthly cost, no booking admin — you set the terms and your share is settled per night.",
-      "cta": "Connect your venue"
+      "sub": "Organisers put on nights at your venue, you approve what is shown, and we handle tickets, check-in and settlement. The profile is free. We agree the terms in a separate agreement with each venue.",
+      "cta": "Create a venue account"
     },
     "loop": {
       "title": "How the cycle works for you",
-      "body": "More creators means more to fill your stage with. And more visitors discover your venue through the experiences you offer."
+      "body": "More creators means more to fill your stage with. And more visitors find your venue through the nights that happen there."
     },
     "values": {
       "one": "A curated supply",
-      "oneDesc": "BankID-verified creators, ready to perform.",
+      "oneDesc": "Creators verify themselves with BankID before they can sell.",
       "two": "No booking admin",
-      "twoDesc": "We handle requests and payments – you skip the legwork.",
+      "twoDesc": "We handle tickets, check-in and settlement – you skip the legwork.",
       "three": "You stay in control",
-      "threeDesc": "Say yes to what fits your venue. No obligations."
+      "threeDesc": "Nothing appears at your venue until you have said yes. Say yes to what fits your venue."
+    },
+    "steps": {
+      "title": "How it works",
+      "s1Title": "Create a venue account",
+      "s1Body": "Sign up as a venue and fill in your venue page: name, image, address and a few lines about you. It takes a few minutes and costs nothing.",
+      "s2Title": "We sign an agreement",
+      "s2Body": "We talk through how you want it to work and sign a separate agreement with you. It sets out what applies to your venue.",
+      "s3Title": "Organisers put on nights at your venue",
+      "s3Body": "When an organiser names you as the venue, you get a request. You approve it or decline. If you want to put on your own nights, you do that yourselves; the account then needs to be verified with BankID.",
+      "s4Title": "The night",
+      "s4Body": "Guests get their ticket with a QR code by email. At the door you check them in with an ordinary phone, and your staff can be allowed to scan.",
+      "s5Title": "Settlement and money",
+      "s5Body": "Each night is settled on its own, with a statement. The money is transferred the day after the night and is usually in the account within a couple of days."
+    },
+    "control": {
+      "title": "You decide over your venue",
+      "sub": "This is in the app for venues today.",
+      "approvalTitle": "Approval",
+      "approvalBody": "Nothing appears on your page until you have approved it under Requests. An approval covers one event at a time.",
+      "teamTitle": "The venue team",
+      "teamBody": "Invite colleagues and choose what each of them can do: create events, see bookings, scan at the door, send messages, see statistics or manage the venue page. The finances always stay with the owner account.",
+      "pageTitle": "The venue page",
+      "pageBody": "Your own page on usha.se gathers the nights at your venue, upcoming ones first. You can share it in your own channels.",
+      "followersTitle": "Follower emails",
+      "followersBody": "Visitors can follow you. When a new night at your venue is approved, your followers get an email about it."
+    },
+    "cost": {
+      "title": "What it costs",
+      "free": "0 SEK",
+      "freeSub": "for the profile, no monthly fee",
+      "fee": "Whoever sells tickets pays 3.5% + SEK 3.50 per ticket sold.",
+      "freeEvents": "Free events cost nothing.",
+      "agreementTitle": "Your agreement",
+      "agreementBody": "We agree the terms in a separate agreement with each venue. There is no standard model. One venue shares the revenue, another rents out the space and a third lends it for free as marketing.",
+      "payout": "If you get a share of the night, the money is transferred the day after the night and is usually in the account within a couple of days.",
+      "payee": "To receive money, the venue needs to be a limited company, a sole trader or an association with a Swedish organisation number and F-tax."
+    },
+    "example": {
+      "eyebrow": "Example",
+      "title": "Bacchi Syre in Stockholm",
+      "body": "At Bacchi Syre, The Lab runs on Thursdays and Brazilian Zouk on Tuesdays. The organisers put on the nights, Bacchi approves them, and the nights appear on Bacchi's own page.",
+      "cta": "See Bacchi Syre's page"
+    },
+    "faq": {
+      "title": "Questions &",
+      "titleHighlight": "answers",
+      "q1": "What does it cost to be a venue?",
+      "a1": "The profile is free and there is no monthly fee. Whoever sells tickets pays 3.5% + SEK 3.50 per ticket. Everything else is in your agreement.",
+      "q2": "Can anything appear at our venue without our yes?",
+      "a2": "No. A night an organiser puts on at your venue lands under Requests and only appears on your page once you have approved it.",
+      "q3": "Do we need BankID?",
+      "a3": "Not to approve other people's nights. To put on your own nights, the account needs to be verified with BankID.",
+      "q4": "When do we get the money?",
+      "a4": "Each night is settled on its own. The money is transferred the day after the night and is usually in the account within a couple of days.",
+      "q5": "Who can receive money?",
+      "a5": "A limited company, a sole trader or an association with a Swedish organisation number and F-tax. We check this before the first payout.",
+      "q6": "Can staff help without seeing the finances?",
+      "a6": "Yes. In the venue team you choose what each person can do, for example scan at the door or put on nights. Payouts and company details cannot be shared."
+    },
+    "contact": {
+      "title": "Want to talk first?",
+      "body": "Write to us and we will tell you how it could work at your venue. The full walkthrough of the platform is in the guide.",
+      "guide": "Read the guide"
     }
   },
   "forAudience": {
     "meta": {
       "title": "Discover experiences – Usha Platform",
-      "description": "Find and book creative experiences near you – safely. Every creator and venue is BankID-verified, payment via Stripe."
+      "description": "Find and book creative experiences near you – safely. Creators are BankID-verified, payment via Stripe."
     },
     "hero": {
       "h1": "Discover creative experiences near you",
-      "sub": "Find and book with confidence. Every creator and venue is BankID-verified, and payment goes through Stripe.",
+      "sub": "Find and book with confidence. Creators are BankID-verified, and payment goes through Stripe.",
       "cta": "Explore experiences"
     },
     "loop": {
@@ -4369,16 +4433,17 @@
     },
     "meta": {
       "title": "Venues – Usha Platform",
-      "description": "Explore venues, studios, clubs and places where creative experiences happen.",
+      "description": "Venues with upcoming nights on Usha: dance, music and experiences.",
       "ogTitle": "Venues – Usha Platform",
-      "ogDescription": "Venues and places for creative experiences."
+      "ogDescription": "Venues with upcoming nights on Usha."
     },
     "title": "Venues",
-    "subtitle": "Venues, studios and places where experiences happen",
+    "subtitle": "Venues with upcoming nights on Usha",
     "searchPlaceholder": "Search venue or city...",
-    "eventCount": "{count, plural, =1 {# experience} other {# experiences}}",
     "emptySearch": "No venues found.",
-    "empty": "No venues yet."
+    "empty": "No venues with upcoming nights right now.",
+    "upcomingCount": "{count, plural, =1 {# upcoming night} other {# upcoming nights}}",
+    "registryHeading": "More places with upcoming events"
   },
   "taxidansarePage": {
     "meta": {
@@ -4463,7 +4528,7 @@
   "connections": {
     "title": "Connections",
     "subtitle": "Accounts you have connected to Usha, and their status.",
-    "creatorOnly": "Connections are for creator and venue accounts. Change your role on your profile to connect accounts.",
+    "creatorOnly": "Connections are for creator and venue accounts. Change your role under Settings → Account to connect accounts.",
     "instagramPurpose": "Pull photos and clips into your gallery.",
     "facebookPurpose": "Pull media and sync events to your page.",
     "tiktokPurpose": "Pull clips into your gallery.",
@@ -4892,13 +4957,13 @@
       "creator": "Creator — you offer services: dance, photography, music, workshops.",
       "venue": "Venue — you run a place and want to fill it with events.",
       "customer": "Audience — you want to book things and go to them.",
-      "roleNote": "If you pick the wrong one you can change it later under Subscription → Change role. But it is easier to get it right from the start, and this is the most common mistake we see.",
+      "roleNote": "If you pick the wrong one you can change it later under Settings → Account. But it is easier to get it right from the start, and this is the most common mistake we see.",
       "companyTitle": "Individual or company",
       "companyBody": "If you sell anything you also say whether you do it as an individual or through a company. Companies verify their registration number and appear with it on the receipt. You can change this later."
     },
     "s2": {
       "title": "Verify yourself",
-      "p1": "Everyone who sells on the platform verifies their identity with Swedish Mobile BankID. It is not a formality — it is the whole reason a stranger dares to book you.",
+      "p1": "Everyone who puts something up for sale on the platform verifies their identity with Swedish Mobile BankID. It is not a formality — it is the whole reason a stranger dares to book you.",
       "p2": "You will find it under Profile. It takes under a minute and only has to be done once.",
       "companyTitle": "If you have a company",
       "companyBody": "Also enter your registration number under Profile and press Verify company. We check it against the EU business register and fill in the legal name automatically."
@@ -4908,7 +4973,7 @@
       "profileTitle": "Fill in your profile",
       "profileBody": "A picture, a short text about what you do, and where you are based. Your profile is what people see before they book, so a few minutes here are well spent.",
       "servicesTitle": "Add services",
-      "servicesBody": "A service is something someone can book: a private lesson, a photo session, a DJ set. Set a price and a length. On the free plan you can have three.",
+      "servicesBody": "A service is something someone can book: a private lesson, a photo session, a DJ set. Set a price and a length.",
       "calendarTitle": "Open your calendar",
       "calendarBody": "Mark when you are available and people can book those times directly without asking first. You can subscribe to your Usha calendar from your phone.",
       "eventsTitle": "Or create events",
@@ -4934,7 +4999,7 @@
       "commissionBody": "We take 3.5 percent plus SEK 3.50 per sold ticket in commission, the same for everyone. Free events cost nothing. You always see your share before you publish.",
       "betaNote": "During the beta all plans are free.",
       "payoutTitle": "When the money arrives",
-      "payoutBody": "The money goes through Stripe to your account. You can withdraw once it becomes available — card payments are not released the same second, but after Stripe settles them."
+      "payoutBody": "The money goes through Stripe to your account. It is transferred the day after the night and is usually in the account within a couple of days."
     },
     "faq": {
       "title": "Common questions",
@@ -4943,7 +5008,7 @@
       "q2": "Can guests buy without an account?",
       "a2": "Yes. They give an email address and get a QR code to show at the door.",
       "q3": "I picked the wrong role when signing up",
-      "a3": "Go to Subscription and choose Change role. The other roles' plans are there.",
+      "a3": "Go to Settings → Account and change it under Your role.",
       "q4": "Can several people manage the same account?",
       "a4": "Venues can build a team and hand out permissions. Creators can invite co-organisers and crew per event.",
       "q5": "What if I have to cancel?",
@@ -5283,7 +5348,7 @@
       "paidTitle": "Paid directly",
       "paidBody": "Money goes to your own Stripe account. Usha handles the payment.",
       "trustTitle": "Verified with BankID",
-      "trustBody": "Every creator identifies with Mobile BankID, so students know who they are booking."
+      "trustBody": "Creators identify with Mobile BankID, so students know who they are booking."
     },
     "steps": {
       "heading": "How to get started",
@@ -5428,7 +5493,7 @@
       },
       "payout": {
         "label": "Payout",
-        "usha": "The money lands in your own Stripe account at purchase and moves on to your bank on Stripe's schedule.",
+        "usha": "The money goes through Stripe. It is transferred the day after the night and is usually in the account within a couple of days.",
         "tickster": "No public information.",
         "billetto": "3–5 business days after the event. Card purchases continuously via Stripe Connect; Swish and PayPal after the event."
       },
