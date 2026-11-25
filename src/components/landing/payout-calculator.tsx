@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   commissionTextParts,
   formatKrFromOre,
+  isBelowMinimumPrice,
   PAYOUT_EXAMPLE_DEFAULT,
   PAYOUT_EXAMPLE_LIMITS,
   ticketPayoutExample,
@@ -79,7 +80,9 @@ export function PayoutCalculator() {
               net: fmt(ex.netOre),
               b: (chunks) => <strong className="text-[var(--usha-gold)]">{chunks}</strong>,
             })
-          : t("payoutCalc.freeNote")}
+          : isBelowMinimumPrice(priceKr)
+            ? t("payoutCalc.minPriceNote", { min: PAYOUT_EXAMPLE_LIMITS.minPriceKr })
+            : t("payoutCalc.freeNote")}
       </p>
 
       {ex.grossOre > 0 && (

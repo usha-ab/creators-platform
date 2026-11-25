@@ -23,6 +23,7 @@ import { resolveEventCity } from "@/lib/listings/city";
 import { approvalScopeKey, cleanMessage, type ApprovalStatus } from "@/lib/taxi/approvals";
 import { assignmentRoute } from "@/lib/assignments/route";
 import { extendPassesForCanceledEvening } from "@/lib/passes/expiry-extension";
+import { eventPricesAllowed, isAllowedTicketPrice, minPriceError } from "@/lib/stripe/min-price";
 
 /** Får instruktören pengarna direkt (eget bolag / Ushas konto) i stället för lön? */
 function paidDirectly(p: { is_company?: boolean | null; company_verified_at?: string | null; is_usha_owned_seller?: boolean | null }) {
@@ -400,6 +401,17 @@ export async function createEvent(formData: FormData) {
   const ticketTypes = parseTicketTypes(formData);
   const priceOverride = ticketTypes.length > 0 ? Math.min(...ticketTypes.map((t) => t.price)) : null;
 
+  // Lägsta pris: 0 (gratis) eller minst 50 kr, se min-price.ts.
+  if (
+    !eventPricesAllowed({
+      price: parsed.data.price,
+      earlyBirdPrice: parseAutomation(formData).early_bird_price,
+      ticketTypes,
+    })
+  ) {
+    return minPriceError();
+  }
+
   // Recurring series — generate one occurrence per date (only meaningful with
   // a start date). Each occurrence is its own bookable listing.
   const recurrence = (formData.get("recurrence") as string) || "none";
@@ -583,6 +595,10 @@ export async function duplicateEvent(
 
   if (fetchErr || !src) return { error: "Hittade inte originalet." };
 
+  // Kopian är ett nytt evenemang och följer regeln om lägsta pris, även om
+  // originalet skapades före den.
+  if (!isAllowedTicketPrice(src.price)) return minPriceError();
+
   const slug = await generateUniqueListingSlug(supabase, src.title, { dateSuffix: newDate });
 
   const { data: cloned, error: insErr } = await supabase
@@ -649,6 +665,30 @@ export async function updateEvent(id: string, formData: FormData) {
   const ticketTypes = parseTicketTypes(formData);
   const priceOverride = ticketTypes.length > 0 ? Math.min(...ticketTypes.map((t) => t.price)) : null;
   const effectivePrice = priceOverride ?? parsed.data.price;
+
+  // Lägsta pris (min-price.ts). Ett pris som redan står på raden får stå kvar,
+  // så ett evenemang från före regeln går att redigera utan att byta pris; ett
+  // nytt eller ändrat pris måste vara 0 eller minst 50 kr.
+  const [{ data: prevListing }, { data: prevTypes }] = await Promise.all([
+    admin.from("listings").select("price, early_bird_price").eq("id", id).maybeSingle(),
+    admin.from("ticket_types").select("id, price").eq("listing_id", id),
+  ]);
+  if (
+    !eventPricesAllowed(
+      {
+        price: parsed.data.price,
+        earlyBirdPrice: parseAutomation(formData).early_bird_price,
+        ticketTypes,
+      },
+      {
+        price: prevListing?.price ?? null,
+        earlyBirdPrice: prevListing?.early_bird_price != null ? Number(prevListing.early_bird_price) : null,
+        ticketTypes: ((prevTypes ?? []) as { id: string; price: number }[]).map((t) => ({ id: t.id, price: t.price })),
+      }
+    )
+  ) {
+    return minPriceError();
+  }
 
   // Capability gate (only when enforcement is on): a host turning an event into
   // a ticketed one must have unlocked event_pack for it. We never gate an event

@@ -6,6 +6,7 @@ import { utcToStockholmLocal } from "@/lib/time";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { formatKrFromOre, ticketPayoutExample } from "@/lib/stripe/payout-example";
+import { eventPricesAllowed, MIN_PAID_TICKET_PRICE_SEK, MIN_PRICE_ERROR_CODE } from "@/lib/stripe/min-price";
 import { ArrowLeft, ImagePlus, X, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import { uploadImage } from "@/lib/storage/upload-client";
@@ -91,7 +92,7 @@ export default function EventForm({
   selfName?: string;
   action: (
     formData: FormData
-  ) => Promise<{ error?: string; locked?: boolean; id?: string } | void>;
+  ) => Promise<{ error?: string; code?: string; locked?: boolean; id?: string } | void>;
   /** Still accepted by callers; upload now happens server-side via the API route. */
   userId?: string;
 }) {
@@ -193,16 +194,52 @@ export default function EventForm({
     }
   }
 
+  // Lägsta pris (min-price.ts): 0 kr eller minst 50 kr. Samma prövning som
+  // servern gör, så felet syns direkt och på rätt språk. Vid redigering får ett
+  // pris från före regeln stå kvar oförändrat.
+  function pricesOk(formData: FormData): boolean {
+    const num = (k: string) => {
+      const v = formData.get(k);
+      if (typeof v !== "string" || v.trim() === "") return null;
+      const n = Number(v.replace(",", "."));
+      return Number.isFinite(n) ? n : NaN;
+    };
+    let ticketTypes: { id?: string | null; price: number }[] = [];
+    try {
+      const raw = formData.get("ticket_types");
+      if (typeof raw === "string" && raw.trim()) ticketTypes = JSON.parse(raw);
+    } catch {
+      ticketTypes = [];
+    }
+    return eventPricesAllowed(
+      { price: num("price"), earlyBirdPrice: num("early_bird_price"), ticketTypes },
+      isEditing && event
+        ? {
+            price: event.price,
+            earlyBirdPrice: event.early_bird_price ?? null,
+            ticketTypes: (event.ticketTypes ?? []).map((tt) => ({ id: tt.id, price: tt.price })),
+          }
+        : null
+    );
+  }
+
   function handleSubmit(formData: FormData) {
     setSubmitError("");
+    const minPriceMsg = t("minPriceError", { min: MIN_PAID_TICKET_PRICE_SEK });
+    if (!pricesOk(formData)) {
+      setSubmitError(minPriceMsg);
+      toast.error(t("toastSaveFailedTitle"), minPriceMsg);
+      return;
+    }
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result && result.error) {
         // Persistent inline error (in addition to the toast): a toast is easy to
         // miss, and the page can scroll on submit, so a failed save otherwise
         // looks like nothing happened. Keep it visible next to the button.
-        setSubmitError(result.error);
-        toast.error(t("toastSaveFailedTitle"), result.error);
+        const msg = "code" in result && result.code === MIN_PRICE_ERROR_CODE ? minPriceMsg : result.error;
+        setSubmitError(msg);
+        toast.error(t("toastSaveFailedTitle"), msg);
         return;
       }
       // Ticketed event pending unlock: it was saved as a draft. Send the host to

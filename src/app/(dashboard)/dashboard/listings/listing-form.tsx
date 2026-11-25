@@ -8,6 +8,7 @@ import { CATEGORIES } from "@/lib/categories";
 import { uploadImage } from "@/lib/storage/upload-client";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import PlacesAutocomplete from "@/components/places-autocomplete";
+import { isAllowedPriceChange, MIN_PAID_TICKET_PRICE_SEK, MIN_PRICE_ERROR_CODE } from "@/lib/stripe/min-price";
 
 interface Listing {
   id: string;
@@ -39,7 +40,7 @@ export default function ListingForm({
   seriesOptions = [],
 }: {
   listing?: Listing;
-  action: (formData: FormData) => Promise<{ error?: string } | void>;
+  action: (formData: FormData) => Promise<{ error?: string; code?: string } | void>;
   creatorSubcategory?: string | null;
   /** Kreatörens egna serier, för klippkort som ska gälla som biljett. */
   seriesOptions?: { id: string; title: string }[];
@@ -83,10 +84,19 @@ export default function ListingForm({
       formData.set("image_url", imageUrl);
     }
     formData.set("listing_type", listingType);
+    // Lägsta pris (min-price.ts): 0 kr eller minst 50 kr. Ett pris från före
+    // regeln får stå kvar oförändrat när tjänsten redigeras.
+    const minPriceMsg = t("minPriceError", { min: MIN_PAID_TICKET_PRICE_SEK });
+    const priceRaw = String(formData.get("price") ?? "").trim();
+    const price = priceRaw === "" ? null : parseInt(priceRaw, 10);
+    if (!isAllowedPriceChange(price, listing?.price ?? null)) {
+      toast.error(t("saveFailed"), minPriceMsg);
+      return;
+    }
     startTransition(async () => {
       const result = await action(formData);
       if (result && "error" in result) {
-        toast.error(t("saveFailed"), result.error);
+        toast.error(t("saveFailed"), result.code === MIN_PRICE_ERROR_CODE ? minPriceMsg : result.error);
       } else {
         toast.success(listing ? t("savedToast") : t("createdToast"));
       }

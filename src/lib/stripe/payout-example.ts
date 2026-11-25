@@ -1,4 +1,5 @@
 import { PLATFORM_COMMISSION, platformCommissionOre } from "./commission";
+import { MIN_PAID_TICKET_PRICE_SEK } from "./min-price";
 
 /**
  * Räkneexemplet på säljsidorna: "säljer du 20 biljetter à 150 kr får du X kr".
@@ -23,8 +24,21 @@ export interface TicketPayoutExample {
   netOre: number;
 }
 
-/** Övre gräns för räknaren, så att ett felskrivet tal inte ger orimliga siffror. */
-export const PAYOUT_EXAMPLE_LIMITS = { maxPriceKr: 100_000, maxQty: 10_000 } as const;
+/**
+ * Gränser för räknaren. Övre gränsen hindrar att ett felskrivet tal ger
+ * orimliga siffror; den nedre är plattformens lägsta biljettpris (min-price.ts),
+ * så räknaren aldrig visar ett exempel på ett pris som inte går att sätta.
+ */
+export const PAYOUT_EXAMPLE_LIMITS = {
+  minPriceKr: MIN_PAID_TICKET_PRICE_SEK,
+  maxPriceKr: 100_000,
+  maxQty: 10_000,
+} as const;
+
+/** Ett betalt pris under lägsta priset: räknaren visar en förklaring i stället för siffror. */
+export function isBelowMinimumPrice(priceKr: number): boolean {
+  return Number.isFinite(priceKr) && priceKr > 0 && priceKr < PAYOUT_EXAMPLE_LIMITS.minPriceKr;
+}
 
 /** Standardexemplet på säljsidorna. */
 export const PAYOUT_EXAMPLE_DEFAULT = { priceKr: 150, qty: 20 } as const;
@@ -36,7 +50,10 @@ function clampInt(value: number, max: number): number {
 
 export function ticketPayoutExample(priceKr: number, qty: number): TicketPayoutExample {
   const n = clampInt(qty, PAYOUT_EXAMPLE_LIMITS.maxQty);
-  const price = Number.isFinite(priceKr) && priceKr > 0 ? Math.min(priceKr, PAYOUT_EXAMPLE_LIMITS.maxPriceKr) : 0;
+  const price =
+    Number.isFinite(priceKr) && priceKr >= PAYOUT_EXAMPLE_LIMITS.minPriceKr
+      ? Math.min(priceKr, PAYOUT_EXAMPLE_LIMITS.maxPriceKr)
+      : 0;
   const unitOre = Math.round(price * 100);
   if (n === 0 || unitOre === 0) return { grossOre: 0, commissionOre: 0, netOre: 0 };
   const grossOre = unitOre * n;

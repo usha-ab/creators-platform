@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canManageListing } from "@/lib/listings/manage-access";
 import { revalidatePath } from "next/cache";
+import { isAllowedTicketPrice, minPriceError } from "@/lib/stripe/min-price";
 
 // Returns a service-role client ONLY if the current user owns the listing OR is
 // an accepted co-organizer (can_manage). Access codes are admin, not money-out
@@ -37,6 +38,10 @@ export async function createAccessCode(listingId: string, formData: FormData) {
   // discount_price = final ticket price in kr. Empty / 0 = free ticket.
   const discRaw = formData.get("discount_price");
   const discountPrice = discRaw && Number(discRaw) > 0 ? Math.floor(Number(discRaw)) : null;
+  // Rabattpriset följer samma regel som biljettpriset: gratis eller minst 50 kr.
+  // Ett rabattpris på 20 kr ger samma förlust per biljett som ett ordinarie
+  // pris på 20 kr. Befintliga koder rörs inte (de kan inte redigeras här).
+  if (!isAllowedTicketPrice(discountPrice)) return minPriceError();
 
   const { error } = await admin
     .from("event_access_codes")

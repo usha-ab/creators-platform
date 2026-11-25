@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  ticketPayoutExample, commissionParts, commissionTextParts, formatKrFromOre, PAYOUT_EXAMPLE_DEFAULT, PAYOUT_EXAMPLE_LIMITS,
+  ticketPayoutExample, commissionParts, commissionTextParts, formatKrFromOre, PAYOUT_EXAMPLE_DEFAULT, PAYOUT_EXAMPLE_LIMITS, isBelowMinimumPrice,
 } from "../payout-example";
 import { platformCommissionOre, PLATFORM_COMMISSION } from "../commission";
 
@@ -39,10 +39,20 @@ describe("ticketPayoutExample (räkneexemplet på säljsidorna)", () => {
     expect(ticketPayoutExample(1e9, 1).grossOre).toBe(PAYOUT_EXAMPLE_LIMITS.maxPriceKr * 100);
   });
 
-  it("arrangörens del är positiv för biljetter från 5 kr", () => {
-    for (const kr of [5, 10, 50, 150, 450]) {
+  it("arrangörens del är positiv för alla tillåtna priser (från 50 kr)", () => {
+    for (const kr of [50, 51, 150, 450]) {
       expect(ticketPayoutExample(kr, 10).netOre).toBeGreaterThan(0);
     }
+  });
+
+  it("ger inget exempel för betalda priser under lägsta priset", () => {
+    const zero = { grossOre: 0, commissionOre: 0, netOre: 0 };
+    for (const kr of [1, 5, 10, 49, 49.99]) {
+      expect(ticketPayoutExample(kr, 10)).toEqual(zero);
+      expect(isBelowMinimumPrice(kr)).toBe(true);
+    }
+    expect(isBelowMinimumPrice(0)).toBe(false);
+    expect(isBelowMinimumPrice(50)).toBe(false);
   });
 
   it("commissionParts speglar PLATFORM_COMMISSION", () => {

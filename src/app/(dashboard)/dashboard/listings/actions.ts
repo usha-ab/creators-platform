@@ -10,6 +10,7 @@ import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug } from "@/lib/listings/slug";
 import { resolveEventCity } from "@/lib/listings/city";
 import { extendPassesForCanceledEvening } from "@/lib/passes/expiry-extension";
+import { isAllowedPriceChange, isAllowedTicketPrice, minPriceError } from "@/lib/stripe/min-price";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 const VALID_LISTING_TYPES = [
@@ -151,6 +152,8 @@ export async function createListing(formData: FormData) {
 
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
+  // Lägsta pris: 0 (gratis) eller minst 50 kr, även för klippkort. Se min-price.ts.
+  if (!isAllowedTicketPrice(parsed.data.price)) return minPriceError();
 
   // Coaching och B2B är taxidansarnas egna typer och förblir låsta.
   // KLIPPKORT (package) är det inte: en boxningstränare säljer 5- och
@@ -214,6 +217,18 @@ export async function updateListing(id: string, formData: FormData) {
 
   const parsed = parseListingForm(formData);
   if ("error" in parsed) return { error: parsed.error };
+
+  // Lägsta pris. Ett pris från före regeln får stå kvar oförändrat; ett nytt
+  // pris måste vara 0 eller minst 50 kr.
+  if (!isAllowedTicketPrice(parsed.data.price)) {
+    const { data: prev } = await supabase
+      .from("listings")
+      .select("price")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!isAllowedPriceChange(parsed.data.price, prev?.price ?? null)) return minPriceError();
+  }
 
   // Samma grind som i createListing: klippkort är öppet för alla kreatörer,
   // coaching och B2B är fortsatt taxidansarnas.

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createAccessCode, toggleAccessCode } from "./actions";
+import { isAllowedTicketPrice, MIN_PAID_TICKET_PRICE_SEK, MIN_PRICE_ERROR_CODE } from "@/lib/stripe/min-price";
 
 interface Code {
   id: string;
@@ -26,9 +27,16 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
     const form = e.currentTarget;
     const fd = new FormData(form);
     setError("");
+    const minPriceMsg = t("minPriceError", { min: MIN_PAID_TICKET_PRICE_SEK });
+    // Samma regel som servern: tomt/0 = gratis, annars minst 50 kr.
+    const disc = Number(fd.get("discount_price") || 0);
+    if (!isAllowedTicketPrice(Number.isFinite(disc) ? Math.floor(disc) : NaN)) {
+      setError(minPriceMsg);
+      return;
+    }
     start(async () => {
       const r = await createAccessCode(listingId, fd);
-      if (r?.error) setError(r.error);
+      if (r?.error) setError("code" in r && r.code === MIN_PRICE_ERROR_CODE ? minPriceMsg : r.error);
       else {
         form.reset();
         router.refresh();
@@ -67,7 +75,7 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
         <input
           name="discount_price"
           type="number"
-          min={1}
+          min={0}
           placeholder={t("discountPricePlaceholder")}
           className="rounded-lg border border-[var(--usha-border)] bg-[var(--usha-black)] px-3 py-2 text-sm"
         />
@@ -78,7 +86,7 @@ export function CodesManager({ listingId, codes }: { listingId: string; codes: C
         >
           {t("createCode")}
         </button>
-        <p className="text-xs text-[var(--usha-muted)] sm:col-span-5">{t("discountHint")}</p>
+        <p className="text-xs text-[var(--usha-muted)] sm:col-span-5">{t("discountHint", { min: MIN_PAID_TICKET_PRICE_SEK })}</p>
         {error && <p className="text-xs text-red-400 sm:col-span-5">{error}</p>}
       </form>
 
