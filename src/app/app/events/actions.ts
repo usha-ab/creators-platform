@@ -22,6 +22,7 @@ import { instructorJoinDeadline, instructorJoinOpen } from "@/lib/coaching/join-
 import { resolveEventCity } from "@/lib/listings/city";
 import { approvalScopeKey, cleanMessage, type ApprovalStatus } from "@/lib/taxi/approvals";
 import { assignmentRoute } from "@/lib/assignments/route";
+import { extendPassesForCanceledEvening } from "@/lib/passes/expiry-extension";
 
 /** Får instruktören pengarna direkt (eget bolag / Ushas konto) i stället för lön? */
 function paidDirectly(p: { is_company?: boolean | null; company_verified_at?: string | null; is_usha_owned_seller?: boolean | null }) {
@@ -786,7 +787,7 @@ export async function toggleEventActive(id: string, isActive: boolean) {
   // Owner or accepted co-organizer may publish/unpublish. Mutate via service role
   // after the check (listings RLS is owner-only; co-organizers don't own the row).
   const admin = createAdminClient();
-  const { data: L } = await admin.from("listings").select("user_id").eq("id", id).maybeSingle();
+  const { data: L } = await admin.from("listings").select("user_id, is_active").eq("id", id).maybeSingle();
   if (!L) return { error: "Evenemanget hittades inte." };
   if (L.user_id !== user.id && !(await canManageListing(admin, user.id, id))) {
     return { error: "Du har inte behörighet att ändra det här evenemanget." };
@@ -798,6 +799,10 @@ export async function toggleEventActive(id: string, isActive: boolean) {
     .eq("id", id);
 
   if (error) return { error: "Kunde inte ändra status." };
+
+  // En publicerad kväll i en serie som tas bort ur programmet är en inställd
+  // kväll för den som har klippkort: korten förlängs (villkoren punkt 5).
+  if (L.is_active && !isActive) await extendPassesForCanceledEvening(admin, id);
 
   revalidatePath("/app/events");
   return { success: true };

@@ -2608,7 +2608,11 @@
     "swishBack": "Pagar con tarjeta",
     "swishInvalidEmail": "Escribe un correo válido para que podamos enviarte la entrada.",
     "swishNoCredit": "El saldo de bienvenida solo se aplica al pagar con tarjeta.",
-    "swishContinue": "Continuar a"
+    "swishContinue": "Continuar a",
+    "passTermsValidUntil": "Válido hasta el {date}. Las sesiones que no se usen antes caducan.",
+    "passTermsWithdrawal": "Tienes 14 días de derecho de desistimiento desde el día de compra. Desistes con el botón Desistir de la compra en la entrada.",
+    "passTermsPolicyLink": "Cancelaciones y reembolsos",
+    "passEarlyStartLabel": "Quiero poder usar el bono de inmediato. Si desisto en 14 días, se descuenta una parte proporcional por las sesiones que haya usado."
   },
   "eventErrors": {
     "notReleased": "Las entradas aún no están disponibles.",
@@ -2780,7 +2784,7 @@
   },
   "ticketPage": {
     "passChip": "Bono · quedan {remaining} de {total}",
-    "passValidUntil": "Válido hasta {date}",
+    "passValidUntil": "Válido hasta el {date}. Las sesiones no usadas caducan entonces.",
     "passCovers": "Cada uso da acceso a: {covers}",
     "walletApple": "Añadir a Apple Wallet",
     "walletGoogle": "Guardar en Google Wallet",
@@ -2838,7 +2842,8 @@
         "nameMissing": "Escribe tu nombre.",
         "rateLimited": "Demasiados intentos. Espera un minuto y vuelve a intentarlo.",
         "failed": "Algo salió mal. Inténtalo de nuevo, o escribe a support@usha.se y te ayudamos."
-      }
+      },
+      "refundNone": "Se usaron todas las sesiones, así que no se devuelve ningún importe."
     }
   },
   "settlement": {
@@ -4750,7 +4755,14 @@
     "withdrawalSellerIntro": "{buyer} ha ejercido el derecho de desistimiento, que vale 14 días para bonos y paquetes sin fecha fija. El bono está cerrado y ya no vale en la puerta.",
     "withdrawalSellerRefundStripe": "Se ha devuelto el importe completo al comprador a través de Stripe. Tu parte se retira de tu cuenta de Stripe.",
     "withdrawalSellerRefundManual": "El comprador pagó con {method}. Usha devuelve el importe como máximo el {date}.",
-    "withdrawalSellerOutro": "No tienes que hacer nada. Si tienes dudas, escribe a support@usha.se."
+    "withdrawalSellerOutro": "No tienes que hacer nada. Si tienes dudas, escribe a support@usha.se.",
+    "withdrawalRefundNone": "Se usaron todas las sesiones y habías pedido empezar a usar el bono de inmediato, así que no se devuelve ningún importe.",
+    "passReceiptValidUntil": "Válido hasta el {date}. Las sesiones que no se usen antes caducan.",
+    "passReceiptWithdrawal": "Tienes 14 días de derecho de desistimiento desde el día de compra. Desistes con el botón Desistir de la compra en la entrada. Si el vendedor cancela una noche, el bono se prolonga.",
+    "passExpirySubject": "Tu bono {title} vale hasta el {date}",
+    "passExpiryIntro": "Te quedan {remaining} sesiones en {title}. El bono vale hasta el {date} inclusive.",
+    "passExpiryLapse": "Las sesiones que no se usen antes caducan y no se devuelven.",
+    "passExpiryCta": "Ver el bono"
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",

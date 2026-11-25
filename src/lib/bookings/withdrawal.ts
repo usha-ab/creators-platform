@@ -13,8 +13,8 @@ import { stockholmLocalToUtcISO } from "@/lib/time";
  *   säljarens regler.
  * - Ångrar köparen sig ska allt tillbaka, serviceavgiften också (14 och 16 §§).
  *   Avdrag för använda klipp får bara göras om köparen uttryckligen begärt att
- *   få börja använda kortet inom fristen (15 § p. 3). Kassan frågar inte det
- *   än, så här dras ingenting av.
+ *   få börja använda kortet inom fristen (15 § p. 3). Kassan frågar det med en
+ *   kryssruta som inte är förifylld (pass_early_start_requested_at).
  *
  * Juristens försiktiga tolkning: ångerrätt ges även för kort som bara gäller
  * vissa kvällar i en serie, och oavsett om säljaren uppgett sig som
@@ -94,13 +94,34 @@ export function withdrawalState(
     : { kind: "expired", lastDay };
 }
 
+export interface WithdrawalRefundLike {
+  amount_paid: number | null;
+  sessions_total?: number | null;
+  sessions_redeemed?: number | null;
+  minutes_total?: number | null;
+  minutes_redeemed?: number | null;
+  pass_early_start_requested_at?: string | null;
+}
+
 /**
- * Hur mycket som betalas tillbaka. Utan köparens uttryckliga begäran om att få
- * börja direkt dras ingenting av, inte ens för använda klipp (15 § p. 3).
- * Hela beloppet inkluderar serviceavgiften: amount_paid är det köparen betalade.
+ * Hur mycket som betalas tillbaka.
+ *
+ * Utan köparens uttryckliga begäran om att få börja direkt dras ingenting av,
+ * inte ens för använda klipp (15 § p. 3). Med begäran dras "en proportionell
+ * andel av det avtalade priset" av: pris ÷ antal klipp × använda klipp
+ * (minuter på samma sätt). Hela beloppet inkluderar serviceavgiften:
+ * amount_paid är det köparen betalade, och avdraget räknas på samma belopp.
  */
-export function withdrawalRefundOre(b: Pick<WithdrawalBookingLike, "amount_paid">): number {
-  return Math.max(0, b.amount_paid ?? 0);
+export function withdrawalRefundOre(b: WithdrawalRefundLike): number {
+  const paid = Math.max(0, b.amount_paid ?? 0);
+  if (!b.pass_early_start_requested_at) return paid;
+  const share = (used: number | null | undefined, total: number | null | undefined) =>
+    (total ?? 0) > 0 ? Math.min(1, Math.max(0, used ?? 0) / (total as number)) : 0;
+  const usedShare = Math.max(
+    share(b.sessions_redeemed, b.sessions_total),
+    share(b.minutes_redeemed, b.minutes_total)
+  );
+  return Math.max(0, paid - Math.round(paid * usedShare));
 }
 
 /** Jämför e-postadresser utan hänsyn till versaler och mellanslag. */

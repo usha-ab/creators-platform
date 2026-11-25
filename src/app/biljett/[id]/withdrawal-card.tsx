@@ -16,6 +16,7 @@ export interface WithdrawalLabels {
   doneBody: string;
   refundStripe: string;
   refundManual: string;
+  refundNone: string;
   errors: Record<string, string>;
   policyLink: string;
 }
@@ -41,7 +42,7 @@ export default function WithdrawalCard({
   initialEmail: string;
   labels: WithdrawalLabels;
   /** Redan ångrat: visa beskedet direkt. */
-  done?: { receivedAt: string; refundMethod: "stripe" | "manual" } | null;
+  done?: { receivedAt: string; refundMethod: "stripe" | "manual" | "none" } | null;
 }) {
   const [step, setStep] = useState<"idle" | "form">("idle");
   const [name, setName] = useState(initialName);
@@ -86,7 +87,11 @@ export default function WithdrawalCard({
           {labels.doneBody.replace("{when}", when)}
         </p>
         <p className="mt-2 text-xs leading-relaxed text-[var(--usha-muted)]">
-          {done.refundMethod === "stripe" ? labels.refundStripe : labels.refundManual}
+          {done.refundMethod === "none"
+            ? labels.refundNone
+            : done.refundMethod === "stripe"
+              ? labels.refundStripe
+              : labels.refundManual}
         </p>
       </div>
     );

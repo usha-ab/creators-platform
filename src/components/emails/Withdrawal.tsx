@@ -27,8 +27,11 @@ export interface WithdrawalMailProps {
   receivedAt: Date;
   /** Det som betalas tillbaka, i ÖREN. */
   refundOre: number;
-  /** stripe = redan återbetalt till kortet; manual = Usha betalar tillbaka för hand. */
-  refundMethod: "stripe" | "manual";
+  /**
+   * stripe = redan återbetalt till kortet; manual = Usha betalar tillbaka för
+   * hand; none = alla klipp använda efter begäran om att börja direkt.
+   */
+  refundMethod: "stripe" | "manual" | "none";
   /** Swish, Epassi … när refundMethod är manual. */
   paymentMethodLabel?: string | null;
   refundDueAt: Date;
@@ -44,7 +47,8 @@ export function getWithdrawalSellerSubject(t: Translate, serviceName: string): s
   return t("withdrawalSellerSubject", { service: serviceName });
 }
 
-function Shell({ children }: { children: ReactNode }) {
+/** Ramen för Ushas mörka mejl. Delas med påminnelsen om klippkortets förfall. */
+export function Shell({ children }: { children: ReactNode }) {
   return (
     <html>
       {/* eslint-disable-next-line @next/next/no-head-element -- mejl, inte en sida */}
@@ -127,7 +131,9 @@ export function WithdrawalReceipt(p: WithdrawalMailProps) {
       </p>
       <Facts p={p} />
       <p style={P}>
-        {p.refundMethod === "stripe"
+        {p.refundMethod === "none"
+          ? t("withdrawalRefundNone")
+          : p.refundMethod === "stripe"
           ? t("withdrawalRefundStripe")
           : t("withdrawalRefundManual", {
               method: p.paymentMethodLabel || "Swish",
@@ -149,7 +155,9 @@ export function WithdrawalSellerNotice(p: WithdrawalMailProps & { buyerName: str
       <p style={P}>{t("withdrawalSellerIntro", { buyer: p.buyerName })}</p>
       <Facts p={p} />
       <p style={P}>
-        {p.refundMethod === "stripe"
+        {p.refundMethod === "none"
+          ? t("withdrawalRefundNone")
+          : p.refundMethod === "stripe"
           ? t("withdrawalSellerRefundStripe")
           : t("withdrawalSellerRefundManual", {
               method: p.paymentMethodLabel || "Swish",

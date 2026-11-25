@@ -21,6 +21,8 @@ interface SendBookingConfirmationParams {
   seller?: { name: string; orgNumber?: string; vatNote?: string };
   /** Vad köparen betalade, i ÖREN. 0 = gratis. Utelämnas när vägen inte vet. */
   amountOre?: number | null;
+  /** Klippkort: sista giltighetsdag, skrivs på kvittot med förfallet. */
+  passValidUntil?: Date | null;
   /**
    * Buyer's account when they have one. Guests are booked by email alone and
    * fall back to whatever the address resolves to, then English.
@@ -40,13 +42,14 @@ export async function sendBookingConfirmationEmail({
   durationMinutes,
   seller,
   amountOre,
+  passValidUntil,
   customerId,
 }: SendBookingConfirmationParams): Promise<void> {
   try {
     const resend = getResend();
     const { t, locale } = await getEmailIntl(await resolveRecipientLocale({ userId: customerId, email: to }));
     const html = await renderEmailToHtml(
-      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId, seller, amountOre, t, locale })
+      createElement(BookingConfirmation, { customerName, serviceName, scheduledAt, scheduledEndAt, creatorName, location, bookingId, seller, amountOre, passValidUntil, t, locale })
     );
 
     const ics = buildBookingIcs({

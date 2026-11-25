@@ -24,18 +24,21 @@ export type WithdrawError =
   | "emailMismatch"
   | "failed";
 
+/** none = alla klipp använda efter begäran om att börja direkt: inget att betala tillbaka. */
+export type RefundMethod = "stripe" | "manual" | "none";
+
 export type WithdrawResult =
   | {
       ok: true;
       receivedAt: string;
-      refundMethod: "stripe" | "manual";
+      refundMethod: RefundMethod;
       refundOre: number;
       alreadyWithdrawn: boolean;
     }
   | { ok: false; error: WithdrawError };
 
 const BOOKING_COLUMNS =
-  "id, status, created_at, amount_paid, is_free, sessions_total, minutes_total, stripe_payment_id, payment_method, guest_email, guest_name, customer_id, creator_id, listing_id, booking_type, guest_count, ticket_type_id";
+  "id, status, created_at, amount_paid, is_free, sessions_total, sessions_redeemed, minutes_total, minutes_redeemed, pass_early_start_requested_at, stripe_payment_id, payment_method, guest_email, guest_name, customer_id, creator_id, listing_id, booking_type, guest_count, ticket_type_id";
 
 export function bookingCode(id: string): string {
   return `USH-${id.slice(0, 8).toUpperCase()}`;
@@ -88,7 +91,7 @@ export async function withdrawPurchase(
     return {
       ok: true,
       receivedAt: existing.received_at,
-      refundMethod: existing.refund_method === "stripe" ? "stripe" : "manual",
+      refundMethod: existing.refund_method === "stripe" || existing.refund_method === "none" ? existing.refund_method : "manual",
       refundOre: existing.refund_amount_ore ?? 0,
       alreadyWithdrawn: true,
     };
@@ -115,8 +118,8 @@ export async function withdrawPurchase(
   if (buyerEmail && !sameEmail(buyerEmail, email)) return { ok: false, error: "emailMismatch" };
   const receiptTo = buyerEmail || email;
 
-  const method = refundMethodFor(booking);
   const refundOre = withdrawalRefundOre(booking);
+  const method: RefundMethod = refundOre === 0 ? "none" : refundMethodFor(booking);
   const due = refundDueAt(now);
 
   const { data: row, error: insErr } = await admin
@@ -143,9 +146,14 @@ export async function withdrawPurchase(
 
   let refund: { refundId: string; amount: number } | null = null;
   let refundError: string | null = null;
-  if (method === "stripe" && booking.stripe_payment_id) {
+  const paidOre = Math.max(0, booking.amount_paid ?? 0);
+  if (method === "stripe" && booking.stripe_payment_id && refundOre > 0) {
     try {
-      refund = await refundBookingCharge(booking.stripe_payment_id);
+      // Hela beloppet utan amount, så att en avrundning aldrig lämnar ören kvar.
+      refund = await refundBookingCharge(
+        booking.stripe_payment_id,
+        refundOre < paidOre ? refundOre : undefined
+      );
     } catch (err) {
       refundError = err instanceof Error ? err.message : String(err);
       console.error("Återbetalningen vid ånger misslyckades:", err);
@@ -197,14 +205,14 @@ export async function withdrawPurchase(
   ]);
   const serviceName = listing?.title || "Usha";
   const code = bookingCode(booking.id);
-  const effectiveMethod: "stripe" | "manual" = refund ? "stripe" : "manual";
+  const effectiveMethod: RefundMethod = method === "none" ? "none" : refund ? "stripe" : "manual";
   const mail = {
     serviceName,
     bookingCode: code,
     receivedAt: now,
     refundOre: refund?.amount ?? refundOre,
     refundMethod: effectiveMethod,
-    paymentMethodLabel: method === "stripe" ? "Stripe" : paymentLabel(booking.payment_method),
+    paymentMethodLabel: booking.stripe_payment_id ? "Stripe" : paymentLabel(booking.payment_method),
     refundDueAt: due,
   };
 
@@ -235,7 +243,7 @@ export async function withdrawPurchase(
     link: "/dashboard/bookings",
   }).catch((err) => console.error("Säljarens notis om ånger misslyckades:", err));
 
-  if (!refund) {
+  if (!refund && method !== "none") {
     await sendWithdrawalSupportCase({
       bookingId: booking.id,
       bookingCode: code,

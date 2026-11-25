@@ -73,6 +73,18 @@ export function passBookingFields(
   };
 }
 
+/**
+ * Köparens begäran i kassan om att få börja använda kortet inom ångerfristen
+ * (2 kap. 15 § p. 3), från Stripe-sessionens metadata. Bara "true" räknas.
+ */
+export function passEarlyStartFields(
+  metadata: Record<string, string> | null | undefined,
+  at: Date = new Date()
+): { pass_early_start_requested_at?: string } {
+  if (metadata?.passEarlyStart !== "true" || !(Number(metadata?.sessionsTotal) > 0)) return {};
+  return { pass_early_start_requested_at: at.toISOString() };
+}
+
 export interface PassMoney {
   amount_paid: number | null;
   platform_fee_amount: number | null;

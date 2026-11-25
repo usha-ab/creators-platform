@@ -2608,7 +2608,11 @@
     "swishBack": "Betala med kort i stället",
     "swishInvalidEmail": "Ange en giltig e-postadress så vi kan skicka biljetten.",
     "swishNoCredit": "Välkomstavdraget dras bara vid kortbetalning.",
-    "swishContinue": "Fortsätt till"
+    "swishContinue": "Fortsätt till",
+    "passTermsValidUntil": "Giltigt till {date}. Klipp som inte används före dess förfaller.",
+    "passTermsWithdrawal": "Du har 14 dagars ångerrätt från köpdagen. Du ångrar köpet med knappen Ångra köpet på biljetten.",
+    "passTermsPolicyLink": "Avbokning och återbetalning",
+    "passEarlyStartLabel": "Jag vill kunna använda kortet direkt. Ångrar jag mig inom 14 dagar dras en proportionell del av för de klipp jag använt."
   },
   "eventErrors": {
     "notReleased": "Biljetterna har inte släppts än.",
@@ -2780,7 +2784,7 @@
   },
   "ticketPage": {
     "passChip": "Klippkort · {remaining} av {total} kvar",
-    "passValidUntil": "Giltigt till {date}",
+    "passValidUntil": "Giltigt till {date}. Oanvända klipp förfaller då.",
     "passCovers": "Ett klipp ger: {covers}",
     "walletApple": "Lägg till i Apple Wallet",
     "walletGoogle": "Spara i Google Wallet",
@@ -2838,7 +2842,8 @@
         "nameMissing": "Skriv ditt namn.",
         "rateLimited": "För många försök. Vänta en minut och försök igen.",
         "failed": "Något gick fel. Försök igen, eller mejla support@usha.se så hjälper vi dig."
-      }
+      },
+      "refundNone": "Alla klipp var använda, så inget belopp betalas tillbaka."
     }
   },
   "settlement": {
@@ -4750,7 +4755,14 @@
     "withdrawalSellerIntro": "{buyer} har ångrat köpet med ångerrätten, som gäller i 14 dagar för kort och paket utan bestämt datum. Kortet är avslutat och gäller inte längre i dörren.",
     "withdrawalSellerRefundStripe": "Hela beloppet har betalats tillbaka till köparen via Stripe. Din andel förs tillbaka från ditt Stripe-konto.",
     "withdrawalSellerRefundManual": "Köparen betalade med {method}. Usha betalar tillbaka beloppet senast {date}.",
-    "withdrawalSellerOutro": "Du behöver inte göra något. Har du frågor, skriv till support@usha.se."
+    "withdrawalSellerOutro": "Du behöver inte göra något. Har du frågor, skriv till support@usha.se.",
+    "withdrawalRefundNone": "Alla klipp var använda och du hade begärt att få börja använda kortet direkt, så inget belopp betalas tillbaka.",
+    "passReceiptValidUntil": "Giltigt till {date}. Klipp som inte används före dess förfaller.",
+    "passReceiptWithdrawal": "Du har 14 dagars ångerrätt från köpdagen. Du ångrar köpet med knappen Ångra köpet på biljetten. Ställer säljaren in en kväll förlängs kortet.",
+    "passExpirySubject": "Ditt klippkort {title} gäller till {date}",
+    "passExpiryIntro": "Du har {remaining} klipp kvar på {title}. Kortet gäller till och med {date}.",
+    "passExpiryLapse": "Klipp som inte används före dess förfaller och betalas inte tillbaka.",
+    "passExpiryCta": "Visa kortet"
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",

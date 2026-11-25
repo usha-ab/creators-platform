@@ -187,7 +187,7 @@ describe("withdrawPurchase", () => {
     const db = seed();
     const r = await withdrawPurchase(db.client, { bookingId: ID, name: "Anna", email: "ANNA@example.se", now: NOW });
     expect(r).toMatchObject({ ok: true, refundMethod: "stripe", refundOre: 65000, alreadyWithdrawn: false });
-    expect(refund).toHaveBeenCalledWith("pi_1");
+    expect(refund).toHaveBeenCalledWith("pi_1", undefined);
     expect(db.tables.bookings[0]).toMatchObject({ status: "canceled", refund_amount: 65000, stripe_refund_id: "re_1" });
     const w = db.tables.booking_withdrawals[0];
     expect(w).toMatchObject({ booking_id: ID, refund_method: "stripe", stripe_refund_id: "re_1" });
@@ -197,6 +197,23 @@ describe("withdrawPurchase", () => {
     expect(sellerNotice).toHaveBeenCalledWith(expect.objectContaining({ to: "joy@example.se", buyerName: "Anna" }));
     expect(notify).toHaveBeenCalledWith(expect.objectContaining({ userId: "seller", titleKey: "withdrawalTitle" }));
     expect(supportCase).not.toHaveBeenCalled();
+  });
+
+  it("begärt att börja direkt och använt klipp: delåterbetalning, proportionellt", async () => {
+    refund.mockResolvedValue({ refundId: "re_2", amount: 39000 });
+    const db = seed({ sessions_redeemed: 2, pass_early_start_requested_at: "2026-11-10T14:00:00Z" });
+    const r = await withdrawPurchase(db.client, { bookingId: ID, name: "Anna", email: "anna@example.se", now: NOW });
+    expect(r).toMatchObject({ ok: true, refundMethod: "stripe", refundOre: 39000 });
+    expect(refund).toHaveBeenCalledWith("pi_1", 39000);
+  });
+
+  it("alla klipp använda efter begäran: inget att betala, inget ärende", async () => {
+    const db = seed({ sessions_redeemed: 5, pass_early_start_requested_at: "2026-11-10T14:00:00Z" });
+    const r = await withdrawPurchase(db.client, { bookingId: ID, name: "Anna", email: "anna@example.se", now: NOW });
+    expect(r).toMatchObject({ ok: true, refundMethod: "none", refundOre: 0 });
+    expect(refund).not.toHaveBeenCalled();
+    expect(supportCase).not.toHaveBeenCalled();
+    expect(receipt).toHaveBeenCalledWith(expect.objectContaining({ refundMethod: "none" }));
   });
 
   it("ett andra klick ger samma svar och inga nya pengar", async () => {

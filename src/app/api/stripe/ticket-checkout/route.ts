@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, ticketTypeId, quantity, attendeeNames, showAttendance } = await req.json();
+    const { listingId, ticketTypeId, quantity, attendeeNames, showAttendance, earlyStart } = await req.json();
     let qty = clampQuantity(quantity);
 
     if (!listingId) {
@@ -424,6 +424,8 @@ export async function POST(req: NextRequest) {
           affiliateId: affiliateId ?? '',
           ...utmMetadata(utm),
           sessionsTotal: isPass ? String(listing.session_count) : '',
+          // Kryssrutan i kassan (2 kap. 15 § p. 3). Bara ett uttryckligt true räknas.
+          passEarlyStart: isPass && earlyStart === true ? 'true' : 'false',
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           // Köparens eget val att synas bland deltagarna. Bara ett uttryckligt
           // true räknas — allt annat (saknas, null, "kanske") blir nej.

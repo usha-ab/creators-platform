@@ -2608,7 +2608,11 @@
     "swishBack": "Pay by card instead",
     "swishInvalidEmail": "Enter a valid email address so we can send the ticket.",
     "swishNoCredit": "The welcome credit only applies to card payments.",
-    "swishContinue": "Continue to"
+    "swishContinue": "Continue to",
+    "passTermsValidUntil": "Valid until {date}. Punches not used by then expire.",
+    "passTermsWithdrawal": "You have a 14-day right of withdrawal from the purchase day. You withdraw with the Withdraw from the purchase button on the ticket.",
+    "passTermsPolicyLink": "Cancellations and refunds",
+    "passEarlyStartLabel": "I want to be able to use the card right away. If I withdraw within 14 days, a proportional part is deducted for the punches I have used."
   },
   "eventErrors": {
     "notReleased": "Tickets have not been released yet.",
@@ -2780,7 +2784,7 @@
   },
   "ticketPage": {
     "passChip": "Pass · {remaining} of {total} left",
-    "passValidUntil": "Valid until {date}",
+    "passValidUntil": "Valid until {date}. Unused punches expire then.",
     "passCovers": "One clip gives: {covers}",
     "walletApple": "Add to Apple Wallet",
     "walletGoogle": "Save to Google Wallet",
@@ -2838,7 +2842,8 @@
         "nameMissing": "Enter your name.",
         "rateLimited": "Too many attempts. Wait a minute and try again.",
         "failed": "Something went wrong. Try again, or email support@usha.se and we will help you."
-      }
+      },
+      "refundNone": "All punches were used, so no amount is refunded."
     }
   },
   "settlement": {
@@ -4750,7 +4755,14 @@
     "withdrawalSellerIntro": "{buyer} used the right of withdrawal, which applies for 14 days to cards and packages without a fixed date. The card is closed and no longer works at the door.",
     "withdrawalSellerRefundStripe": "The full amount has been refunded to the buyer through Stripe. Your share is taken back from your Stripe account.",
     "withdrawalSellerRefundManual": "The buyer paid with {method}. Usha refunds the amount no later than {date}.",
-    "withdrawalSellerOutro": "You do not need to do anything. If you have anything to ask, write to support@usha.se."
+    "withdrawalSellerOutro": "You do not need to do anything. If you have anything to ask, write to support@usha.se.",
+    "withdrawalRefundNone": "All punches were used and you had asked to start using the card right away, so no amount is refunded.",
+    "passReceiptValidUntil": "Valid until {date}. Punches not used by then expire.",
+    "passReceiptWithdrawal": "You have a 14-day right of withdrawal from the purchase day. You withdraw with the Withdraw from the purchase button on the ticket. If the seller cancels a night, the card is extended.",
+    "passExpirySubject": "Your punch card {title} is valid until {date}",
+    "passExpiryIntro": "You have {remaining} punches left on {title}. The card is valid up to and including {date}.",
+    "passExpiryLapse": "Punches not used by then expire and are not refunded.",
+    "passExpiryCta": "Show the card"
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

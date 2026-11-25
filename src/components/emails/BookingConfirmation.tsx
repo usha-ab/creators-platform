@@ -22,6 +22,11 @@ interface BookingConfirmationProps {
    * bokföringsfråga är ett kvitto utan belopp värdelöst.
    */
   amountOre?: number | null;
+  /**
+   * Klippkort: sista giltighetsdag. Förfallet och ångerrätten ska stå på
+   * kvittot, inte bara i villkoren (ARN 2023-17878; 2 kap. 2 § p. 10).
+   */
+  passValidUntil?: Date | null;
   /** Translator for the `emails` namespace, in the recipient's language. */
   t: Translate;
   locale: Locale;
@@ -54,6 +59,7 @@ export default function BookingConfirmation({
   bookingId,
   seller,
   amountOre,
+  passValidUntil,
   t,
   locale,
 }: BookingConfirmationProps) {
@@ -145,6 +151,23 @@ export default function BookingConfirmation({
                                   </div>
                                   <p style={{ fontSize: 12, color: "#6b6b6b", margin: "10px 0 0" }}>
                                     {t("bookingQrHint")}
+                                  </p>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        )}
+
+                        {passValidUntil && (
+                          <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
+                            <tbody>
+                              <tr>
+                                <td style={{ padding: "12px 16px", borderRadius: 12, backgroundColor: "#0a0a0b" }}>
+                                  <p style={{ fontSize: 13, fontWeight: 600, color: "#fafaf9", margin: "0 0 6px" }}>
+                                    {t("passReceiptValidUntil", { date: formatEmailDate(passValidUntil, locale, DATE_FORMAT) })}
+                                  </p>
+                                  <p style={{ fontSize: 12, color: "#a1a1a1", margin: 0, lineHeight: 1.6 }}>
+                                    {t("passReceiptWithdrawal")}
                                   </p>
                                 </td>
                               </tr>
