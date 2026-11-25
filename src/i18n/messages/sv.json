@@ -1028,7 +1028,9 @@
     "swishConfirmedTitle": "Din Swish-betalning är bekräftad",
     "swishConfirmedMsg": "Vi har sett din Swish för «{service}». Biljetten finns under Biljetter.",
     "swishRejectedTitle": "Swish-köpet kunde inte bekräftas",
-    "swishRejectedMsg": "Vi hittade ingen Swish-betalning för «{service}». Hör av dig om du har betalat."
+    "swishRejectedMsg": "Vi hittade ingen Swish-betalning för «{service}». Hör av dig om du har betalat.",
+    "withdrawalTitle": "Ett köp har ångrats",
+    "withdrawalMsg": "{buyer} har ångrat köpet av {service}."
   },
   "apiErrors": {
     "unauthorized": "Ej behörig",
@@ -2811,7 +2813,33 @@
     "swishQrHint": "Sitter du vid datorn? Skanna koden med Swish-appen",
     "swishUnavailable": "Swish är inte tillgängligt för den här kvällen just nu. Hör av dig till arrangören.",
     "swishThen": "Steg 2: Vi bekräftar betalningen. Då byts den här rutan mot din QR-kod, och biljetten mejlas till {email}. Du behöver inte göra något mer, sidan uppdaterar sig själv.",
-    "swishAtDoor": "Är du redan i dörren? Visa Swish-kvittot, så släpps du in direkt."
+    "swishAtDoor": "Är du redan i dörren? Visa Swish-kvittot, så släpps du in direkt.",
+    "withdrawal": {
+      "title": "Ångra köpet",
+      "lead": "Du har 14 dagars ångerrätt på kort och paket utan bestämt datum. Sista dag att ångra köpet är {date}. Du får tillbaka hela beloppet, inklusive serviceavgiften.",
+      "open": "Ångra köpet",
+      "nameLabel": "Ditt namn",
+      "emailLabel": "E-postadressen du köpte med",
+      "confirmText": "Jag ångrar mitt köp av {title} ({code}). Kortet slutar gälla direkt.",
+      "confirm": "Bekräfta att jag ångrar köpet",
+      "cancel": "Avbryt",
+      "doneTitle": "Du har ångrat köpet",
+      "doneBody": "Vi tog emot ditt meddelande {when}. Ett mottagningsbevis har skickats till din e-post.",
+      "refundStripe": "Pengarna betalas tillbaka till kortet du betalade med och syns normalt inom 5–10 bankdagar.",
+      "refundManual": "Usha betalar tillbaka beloppet senast 14 dagar efter att vi fick ditt meddelande.",
+      "policyLink": "Så fungerar avbokning och återbetalning",
+      "fixedDate": "Biljetter till ett bestämt datum har ingen ångerrätt (2 kap. 11 § 12 distansavtalslagen). Du kan avboka enligt säljarens regler.",
+      "expired": "Ångerfristen för kortet gick ut {date}.",
+      "errors": {
+        "emailMismatch": "E-postadressen stämmer inte med köpet. Skriv den adress du köpte med, eller mejla support@usha.se.",
+        "expired": "Ångerfristen har gått ut.",
+        "fixedDate": "Biljetter till ett bestämt datum har ingen ångerrätt.",
+        "notWithdrawable": "Det här köpet kan inte ångras här. Mejla support@usha.se.",
+        "nameMissing": "Skriv ditt namn.",
+        "rateLimited": "För många försök. Vänta en minut och försök igen.",
+        "failed": "Något gick fel. Försök igen, eller mejla support@usha.se så hjälper vi dig."
+      }
+    }
   },
   "settlement": {
     "swishHeading": "Swish i dörren",
@@ -3225,7 +3253,8 @@
     "addToAppleWallet": "Lägg till i Apple Wallet",
     "saveToGoogleWallet": "Spara i Google Wallet",
     "shareText": "Jag ska på {title} — häng med!",
-    "inviteFriends": "Bjud in vänner"
+    "inviteFriends": "Bjud in vänner",
+    "withdrawalLink": "Ångerrätt och avbokning"
   },
   "toolsPage": {
     "partnerLabel": "Partnerprogram",
@@ -4708,7 +4737,20 @@
     "statementCsvPaidDate": "Utbetalningsdag",
     "statementCsvTransfers": "Stripe-överföring",
     "statementCsvTotal": "Summa",
-    "statementCsvEarlier": "Kompletteringar för tidigare kvällar"
+    "statementCsvEarlier": "Kompletteringar för tidigare kvällar",
+    "withdrawalReceiptSubject": "Mottagningsbevis: du har ångrat köpet av {service}",
+    "withdrawalReceiptIntro": "Det här är ditt mottagningsbevis. Vi tog emot att du ångrar köpet {when}.",
+    "withdrawalLabelCode": "Boknings-ID: {value}",
+    "withdrawalLabelReceived": "Mottaget: {value}",
+    "withdrawalLabelAmount": "Betalas tillbaka: {value} kr",
+    "withdrawalRefundStripe": "Pengarna betalas tillbaka till kortet du betalade med, inklusive serviceavgiften. De syns normalt på kontot inom 5–10 bankdagar.",
+    "withdrawalRefundManual": "Du betalade med {method}. Usha betalar tillbaka hela beloppet, inklusive serviceavgiften, senast {date}.",
+    "withdrawalReceiptOutro": "Kortet gäller inte längre. Har du frågor, skriv till support@usha.se.",
+    "withdrawalSellerSubject": "En köpare har ångrat köpet av {service}",
+    "withdrawalSellerIntro": "{buyer} har ångrat köpet med ångerrätten, som gäller i 14 dagar för kort och paket utan bestämt datum. Kortet är avslutat och gäller inte längre i dörren.",
+    "withdrawalSellerRefundStripe": "Hela beloppet har betalats tillbaka till köparen via Stripe. Din andel förs tillbaka från ditt Stripe-konto.",
+    "withdrawalSellerRefundManual": "Köparen betalade med {method}. Usha betalar tillbaka beloppet senast {date}.",
+    "withdrawalSellerOutro": "Du behöver inte göra något. Har du frågor, skriv till support@usha.se."
   },
   "adminPage": {
     "partnersLabel": "Partnerprogram",

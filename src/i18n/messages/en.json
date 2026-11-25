@@ -1028,7 +1028,9 @@
     "swishConfirmedTitle": "Your Swish payment is confirmed",
     "swishConfirmedMsg": "We have seen your Swish for «{service}». The ticket is under Tickets.",
     "swishRejectedTitle": "The Swish purchase could not be confirmed",
-    "swishRejectedMsg": "We found no Swish payment for «{service}». Get in touch if you have paid."
+    "swishRejectedMsg": "We found no Swish payment for «{service}». Get in touch if you have paid.",
+    "withdrawalTitle": "A purchase was withdrawn",
+    "withdrawalMsg": "{buyer} withdrew from the purchase of {service}."
   },
   "apiErrors": {
     "unauthorized": "Unauthorized",
@@ -2811,7 +2813,33 @@
     "swishQrHint": "On a computer? Scan the code with the Swish app",
     "swishUnavailable": "Swish is not available for this evening right now. Contact the organizer.",
     "swishThen": "Step 2: We confirm the payment. This box is then replaced by your QR code, and the ticket is emailed to {email}. Nothing more to do, the page refreshes by itself.",
-    "swishAtDoor": "Already at the door? Show the Swish receipt and you're in."
+    "swishAtDoor": "Already at the door? Show the Swish receipt and you're in.",
+    "withdrawal": {
+      "title": "Withdraw from the purchase",
+      "lead": "You have a 14-day right of withdrawal on cards and packages without a fixed date. The last day to withdraw is {date}. You get the full amount back, including the service fee.",
+      "open": "Withdraw from the purchase",
+      "nameLabel": "Your name",
+      "emailLabel": "The email address you bought with",
+      "confirmText": "I withdraw from my purchase of {title} ({code}). The card stops working immediately.",
+      "confirm": "Confirm that I withdraw",
+      "cancel": "Cancel",
+      "doneTitle": "You have withdrawn from the purchase",
+      "doneBody": "We received your notice {when}. A confirmation of receipt has been sent to your email.",
+      "refundStripe": "The money goes back to the card you paid with and normally shows within 5–10 bank days.",
+      "refundManual": "Usha pays the amount back no later than 14 days after we received your notice.",
+      "policyLink": "How cancellations and refunds work",
+      "fixedDate": "Tickets for a fixed date have no right of withdrawal (Swedish Distance Contracts Act, ch. 2 s. 11(12)). You can cancel under the seller's rules.",
+      "expired": "The withdrawal period for the card ended on {date}.",
+      "errors": {
+        "emailMismatch": "The email address does not match the purchase. Enter the address you bought with, or email support@usha.se.",
+        "expired": "The withdrawal period has ended.",
+        "fixedDate": "Tickets for a fixed date have no right of withdrawal.",
+        "notWithdrawable": "This purchase cannot be withdrawn here. Email support@usha.se.",
+        "nameMissing": "Enter your name.",
+        "rateLimited": "Too many attempts. Wait a minute and try again.",
+        "failed": "Something went wrong. Try again, or email support@usha.se and we will help you."
+      }
+    }
   },
   "settlement": {
     "swishHeading": "Swish at the door",
@@ -3225,7 +3253,8 @@
     "addToAppleWallet": "Add to Apple Wallet",
     "saveToGoogleWallet": "Save to Google Wallet",
     "shareText": "I'm going to {title} — come along!",
-    "inviteFriends": "Invite friends"
+    "inviteFriends": "Invite friends",
+    "withdrawalLink": "Right of withdrawal and cancellation"
   },
   "toolsPage": {
     "partnerLabel": "Partner programme",
@@ -4708,7 +4737,20 @@
     "statementCsvPaidDate": "Payout date",
     "statementCsvTransfers": "Stripe transfer",
     "statementCsvTotal": "Total",
-    "statementCsvEarlier": "Adjustments for earlier evenings"
+    "statementCsvEarlier": "Adjustments for earlier evenings",
+    "withdrawalReceiptSubject": "Confirmation of receipt: you withdrew from {service}",
+    "withdrawalReceiptIntro": "This is your confirmation of receipt. We received your withdrawal {when}.",
+    "withdrawalLabelCode": "Booking ID: {value}",
+    "withdrawalLabelReceived": "Received: {value}",
+    "withdrawalLabelAmount": "Refund: SEK {value}",
+    "withdrawalRefundStripe": "The money goes back to the card you paid with, including the service fee. It normally shows on your account within 5–10 bank days.",
+    "withdrawalRefundManual": "You paid with {method}. Usha refunds the full amount, including the service fee, no later than {date}.",
+    "withdrawalReceiptOutro": "The card is no longer valid. If you have anything to ask, write to support@usha.se.",
+    "withdrawalSellerSubject": "A buyer withdrew from {service}",
+    "withdrawalSellerIntro": "{buyer} used the right of withdrawal, which applies for 14 days to cards and packages without a fixed date. The card is closed and no longer works at the door.",
+    "withdrawalSellerRefundStripe": "The full amount has been refunded to the buyer through Stripe. Your share is taken back from your Stripe account.",
+    "withdrawalSellerRefundManual": "The buyer paid with {method}. Usha refunds the amount no later than {date}.",
+    "withdrawalSellerOutro": "You do not need to do anything. If you have anything to ask, write to support@usha.se."
   },
   "adminPage": {
     "partnersLabel": "Partner programme",

@@ -18,6 +18,7 @@ import NewMessage, { getNewMessageSubject } from "@/components/emails/NewMessage
 import PayoutConfirmation, { getPayoutSubject } from "@/components/emails/PayoutConfirmation";
 import SettlementStatement, { getSettlementStatementSubject } from "@/components/emails/SettlementStatement";
 import VenueTeamInvite, { getVenueTeamInviteSubject } from "@/components/emails/VenueTeamInvite";
+import { WithdrawalReceipt, WithdrawalSellerNotice, getWithdrawalReceiptSubject, getWithdrawalSellerSubject } from "@/components/emails/Withdrawal";
 import { VENUE_CAPABILITIES } from "@/lib/venues/members";
 import { buildMonthlyStatement } from "@/lib/settlements/monthly-statement";
 
@@ -101,6 +102,18 @@ function templates(t: Translate, locale: Locale) {
       venueName: "Joy Nation", recipientName: "Pau",
       capabilities: ["events", "bookings", "scan"], token: "tok_abc", t,
     }),
+    WithdrawalReceipt: createElement(WithdrawalReceipt, {
+      recipientName: "Pau", serviceName: "Salsa 101", bookingCode: "USH-1A2B3C4D", receivedAt: WHEN,
+      refundOre: 65000, refundMethod: "stripe" as const, refundDueAt: END, t, locale,
+    }),
+    WithdrawalReceiptManual: createElement(WithdrawalReceipt, {
+      recipientName: "Pau", serviceName: "Salsa 101", bookingCode: "USH-1A2B3C4D", receivedAt: WHEN,
+      refundOre: 65000, refundMethod: "manual" as const, paymentMethodLabel: "Swish", refundDueAt: END, t, locale,
+    }),
+    WithdrawalSellerNotice: createElement(WithdrawalSellerNotice, {
+      recipientName: "Joy", buyerName: "Pau", serviceName: "Salsa 101", bookingCode: "USH-1A2B3C4D", receivedAt: WHEN,
+      refundOre: 65000, refundMethod: "manual" as const, paymentMethodLabel: "Swish", refundDueAt: END, t, locale,
+    }),
     VenueTeamInviteNoCaps: createElement(VenueTeamInvite, {
       venueName: "Joy Nation", recipientName: null, capabilities: [], token: "tok_abc", t,
     }),
@@ -174,6 +187,8 @@ describe("email templates render in the reader's language", () => {
         getPayoutSubject(t, "instant", 1234),
         getSettlementStatementSubject(t, "Joy Nation", "2026-10", "sv"),
         getVenueTeamInviteSubject(t, "Bacchi Syre"),
+        getWithdrawalReceiptSubject(t, "Salsa 101"),
+        getWithdrawalSellerSubject(t, "Salsa 101"),
       ];
     };
 
@@ -229,4 +244,18 @@ describe("no email template keeps hardcoded prose", () => {
     }
     expect(offenders).toEqual([]);
   });
+});
+
+describe("withdrawal receipt", () => {
+  for (const locale of LOCALES) {
+    it(`${locale}: says when the notice was received, the amount and the booking code`, () => {
+      const t = translatorFor(locale);
+      const html = renderToStaticMarkup(templates(t, locale).WithdrawalReceipt);
+      // Mottagningsbeviset ska visa tidpunkten (10 a §): 18:00 svensk tid.
+      expect(html).toContain("18:00");
+      expect(html).toContain("650");
+      expect(html).toContain("USH-1A2B3C4D");
+      expect(html).toContain("support@usha.se");
+    });
+  }
 });
