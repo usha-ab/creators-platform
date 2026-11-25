@@ -62,6 +62,11 @@ function templates(t: Translate, locale: Locale) {
       swishNumber: "123 711 11 80", swishMessage: "The Lab 11/12",
       swishUrl: "https://app.swish.nu/1/p/sw/?sw=1237111180&amt=130.00&msg=The%20Lab", bookingId: "b-1", t, locale,
     }),
+    SwishPendingCommerce: createElement(SwishPending, {
+      customerName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN, amountSek: 130,
+      swishNumber: "123 711 11 80", swishMessage: "The Lab 11/12",
+      swishUrl: "https://app.swish.nu/1/p/sw/?sw=1237111180&amt=130.00&msg=The%20Lab", bookingId: "b-1", commerce: true, t, locale,
+    }),
     BookingReminder: createElement(BookingReminder, {
       customerName: "Pau", serviceName: "Salsa 101", scheduledAt: WHEN,
       creatorName: "Joy Nation", location: "Hornsberg", variant: "day" as const, t, locale,
@@ -160,6 +165,20 @@ describe("venue team invite", () => {
       for (const c of VENUE_CAPABILITIES) {
         expect(t(`venueTeamInvite.caps.${c}`)).not.toContain("venueTeamInvite");
       }
+    });
+  }
+});
+
+describe("Swish pending, Swish Handel", () => {
+  for (const locale of LOCALES) {
+    const t = translatorFor(locale);
+    it(`${locale}: commerce skickar till biljettsidan, inte till numret`, () => {
+      const html = renderToStaticMarkup(templates(t, locale).SwishPendingCommerce);
+      expect(html).toContain("/biljett/b-1");
+      expect(html).not.toContain("app.swish.nu");
+      expect(html).not.toContain("123 711 11 80");
+      const manual = renderToStaticMarkup(templates(t, locale).SwishPending);
+      expect(manual).toContain("app.swish.nu");
     });
   }
 });

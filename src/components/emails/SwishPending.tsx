@@ -15,6 +15,8 @@ interface SwishPendingProps {
   /** Länken som öppnar Swish-appen med allt förifyllt. */
   swishUrl: string;
   bookingId: string;
+  /** Swish Handel: betalningen görs på biljettsidan och bekräftas av Swish, inte i entrén. */
+  commerce?: boolean;
   t: Translate;
   locale: Locale;
 }
@@ -41,6 +43,7 @@ export default function SwishPending({
   swishMessage,
   swishUrl,
   bookingId,
+  commerce = false,
   t,
   locale,
 }: SwishPendingProps) {
@@ -114,21 +117,23 @@ export default function SwishPending({
                           {t("swishPendingStep1Heading")}
                         </p>
                         <p style={{ fontSize: 14, color: "#fafaf9", margin: "0 0 16px", lineHeight: 1.6 }}>
-                          {t("swishPendingStep1", { amount: formatSek(amountSek), number: swishNumber, message: swishMessage })}
+                          {commerce
+                            ? t("swishPendingStep1Commerce", { amount: formatSek(amountSek) })
+                            : t("swishPendingStep1", { amount: formatSek(amountSek), number: swishNumber, message: swishMessage })}
                         </p>
                         <table width="100%" cellPadding={0} cellSpacing={0} style={{ marginBottom: 24 }}>
                           <tbody>
                             <tr>
-                              <td style={{ textAlign: "center" }}>{button(swishUrl, t("swishPendingOpen"), true)}</td>
+                              <td style={{ textAlign: "center" }}>{commerce ? button(ticketUrl, t("swishPendingOpenCommerce"), true) : button(swishUrl, t("swishPendingOpen"), true)}</td>
                             </tr>
                           </tbody>
                         </table>
 
                         <p style={{ fontSize: 14, fontWeight: 600, color: "#fafaf9", margin: "0 0 6px" }}>
-                          {t("swishPendingStep2Heading")}
+                          {commerce ? t("swishPendingStep2HeadingCommerce") : t("swishPendingStep2Heading")}
                         </p>
                         <p style={{ fontSize: 14, color: "#9b9690", margin: "0 0 16px", lineHeight: 1.6 }}>
-                          {t("swishPendingStep2")}
+                          {commerce ? t("swishPendingStep2Commerce") : t("swishPendingStep2")}
                         </p>
                         <p style={{ fontSize: 14, color: "#9b9690", margin: "0 0 24px", lineHeight: 1.6 }}>
                           {t("swishPendingAtDoor")}

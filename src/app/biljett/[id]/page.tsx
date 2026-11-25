@@ -17,6 +17,8 @@ import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wal
 import { swishOfferForListing } from "@/lib/swish/availability";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import { PendingRefresh } from "./pending-refresh";
+import { SwishCommercePay } from "./swish-commerce-pay";
+import { isCommerceEnabled } from "@/lib/swish/commerce/config";
 import { isPaidBooking } from "@/lib/tickets/checkin";
 import { eveningIsOver, selfCheckinWindow } from "@/lib/tickets/evening";
 import { checkinColor } from "@/lib/tickets/checkin-color";
@@ -313,6 +315,9 @@ export default async function GuestTicketPage({
   // sedan, och här byts allt mot QR-koden när entrén tryckt Bekräfta. Utan
   // den här vyn visade sidan en QR som dörren nekar, och ingen förstod varför.
   const swishPending = booking.status === "pending" && booking.payment_method === "swish";
+  // Swish Handel (flaggan SWISH_COMMERCE_ENABLED): betalningen skapas här och
+  // bekräftas av Swish själv. Av = Swish Företag-rutan nedan, som förut.
+  const swishCommerce = swishPending && !!listing && isCommerceEnabled();
   const swishOffer = swishPending && listing ? await swishOfferForListing(admin, { user_id: listing.user_id, title: listing.title, event_date: listing.event_date }) : null;
   const swishAmountSek = Math.round((booking.amount_paid ?? 0) / 100);
   const swishUrl = swishOffer && swishAmountSek > 0 ? swishPaymentUrl({ number: swishOffer.number, amountSek: swishAmountSek, message: swishOffer.message }) : null;
@@ -416,7 +421,22 @@ export default async function GuestTicketPage({
               <PendingRefresh />
               <p className="font-semibold">{t("swishPendingTitle", { amount: swishAmountSek })}</p>
               <p className="text-xs leading-relaxed text-[var(--usha-muted)]">{t("swishPendingLead")}</p>
-              {swishUrl && swishOffer ? (
+              {swishCommerce ? (
+                <SwishCommercePay
+                  bookingId={booking.id}
+                  labels={{
+                    pay: t("swishCommercePay", { amount: swishAmountSek }),
+                    starting: t("swishCommerceStarting"),
+                    waiting: t("swishCommerceWaiting"),
+                    qrHint: t("swishCommerceQrHint"),
+                    openHere: t("swishCommerceOpenHere"),
+                    declined: t("swishCommerceDeclined"),
+                    failed: t("swishCommerceFailed"),
+                    retry: t("swishCommerceRetry", { amount: swishAmountSek }),
+                    done: t("swishCommerceDone"),
+                  }}
+                />
+              ) : swishUrl && swishOffer ? (
                 <>
                   <a
                     href={swishUrl}
@@ -442,7 +462,7 @@ export default async function GuestTicketPage({
                 <p className="text-xs text-[var(--usha-muted)]">{t("swishUnavailable")}</p>
               )}
               <div className="space-y-1.5 border-t border-[var(--usha-border)] pt-3 text-xs leading-relaxed text-[var(--usha-muted)]">
-                <p>{t("swishThen", { email: booking.guest_email ?? "" })}</p>
+                <p>{swishCommerce ? t("swishCommerceThen", { email: booking.guest_email ?? "" }) : t("swishThen", { email: booking.guest_email ?? "" })}</p>
                 <p>{t("swishAtDoor")}</p>
               </div>
             </div>

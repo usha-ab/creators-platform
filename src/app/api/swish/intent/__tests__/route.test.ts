@@ -271,3 +271,31 @@ describe("POST /api/swish/intent — notisen till dörren", () => {
     expect(notifyEntranceSwishRequest).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("POST /api/swish/intent — Swish Handel bakom flaggan", () => {
+  it("flaggan av: mejlet är Swish Företag och entrén får en notis, som förut", async () => {
+    const { notifyEntranceSwishRequest } = await import("@/lib/notifications/event-owner");
+    vi.mocked(notifyEntranceSwishRequest).mockClear();
+    const res = await POST(req({ quantity: 1 }));
+    expect(res.status).toBe(200);
+    expect(vi.mocked(sendSwishPendingEmail).mock.calls[0][0]).toMatchObject({ commerce: false });
+    expect(notifyEntranceSwishRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("flaggan på: mejlet pekar till biljettsidan och entrén störs inte", async () => {
+    const { notifyEntranceSwishRequest } = await import("@/lib/notifications/event-owner");
+    vi.mocked(notifyEntranceSwishRequest).mockClear();
+    vi.stubEnv("SWISH_COMMERCE_ENABLED", "true");
+    vi.stubEnv("SWISH_PAYEE_ALIAS", "1234679304");
+    vi.stubEnv("SWISH_CERT_PEM", "-----BEGIN CERTIFICATE-----\nx\n-----END CERTIFICATE-----");
+    vi.stubEnv("SWISH_KEY_PEM", "-----BEGIN PRIVATE KEY-----\nx\n-----END PRIVATE KEY-----");
+    try {
+      const res = await POST(req({ quantity: 1 }));
+      expect(res.status).toBe(200);
+      expect(vi.mocked(sendSwishPendingEmail).mock.calls[0][0]).toMatchObject({ commerce: true });
+      expect(notifyEntranceSwishRequest).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+});

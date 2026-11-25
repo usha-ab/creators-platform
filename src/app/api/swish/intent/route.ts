@@ -9,6 +9,7 @@ import { swishOfferForListing } from "@/lib/swish/availability";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import { sendSwishPendingEmail } from "@/lib/email/send-swish-pending";
 import { stockholmLocalToUtcISO } from "@/lib/time";
+import { isCommerceEnabled } from "@/lib/swish/commerce/config";
 import { loadSeatCounts, pendingSwishSeats, swishSeatsLeft, type SeatResult } from "@/lib/swish/seats";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -175,6 +176,8 @@ export async function POST(req: NextRequest) {
   }
 
   const service = ticketType ? `${listing.title} · ${ticketType.name}` : listing.title;
+  // Swish Handel: betalningen görs och bekräftas på biljettsidan, inte i dörren.
+  const commerce = isCommerceEnabled();
   sendSwishPendingEmail({
     to: email,
     customerName: name || "Gäst",
@@ -185,12 +188,14 @@ export async function POST(req: NextRequest) {
     swishMessage: offer.message,
     swishUrl: swishPaymentUrl({ number: offer.number, amountSek: amountOre / 100, message: offer.message }),
     bookingId: booking.id,
+    commerce,
     customerId: user?.id ?? null,
     // Gästen har inget konto att läsa språket ur; sidan hen stod på får avgöra.
     preferredLocale: await getLocale().catch(() => null),
   }).catch((e) => console.error("Swish pending email failed:", e));
 
-  await notifyEntranceSwishRequest(admin, {
+  // Entrén behöver bara veta om köpet när den själv ska bekräfta det (Swish Företag).
+  if (!commerce) await notifyEntranceSwishRequest(admin, {
     listingId: listing.id,
     ownerId: listing.user_id,
     bookingId: booking.id,

@@ -15,6 +15,8 @@ interface SendSwishPendingParams {
   swishMessage: string;
   swishUrl: string;
   bookingId: string;
+  /** Swish Handel: betala på biljettsidan i stället för till numret. */
+  commerce?: boolean;
   customerId?: string | null;
   /** Sidans språk när gästen registrerade sig: en gäst utan konto har inget annat. */
   preferredLocale?: string | null;
@@ -39,6 +41,7 @@ export async function sendSwishPendingEmail(p: SendSwishPendingParams): Promise<
         swishMessage: p.swishMessage,
         swishUrl: p.swishUrl,
         bookingId: p.bookingId,
+        commerce: p.commerce ?? false,
         t,
         locale,
       })
