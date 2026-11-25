@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { stockholmToday } from "@/lib/time";
 import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { canonicalSeriesSlug } from "@/lib/listings/series-aliases";
 import { pickOccurrence } from "@/lib/entrance/door-link";
 import { hamtaKort, hamtaKvallar, platsFor, platsForKort, type DoorScreenTicket } from "@/lib/entrance/door-occurrences";
-import { stockholmToday } from "@/lib/time";
 import { DoorScreen } from "./door-screen";
+import { getCurrentUser } from "@/lib/supabase/current-user";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { canOperateEntrance } from "@/lib/scan-access";
+import { entryCountsLabels } from "@/lib/tickets/entry-counts-labels";
 
 /**
  * Dörrskärmen: /dorr/<serie>
@@ -81,6 +85,16 @@ export default async function DoorScreenPage({ params }: Params) {
     })
   );
 
+  // Räknaren och kvällens färg bara för den som får sköta entrén. Sidan är
+  // publik (plattan vänd mot gästerna), och en färg som vem som helst kan slå
+  // upp i förväg vore ingen kontroll. Är plattan inloggad med skanningsrätt
+  // syns de; annars ser sidan ut som förut.
+  const user = await getCurrentUser();
+  const entry =
+    user && kvall.user_id && (await canOperateEntrance(createAdminClient(), user.id, { id: kvall.id, user_id: kvall.user_id }))
+      ? { listingId: kvall.id, labels: await entryCountsLabels() }
+      : null;
+
   const datum = String(kvall.event_date).slice(0, 10);
   const dateLabel = new Date(`${datum}T12:00:00`).toLocaleDateString("sv-SE", {
     weekday: "long",
@@ -95,6 +109,7 @@ export default async function DoorScreenPage({ params }: Params) {
       isToday={datum === stockholmToday()}
       tickets={tickets}
       passes={passes}
+      entry={entry}
     />
   );
 }

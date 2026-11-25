@@ -57,14 +57,14 @@ export async function POST(
   const admin = createAdminClient();
   const { data: listing } = await admin
     .from("listings")
-    .select("id, user_id, title, event_date, event_time, capacity, tickets_sold, vat_rate")
+    .select("id, user_id, title, event_date, event_time, event_end_time, capacity, tickets_sold, vat_rate")
     .eq("id", listingId)
     .eq("is_active", true)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: te("eventNotFound") }, { status: 404 });
 
   // Ett passerat event ska inte gå att lösa in kod till i efterhand.
-  if (getSaleState({ price: null, event_date: listing.event_date }, new Date()).state === "past") {
+  if (getSaleState({ price: null, event_date: listing.event_date, event_time: listing.event_time, event_end_time: listing.event_end_time }, new Date()).state === "past") {
     return NextResponse.json({ error: te("past") }, { status: 403 });
   }
 

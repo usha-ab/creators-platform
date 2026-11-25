@@ -1,8 +1,8 @@
+import { stockholmToday } from "@/lib/time";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canOperateEntrance } from "@/lib/scan-access";
-import { stockholmToday } from "@/lib/time";
 import { kioskAccessForOwner } from "@/lib/tickets/kiosk-access";
 import { efterkopLage } from "@/lib/tickets/late-purchase";
 import { formatSwishNumber, getSwishNumber } from "@/lib/swish/config";
@@ -34,7 +34,7 @@ export async function GET(
 
   const { data: listing } = await admin
     .from("listings")
-    .select("id, title, slug, user_id, event_date, is_active")
+    .select("id, title, slug, user_id, event_date, event_time, event_end_time, is_active")
     .eq("id", listingId)
     .maybeSingle();
   if (!listing) return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -98,7 +98,7 @@ export async function GET(
   // Efterköpsläget avgörs på SERVERN, inte av entréenhetens klocka. En telefon
   // som går några minuter fel skulle annars antingen stänga fönstret för
   // tidigt eller visa det när det faktiskt gått ut.
-  const lage = efterkopLage(listing.event_date, new Date());
+  const lage = efterkopLage(listing.event_date, new Date(), listing);
 
   return NextResponse.json({
     // Datumet och om det är i dag avgörs här, inte av telefonens klocka. 17 nov

@@ -97,7 +97,7 @@ async function dorrGenvag(
   const { data: listing } = await admin
     .from("listings")
     .select(
-      "id, title, price, user_id, event_date, event_time, series_slug, service_fee_mode, capacity, vat_rate"
+      "id, title, price, user_id, event_date, event_time, event_end_time, series_slug, service_fee_mode, capacity, vat_rate"
     )
     .eq("id", kvall.id)
     .maybeSingle();

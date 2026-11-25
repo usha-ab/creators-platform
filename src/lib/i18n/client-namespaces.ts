@@ -54,7 +54,7 @@ export const APP_NAMESPACES = [
   "notificationsPage", "onboarding", "openEvents", "pendingTodos", "privacySettings",
   "profile", "quickBuy",
   "reachOut", "recommendations", "recommendationsPage", "rewards", "roleToggle",
-  "roles", "scanPage", "search", "security", "serverNotifications", "settings",
+  "roles", "scanPage", "search", "security", "selfCheckin", "serverNotifications", "settings",
   "toolsPage", "trainingBuddies",
 ] as const;
 

@@ -4,9 +4,25 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { normalizeEmail } from "@/lib/email/normalize";
 import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wallet";
 import { TicketsContent } from "./tickets-content";
+import { checkinButtonMode } from "@/lib/tickets/evening";
+import { isPaidBooking } from "@/lib/tickets/checkin";
+
+/**
+ * Självincheckningens läge per biljett, avgjort på servern:
+ * "open" = fönstret är öppet och det finns något kvar att checka in,
+ * "live" = incheckad och kvällen pågår (visa den levande biljetten).
+ * Klippkort hanteras på biljettsidan — kortets egen post har inget datum.
+ */
+function selfCheckinState(b: any, now: Date): "open" | "live" | null {
+  const listing = Array.isArray(b.listings) ? b.listings[0] : b.listings;
+  if (!listing?.event_date || b.booking_type !== "ticket") return null;
+  const mode = checkinButtonMode(now, listing);
+  if (b.checked_in_at) return mode === "checkin" ? "live" : null;
+  return mode === "checkin" && isPaidBooking(b) ? "open" : null;
+}
 
 const BOOKING_SELECT =
-  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, checked_in_at, guest_count, listings(title, category, price, listing_type, image_url, event_date, event_time, event_location)";
+  "id, listing_id, scheduled_at, status, notes, amount_paid, stripe_payment_id, is_free, booking_type, creator_id, ticket_type_name, checked_in_at, guest_count, refunded_at, listings(title, category, price, listing_type, image_url, event_date, event_time, event_end_time, event_location)";
 
 export default async function TicketsPage() {
   let bookings: any[] = [];
@@ -97,8 +113,10 @@ export default async function TicketsPage() {
       const creatorMap = new Map((creators || []).map((c: any) => [c.id, c]));
 
       // Enrich bookings with creator info
+      const now = new Date();
       bookings = merged.map((b: any) => ({
         ...b,
+        self_checkin: selfCheckinState(b, now),
         creator: creatorMap.get(b.creator_id) || null,
       }));
     }

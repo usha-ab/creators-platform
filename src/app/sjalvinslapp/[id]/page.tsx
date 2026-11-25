@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { swishOfferForListing } from "@/lib/swish/availability";
 import { notIndexable } from "@/lib/seo/metadata";
 import { Kiosk, type KioskStrings } from "./kiosk";
+import { entryCountsLabels } from "@/lib/tickets/entry-counts-labels";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Självinsläpp · Usha Platform", ...notIndexable() };
@@ -83,5 +84,7 @@ export default async function KioskPage({
     fullscreenDenied: d("fullscreenDenied"),
   };
 
-  return <Kiosk id={id} ticketTypeId={tt ?? null} s={strings} />;
+  const counts = await entryCountsLabels();
+
+  return <Kiosk id={id} ticketTypeId={tt ?? null} s={strings} counts={counts} />;
 }

@@ -71,7 +71,7 @@ export async function notifyWaitlistSeatFreed(
     const { data: listing } = await admin
       .from("listings")
       .select(
-        "id, title, slug, price, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, content_language"
+        "id, title, slug, price, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, event_date, event_time, event_end_time, content_language"
       )
       .eq("id", listingId)
       .maybeSingle();

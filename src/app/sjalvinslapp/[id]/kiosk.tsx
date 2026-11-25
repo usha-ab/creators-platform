@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Camera, CheckCircle2, XCircle, AlertCircle, Loader2, ScanLine } from "lucide-react";
 import { vibrate } from "@/lib/haptics";
+import { EntryCountsBar, type EntryCountsLabels } from "@/components/tickets/entry-counts-bar";
 
 /**
  * Självinsläppet: plattan i dörren skannar gästens biljett med frontkameran.
@@ -62,7 +63,7 @@ const KEEPALIVE_MS = 10 * 60 * 1000;
 const fill = (tpl: string, vars: Record<string, string | number>) =>
   tpl.replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? ""));
 
-export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: string | null; s: KioskStrings }) {
+export function Kiosk({ id, ticketTypeId, s, counts }: { id: string; ticketTypeId: string | null; s: KioskStrings; counts: EntryCountsLabels }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [ticketType, setTicketType] = useState<TicketType | null>(null);
@@ -410,6 +411,11 @@ export function Kiosk({ id, ticketTypeId, s }: { id: string; ticketTypeId: strin
           {s.swapSide}
         </button>
         </div>
+      </div>
+      {/* Kvällens färg och räknaren: samma färg som på gästernas levande
+          biljetter, så att den som står bredvid ser att de hör till i kväll. */}
+      <div className="px-4 pb-2 landscape:px-3 landscape:pb-1">
+        <EntryCountsBar listingId={id} labels={counts} />
       </div>
       {fullscreenError && (
         <p className="px-4 pb-2 text-xs text-yellow-300">

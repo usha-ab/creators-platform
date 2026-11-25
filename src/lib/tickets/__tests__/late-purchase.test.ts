@@ -3,18 +3,20 @@ import { efterkopLage, efterkopOppet, EFTERKOP_FONSTER_TIMMAR } from "../late-pu
 import { sessionLivslangdMinuter } from "../late-checkout";
 
 /**
- * Efterköpsfönstret.
+ * Efterköpsfönstret — samma för dörrens efterköp och gästens "Var du där?"
+ * (beslut Pablo 2026-11-25, se evening.ts).
  *
- * Alla tider nedan är UTC. The Lab torsdag 15 oktober 2026 slutar 23:59 svensk
- * tid, vilket under sommartid (CEST, UTC+2) är 21:59 UTC. Fönstret stänger ett
- * dygn senare.
+ * Alla tider nedan är UTC. Öppnar när kvällen passerat för vanliga köp
+ * (midnatt, eller sluttiden om kvällen går över midnatt) och stänger 24
+ * timmar efter kvällens slut. Saknas sluttid räknas 23:59. The Lab torsdag
+ * 15 oktober 2026 utan sluttid: passerar 00:00 svensk tid (22:00 UTC) och
+ * stänger 23:59 den 16:e (21:59 UTC, sommartid UTC+2).
  */
 
 const KVALL = "2026-10-15";
 
 describe("efterkopLage", () => {
   it("är inte aktuellt medan kvällen pågår", () => {
-    // 22:00 svensk tid på kvällen — socialen är igång, vanlig kassa gäller.
     expect(efterkopLage(KVALL, new Date("2026-10-15T20:00:00Z")).kind).toBe("inte_aktuellt");
   });
 
@@ -22,23 +24,32 @@ describe("efterkopLage", () => {
     expect(efterkopLage("2026-10-22", new Date("2026-10-16T08:00:00Z")).kind).toBe("inte_aktuellt");
   });
 
-  it("öppnar när kvällen tagit slut", () => {
-    // 00:30 svensk tid natten efter.
-    const lage = efterkopLage(KVALL, new Date("2026-10-15T22:30:00Z"));
-    expect(lage.kind).toBe("oppet");
+  it("öppnar vid midnatt, när vanliga köp stänger", () => {
+    expect(efterkopLage(KVALL, new Date("2026-10-15T21:59:00Z")).kind).toBe("inte_aktuellt"); // 23:59
+    expect(efterkopLage(KVALL, new Date("2026-10-15T22:00:00Z")).kind).toBe("oppet"); // 00:00
   });
 
   it("är öppet på morgonen efter — Maries fall", () => {
     // Marie försökte betala 07:24 svensk tid den 16 oktober.
-    const lage = efterkopLage(KVALL, new Date("2026-10-16T05:24:00Z"));
-    expect(lage.kind).toBe("oppet");
+    expect(efterkopLage(KVALL, new Date("2026-10-16T05:24:00Z")).kind).toBe("oppet");
   });
 
-  it("stänger ett dygn efter att kvällen tog slut", () => {
-    // 21:59 UTC den 16:e = precis ett dygn efter slutet. Fortfarande öppet.
-    expect(efterkopLage(KVALL, new Date("2026-10-16T21:59:00Z")).kind).toBe("oppet");
-    // En minut senare är det stängt.
-    expect(efterkopLage(KVALL, new Date("2026-10-16T22:01:00Z")).kind).toBe("stangt");
+  it("stänger 24 timmar efter kvällens slut (23:59 utan sluttid)", () => {
+    expect(efterkopLage(KVALL, new Date("2026-10-16T21:58:00Z")).kind).toBe("oppet");
+    expect(efterkopLage(KVALL, new Date("2026-10-16T21:59:00Z")).kind).toBe("stangt");
+  });
+
+  it("räknar från sluttiden när den finns", () => {
+    const times = { event_time: "17:00", event_end_time: "23:00" };
+    const lage = efterkopLage(KVALL, new Date("2026-10-16T08:00:00Z"), times);
+    if (lage.kind !== "oppet") throw new Error("förväntade öppet");
+    expect(lage.stangerVid.toISOString()).toBe("2026-10-16T21:00:00.000Z");
+  });
+
+  it("kväll över midnatt: öppnar vid sluttiden", () => {
+    const times = { event_time: "22:00", event_end_time: "02:00" };
+    expect(efterkopLage(KVALL, new Date("2026-10-15T23:30:00Z"), times).kind).toBe("inte_aktuellt"); // 01:30
+    expect(efterkopLage(KVALL, new Date("2026-10-16T00:00:00Z"), times).kind).toBe("oppet"); // 02:00
   });
 
   it("är stängt för en kväll förra veckan", () => {
@@ -46,23 +57,13 @@ describe("efterkopLage", () => {
   });
 
   it("ger aldrig efterköp för en post utan datum", () => {
-    // Tjänster har ingen kväll att ha missat.
     expect(efterkopLage(null, new Date()).kind).toBe("inte_aktuellt");
     expect(efterkopLage(undefined, new Date()).kind).toBe("inte_aktuellt");
     expect(efterkopLage("", new Date()).kind).toBe("inte_aktuellt");
   });
 
-  it("säger när fönstret stänger", () => {
-    const lage = efterkopLage(KVALL, new Date("2026-10-16T05:00:00Z"));
-    if (lage.kind !== "oppet") throw new Error("förväntade öppet");
-    // Ett dygn efter kvällens slut.
-    expect(lage.stangerVid.toISOString()).toBe("2026-10-16T21:59:00.000Z");
-  });
-
   it("hanterar vintertid utan att tappa en timme", () => {
-    // 5 november är efter omställningen: svensk tid är då UTC+1, så kvällen
-    // slutar 22:59 UTC i stället för 21:59. Räknas gränsen i UTC rakt av blir
-    // fönstret en timme fel halva året.
+    // 5 november: svensk tid UTC+1, så 23:59 dagen efter är 22:59 UTC.
     const lage = efterkopLage("2026-11-05", new Date("2026-11-05T23:30:00Z"));
     expect(lage.kind).toBe("oppet");
     if (lage.kind !== "oppet") return;

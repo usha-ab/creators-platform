@@ -1,7 +1,7 @@
 /**
  * Efterköp: betalning för en kväll som redan varit.
  *
- * Bakgrund. Biljettförsäljningen stänger vid midnatt efter kvällen, och det är
+ * Bakgrund. Biljettförsäljningen stänger när kvällen är slut (evening.ts), och det är
  * rätt — ingen ska kunna köpa sig in på något som inte finns kvar. Men folk
  * bestämmer sig efteråt, dörren är full när de kommer, eller de tänker betala
  * på vägen hem. Då fanns ingen väg alls: gästen stod med pengarna i handen och
@@ -16,23 +16,14 @@
  * betalt av den som faktiskt var där.
  */
 
-import { stockholmLocalToUtcISO } from "@/lib/time";
+import { checkinButtonMode, wasThereEndsAt, WAS_THERE_HOURS, type EveningLike } from "./evening";
 
 /**
- * Hur länge efterköpet är möjligt, räknat från att kvällen tog slut.
- *
- * Ett dygn: hela dagen efter. Den som dansade på torsdagskvällen kan betala
- * under fredagen. Längre än så och det slutar handla om kvällen som var och
- * börjar likna försäljning av ett minne.
+ * Hur länge efterköpet är möjligt, räknat från kvällens slut (sluttiden,
+ * eller 23:59 om den saknas). Ett dygn, beslut Pablo 2026-11-25. Samma fönster
+ * för dörrens efterköp och gästens "Var du där?".
  */
-export const EFTERKOP_FONSTER_TIMMAR = 24;
-
-/** Slutet av eventdagen i svensk tid, samma gräns som sale-state använder. */
-function slutetAvKvallen(eventDate: string | null | undefined): Date | null {
-  if (!eventDate) return null;
-  const iso = stockholmLocalToUtcISO(`${eventDate}T23:59`);
-  return iso ? new Date(iso) : null;
-}
+export const EFTERKOP_FONSTER_TIMMAR = WAS_THERE_HOURS;
 
 export type EfterkopLage =
   /** Kvällen pågår eller är inte här än — vanlig försäljning gäller. */
@@ -45,22 +36,29 @@ export type EfterkopLage =
 /**
  * Var befinner sig kvällen?
  *
- * Datumlösa poster (tjänster) har aldrig "varit" och får aldrig efterköp —
- * för dem finns ingen kväll att ha missat.
+ * Öppet från att kvällen passerat för vanliga köp (midnatt, eller sluttiden
+ * om kvällen går över midnatt) till 24 timmar efter kvällens slut — exakt
+ * knappens "Var du där?"-läge i evening.ts, aldrig med ett glapp emellan.
+ * Datumlösa poster (tjänster) får aldrig efterköp.
  */
-export function efterkopLage(eventDate: string | null | undefined, now: Date): EfterkopLage {
-  const slut = slutetAvKvallen(eventDate);
-  if (!slut) return { kind: "inte_aktuellt" };
-
-  // Kvällen har inte tagit slut: vanlig försäljning är öppen och ska användas.
-  if (now <= slut) return { kind: "inte_aktuellt" };
-
-  const stanger = new Date(slut.getTime() + EFTERKOP_FONSTER_TIMMAR * 3_600_000);
-  if (now <= stanger) return { kind: "oppet", stangerVid: stanger };
+export function efterkopLage(
+  eventDate: string | null | undefined,
+  now: Date,
+  times?: Omit<EveningLike, "event_date">
+): EfterkopLage {
+  const ev = { event_date: eventDate, ...times };
+  const stanger = wasThereEndsAt(ev);
+  const mode = checkinButtonMode(now, ev);
+  if (!stanger || mode === "none" || mode === "before" || mode === "checkin") return { kind: "inte_aktuellt" };
+  if (mode === "wasThere") return { kind: "oppet", stangerVid: stanger };
   return { kind: "stangt", stangdeVid: stanger };
 }
 
 /** Kortformen för en grind som bara ska släppa igenom eller neka. */
-export function efterkopOppet(eventDate: string | null | undefined, now: Date): boolean {
-  return efterkopLage(eventDate, now).kind === "oppet";
+export function efterkopOppet(
+  eventDate: string | null | undefined,
+  now: Date,
+  times?: Omit<EveningLike, "event_date">
+): boolean {
+  return efterkopLage(eventDate, now, times).kind === "oppet";
 }

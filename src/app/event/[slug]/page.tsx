@@ -10,9 +10,12 @@ import Link from "next/link";
 import { Calendar, ChevronDown, Clock, MapPin, Ticket, Users, Pencil, Heart } from "lucide-react";
 import { EVENT_CATEGORY_LABELS } from "@/app/app/events/constants";
 import { BookButton } from "./book-button";
+import { WasThereBox } from "./was-there-box";
 import { WaitlistForm } from "./waitlist-form";
 import { AccessCodeForm } from "./access-code-form";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { isWasThere } from "@/lib/tickets/was-there";
+import { pickRegularOccurrence, pickWasThereOccurrence } from "@/lib/tickets/evening";
 import { splitBilingualDescription, buildPreviewDescription } from "@/lib/listings/description";
 import { buildTldr } from "@/lib/listings/tldr";
 import { buildMapsHref } from "@/lib/listings/maps";
@@ -81,17 +84,23 @@ interface EventCard {
 // hit när en serie-slug ska lösas till rätt kväll.
 const resolveSlugToOccurrence = cache(async (slug: string): Promise<string | null> => {
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
-  const { data: upcoming } = await supabase
+  // Från gårdagens datum (en kväll som pågår efter midnatt ska fortfarande
+  // träffas), och sedan den första som inte passerat (lib/tickets/evening.ts).
+  // Tidigare jämfördes mot UTC-datumet, som bytte dag kl. 01–02 svensk tid.
+  const now = new Date();
+  const from = new Date(now.getTime() - 86_400_000).toISOString().slice(0, 10);
+  const { data: upcomingRows } = await supabase
     .from("listings")
-    .select("id, slug, event_date")
+    .select("id, slug, event_date, event_time, event_end_time")
     .eq("series_slug", slug)
     .eq("is_active", true)
     .eq("is_public", true)
-    .or(`event_date.gte.${today},event_date.is.null`)
+    .or(`event_date.gte.${from},event_date.is.null`)
     .order("event_date", { ascending: true, nullsFirst: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(3);
+  // Vanliga köp går alltid till nästa kväll som inte passerat — aldrig till
+  // en passerad kväll, inte heller under dess efterköpsfönster.
+  const upcoming = pickRegularOccurrence(upcomingRows ?? [], now);
   if (upcoming) return upcoming.slug ?? upcoming.id;
 
   const { data: latest } = await supabase
@@ -529,6 +538,41 @@ export default async function EventPage(props: Params) {
   // Timed automation: effective price + whether tickets are buyable right now.
   const sale = getSaleState(listing, new Date());
   const isFree = !sale.price || sale.price <= 0;
+  // "Var du där?" — efterköp för en PASSERAD kväll, skilt från köpknappen.
+  // På den passerade kvällens egen sida: rutan med bekräftelsesteg. På nästa
+  // kvälls sida: en länk till den passerade kvällen, med dess datum. Vanliga
+  // köp går alltid till nästa kväll (pickRegularOccurrence). Kassan avgör
+  // fönstret till sist — sidan kan vara upp till en minut gammal.
+  const nowForWasThere = new Date();
+  const dayLabels = (d: string) => ({
+    weekday: new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString(dateLocaleFor(locale), { weekday: "long", timeZone: "Europe/Stockholm" }),
+    date: new Date(`${d.slice(0, 10)}T12:00:00Z`).toLocaleDateString(dateLocaleFor(locale), { day: "numeric", month: "long", timeZone: "Europe/Stockholm" }),
+  });
+  const wasThereHere = isWasThere(listing, nowForWasThere) && listing.event_date
+    ? {
+        name: listing.title,
+        ...dayLabels(listing.event_date),
+        time: (listing.event_time ?? "").slice(0, 5),
+      }
+    : null;
+  const wasThereOptions = (ticketTypes ?? []).length
+    ? (ticketTypes ?? []).map((tt) => ({ id: tt.id as string, name: tt.name as string, price: Number(tt.price) }))
+    : [{ id: null, name: listing.title, price: Number(listing.price) || 0 }];
+  let wasThereElsewhere: { href: string; weekday: string; date: string } | null = null;
+  if (!wasThereHere && listing.series_slug && listing.event_date) {
+    const since = new Date(nowForWasThere.getTime() - 2 * 86_400_000).toISOString().slice(0, 10);
+    const { data: recent } = await (await createClient())
+      .from("listings")
+      .select("id, slug, event_date, event_time, event_end_time")
+      .eq("series_slug", listing.series_slug)
+      .eq("is_active", true)
+      .eq("is_public", true)
+      .gte("event_date", since)
+      .lt("event_date", listing.event_date)
+      .order("event_date", { ascending: true });
+    const passed = pickWasThereOccurrence(recent ?? [], nowForWasThere);
+    if (passed?.event_date) wasThereElsewhere = { href: `/event/${passed.slug ?? passed.id}`, ...dayLabels(passed.event_date) };
+  }
 
   // Priset för knappen högst upp. Biljettyperna kan spänna över flera priser
   // (50/100/130/200 på The Lab) — då är lägsta priset rätt att visa, med
@@ -986,11 +1030,31 @@ export default async function EventPage(props: Params) {
           </div>
 
           <aside className="order-1 min-w-0 space-y-4 md:order-none md:col-start-2 md:row-start-1">
+            {/* "Var du där?" för den passerade kvällen i serien. En egen länk med
+                den kvällens datum — köpknappen nedan gäller den här kvällen. */}
+            {wasThereElsewhere && (
+              <a
+                href={wasThereElsewhere.href}
+                className="block rounded-2xl border border-[var(--usha-gold)]/40 bg-[var(--usha-card)] px-4 py-3 text-center text-sm font-semibold text-[var(--usha-gold)] transition hover:bg-[var(--usha-gold)]/10"
+              >
+                {t("wasThereLink", { weekday: wasThereElsewhere.weekday, date: wasThereElsewhere.date })}
+              </a>
+            )}
             <div id="biljetter" className="scroll-mt-6 rounded-2xl border border-[var(--usha-border)] bg-[var(--usha-card)] p-6">
               {/* Prisrubriken hör ihop med biljettvalet, så under försäljning
                   renderas den av BookButton och följer det man klickat på.
                   Går det inte att köpa finns inget val att följa, och då står
                   den kvar här. */}
+              {wasThereHere && sellable && wasThereOptions.some((o) => o.price > 0) && (
+                <div className="mb-4">
+                  <WasThereBox
+                    listingId={listing.id}
+                    isLoggedIn={!!user}
+                    options={wasThereOptions.filter((o) => o.price > 0)}
+                    evening={wasThereHere}
+                  />
+                </div>
+              )}
               {sale.buyable && sellable ? (
                 <BookButton
                   listingId={listing.id}

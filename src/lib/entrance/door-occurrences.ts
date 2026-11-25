@@ -10,21 +10,21 @@ export async function hamtaKvallar(
   supabase: Awaited<ReturnType<typeof createClient>>,
   kanonisk: string,
   rå: string
-): Promise<(DoorOccurrence & { id: string; series_id: string | null })[]> {
+): Promise<(DoorOccurrence & { id: string; series_id: string | null; user_id: string })[]> {
   const fraga = (slug: string) =>
     supabase
       .from("listings")
-      .select("id, slug, title, event_date, series_id")
+      .select("id, slug, title, event_date, series_id, user_id")
       .eq("series_slug", slug)
       .eq("is_active", true)
       .eq("is_public", true)
       .order("event_date", { ascending: true });
 
   const { data } = await fraga(kanonisk);
-  const rader = (data as (DoorOccurrence & { id: string; series_id: string | null })[] | null) ?? [];
+  const rader = (data as (DoorOccurrence & { id: string; series_id: string | null; user_id: string })[] | null) ?? [];
   if (rader.length > 0 || kanonisk === rå) return rader;
   const { data: fallback } = await fraga(rå);
-  return (fallback as (DoorOccurrence & { id: string; series_id: string | null })[] | null) ?? [];
+  return (fallback as (DoorOccurrence & { id: string; series_id: string | null; user_id: string })[] | null) ?? [];
 }
 
 export interface DoorScreenTicket {

@@ -36,6 +36,8 @@ export interface LateCheckoutListing {
   user_id: string;
   event_date: string | null;
   event_time: string | null;
+  /** Sluttid; avgör kvällens slut tillsammans med 04-golvet (evening.ts). */
+  event_end_time?: string | null;
   series_slug: string | null;
   service_fee_mode: string | null;
   /** Momssats för kvällen (listings.vat_rate). Saknas/null = standard. */
@@ -126,7 +128,7 @@ export async function createLateCheckoutSession(args: {
   const mode = args.mode ?? "efterkop";
 
   if (mode === "efterkop") {
-    const lage = efterkopLage(listing.event_date, now);
+    const lage = efterkopLage(listing.event_date, now, listing);
     if (lage.kind !== "oppet") {
       return {
         ok: false,
@@ -141,7 +143,7 @@ export async function createLateCheckoutSession(args: {
     // Samma grind som den publika kassan. Dörrgenvägen får aldrig vara en
     // bakväg förbi "inte släppt än", "slutsålt" eller "har varit".
     const sale = getSaleState(
-      { price: listing.price, event_date: listing.event_date },
+      { price: listing.price, event_date: listing.event_date, event_time: listing.event_time, event_end_time: listing.event_end_time },
       now
     );
     if (!sale.buyable) {

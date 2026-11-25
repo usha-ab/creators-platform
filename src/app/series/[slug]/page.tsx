@@ -3,6 +3,8 @@ export const revalidate = 60; // ISR: revalidate every 60 seconds
 import { createClient } from "@/lib/supabase/server";
 import { safeJsonLd } from "@/lib/json-ld";
 import { getSaleState } from "@/lib/listings/sale-state";
+import { eveningIsOver } from "@/lib/tickets/evening";
+import { isWasThere } from "@/lib/tickets/was-there";
 import {
   availabilityFromSale,
   eventJsonLd,
@@ -260,13 +262,17 @@ export default async function SeriesPage(props: Props) {
 
   const creatorUrl = creator?.slug ? `/${creator.slug}` : `/creators/${series.user_id}`;
 
-  // Split upcoming vs past (today inclusive = upcoming). Past kept as a library.
-  const today = new Date().toISOString().slice(0, 10);
-  const upcoming = occurrences.filter((o) => !o.event_date || o.event_date >= today);
+  // Kommande vs passerade, med samma kvällsgräns som köpet (evening.ts):
+  // en kväll passerar vid midnatt, eller vid sluttiden om den går över
+  // midnatt. Förut jämfördes mot UTC-datumet. Passerade ligger kvar som arkiv;
+  // den som är inom efterköpsfönstret får knappen "Var du där?".
+  const nowForRows = new Date();
+  const upcoming = occurrences.filter((o) => !o.event_date || !eveningIsOver(o, nowForRows));
   const crewByListing = await loadEveningCrew(upcoming.map((o) => o.id));
   const tc = await getTranslations("eveningCrew");
   const crewLabels = { taxi_dancer: tc("taxi_dancer"), instructor: tc("instructor"), collaborator: tc("collaborator") };
-  const past = occurrences.filter((o) => o.event_date && o.event_date < today).reverse();
+  const past = occurrences.filter((o) => o.event_date && eveningIsOver(o, nowForRows)).reverse();
+  const tEvent = await getTranslations({ locale, namespace: "eventPage" });
 
   const now = new Date();
   const seriesOrganizer = eventOrganizer({ organizerName: series.organizer_name, profile: creator ?? null });
@@ -436,10 +442,10 @@ export default async function SeriesPage(props: Props) {
                 <OccurrenceRow
                   key={o.id}
                   o={o}
-                  past
+                  past={!isWasThere(o, nowForRows)}
                   locale={locale}
                   priceLabel={priceLabel(o)}
-                  ctaLabel={t("view")}
+                  ctaLabel={isWasThere(o, nowForRows) ? tEvent("wasThereButton") : t("view")}
                 />
               ))}
             </div>

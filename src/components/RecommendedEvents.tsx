@@ -26,6 +26,8 @@ interface Recommendation {
   match_reasons?: MatchReason[];
   /** Kvällens datum. API:et har alltid skickat det — kortet ritade det aldrig. */
   event_date?: string | null;
+  event_time?: string | null;
+  event_end_time?: string | null;
   event_location?: string | null;
   /** Hur många fler tillfällen i samma serie som slogs ihop till det här kortet. */
   more_occurrences?: number;
@@ -209,7 +211,7 @@ function EventCard({ event }: { event: Recommendation }) {
   // — gamla kvällar ska gå att bläddra i — men att erbjuda en biljett till den
   // är ett löfte som inte går att hålla; kassan nekar ändå. Gränsen hämtas ur
   // sale-state så korten räknar likadant som dörren.
-  const past = isPastEvent(event.event_date, new Date());
+  const past = isPastEvent(event.event_date, new Date(), event);
   const categoryStyle =
     CATEGORY_COLORS[event.category] ?? 'bg-[var(--usha-gold)]/10 text-[var(--usha-gold)]';
 

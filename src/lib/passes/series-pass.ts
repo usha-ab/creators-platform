@@ -168,6 +168,8 @@ export interface Occurrence {
   title: string;
   event_date: string;
   event_time: string | null;
+  /** Sluttid, för kvällens slut (lib/tickets/evening.ts). */
+  event_end_time?: string | null;
   event_location: string | null;
 }
 
@@ -207,7 +209,7 @@ export async function seriesOccurrences(
   if (ids.length === 0) return [];
   const { data } = await admin
     .from("listings")
-    .select("id, title, event_date, event_time, event_location")
+    .select("id, title, event_date, event_time, event_end_time, event_location")
     .in("series_id", ids as string[])
     .eq("is_active", true)
     .not("event_date", "is", null)

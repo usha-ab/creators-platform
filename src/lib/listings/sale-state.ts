@@ -1,7 +1,7 @@
 // Lucka 3 — tidsstyrd automatisering: härled biljettförsäljningens läge on-read.
 // Ren funktion (ingen I/O, ingen locale) så den kan testas exakt på minuten.
 
-import { stockholmLocalToUtcISO } from "@/lib/time";
+import { eveningIsOver } from "@/lib/tickets/evening";
 
 export type SaleState = "on_sale" | "early_bird" | "before" | "sold_out" | "past";
 
@@ -9,6 +9,10 @@ export interface SaleInput {
   price: number | null;
   /** Eventdatum "YYYY-MM-DD". Sätts inte för tjänster utan datum. */
   event_date?: string | null;
+  /** Starttid "HH:MM[:SS]", svensk tid. Behövs för kvällar över midnatt. */
+  event_time?: string | null;
+  /** Sluttid "HH:MM[:SS]", svensk tid. Se lib/tickets/evening.ts. */
+  event_end_time?: string | null;
   early_bird_start?: string | Date | null;
   early_bird_end?: string | Date | null;
   early_bird_price?: number | null;
@@ -34,26 +38,23 @@ function asDate(v: string | Date | null | undefined): Date | null {
   return isNaN(d.getTime()) ? null : d;
 }
 
-/** Slutet av eventdagen i svensk tid (DST-korrekt). Null för datumlösa poster. */
-function endOfEventDay(event_date: string | null | undefined): Date | null {
-  if (!event_date) return null;
-  const iso = stockholmLocalToUtcISO(`${event_date}T23:59`);
-  return iso ? new Date(iso) : null;
-}
-
 /**
  * Har kvällen varit? Samma gräns som getSaleState använder för "past":
- * midnatt efter eventdagen i svensk tid, så ett pågående event aldrig
- * stängs av i förtid. Datumlösa poster (tjänster) har aldrig varit.
+ * kvällens slut enligt lib/tickets/evening.ts — sluttiden, men aldrig före
+ * 04:00 dagen efter. Då går det att köpa efter midnatt medan kvällen pågår.
+ * Datumlösa poster (tjänster) har aldrig varit.
  *
- * Exporterad för ytor som bara har ett datum att gå på och inte hela
- * försäljningsbilden — rekommendationskorten, till exempel. Regeln ska
- * finnas på ETT ställe; en yta som räknar ut "passerat" på egen hand
- * kommer förr eller senare att räkna annorlunda än dörren.
+ * Exporterad för ytor som inte har hela försäljningsbilden —
+ * rekommendationskorten, till exempel. Regeln ska finnas på ETT ställe; en
+ * yta som räknar ut "passerat" på egen hand kommer förr eller senare att
+ * räkna annorlunda än dörren. Skicka med tiderna när de finns.
  */
-export function isPastEvent(event_date: string | null | undefined, now: Date): boolean {
-  const endsAt = endOfEventDay(event_date);
-  return !!endsAt && now > endsAt;
+export function isPastEvent(
+  event_date: string | null | undefined,
+  now: Date,
+  times?: { event_time?: string | null; event_end_time?: string | null }
+): boolean {
+  return eveningIsOver({ event_date, event_time: times?.event_time, event_end_time: times?.event_end_time }, now);
 }
 
 export function getSaleState(listing: SaleInput, now: Date): SaleResult {
@@ -67,9 +68,9 @@ export function getSaleState(listing: SaleInput, now: Date): SaleResult {
 
   // 0. Eventet har redan varit → aldrig köpbart, oavsett förköp/kapacitet.
   //    Passerade event ska ligga kvar och gå att bläddra i, men inte säljas.
-  //    Gränsen är midnatt efter eventdagen (svensk tid), så ett pågående event
-  //    aldrig stängs av i förtid. Tjänster utan event_date berörs inte.
-  if (isPastEvent(listing.event_date, now)) {
+  //    Gränsen är kvällens slut (evening.ts), så ett pågående event aldrig
+  //    stängs av i förtid. Tjänster utan event_date berörs inte.
+  if (isPastEvent(listing.event_date, now, listing)) {
     return { state: "past", buyable: false, price, until: null };
   }
 

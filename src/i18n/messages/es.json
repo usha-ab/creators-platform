@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Conecta tu cuenta bancaria y consulta tus pagos",
     "noPlansTitle": "No hay suscripción que contratar",
     "noPlansCustomer": "Tu cuenta es gratuita y ya tiene todo lo necesario para comprar entradas, verlas en la app y seguir lo que te gusta. Si vienes a menudo, el bono es lo que baja el precio: se compra en la página de la noche, no aquí.",
-    "noPlansVenue": "Los locales no se suscriben con nosotros. El perfil es gratis, y quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local. Escribe a pablo.acosta@usha.se.",
+    "noPlansVenue": "Los locales no se suscriben con nosotros. El perfil es gratis, y quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local. Escribe a support@usha.se.",
     "subtitle": "Gestiona tu plan y tus pagos.",
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",
@@ -2492,6 +2492,14 @@
     }
   },
   "eventPage": {
+    "wasThereLink": "¿Estuviste allí el {weekday} {date}? Paga esa noche aquí",
+    "wasThereButtonDated": "¿Estuviste allí el {weekday} {date}?",
+    "wasThereButton": "¿Estuviste allí?",
+    "wasThereLead": "¿Estuviste aquí el {weekday} {date} sin entrada? Paga la noche después, dentro de las 24 horas siguientes al final de la noche.",
+    "wasThereConfirmText": "Pagas {price} SEK por {name} {weekday} {date}, {time}. Solo si estuviste allí.",
+    "wasThereConfirmButton": "Estuve allí – pagar {price} SEK",
+    "wasThereCancel": "Cancelar",
+    "wasThereEmailLabel": "Tu correo electrónico",
     "epassiTitle": "Paga con tu ayuda de bienestar",
     "epassiBody": "The Lab está en Epassi para bonos. Elige un bono entre las entradas y pulsa Pagar con ayuda de bienestar para ver las instrucciones. Trae tu documento de identidad la primera noche. Una noche suelta también se puede pagar con Swish, aquí en la página o en la puerta.",
     "singleTicket": "Entrada para la noche",
@@ -2611,6 +2619,10 @@
     "swishContinue": "Continuar a"
   },
   "eventErrors": {
+    "wasThereClosed": "Ya no es posible pagar esa noche después.",
+    "wasThereNoPass": "Después de medianoche solo se puede pagar la noche, no un bono.",
+    "wasThereEmail": "Introduce tu correo electrónico.",
+    "wasThereAlreadyPaid": "Ya has pagado esta noche.",
     "notReleased": "Las entradas aún no están disponibles.",
     "soldOut": "Este evento está agotado.",
     "past": "Este evento ya ha tenido lugar.",
@@ -4327,6 +4339,8 @@
     "counter": "{redeemed}/{total} min"
   },
   "refundPolicy": {
+    "wasThereTitle": "Pagar la noche después",
+    "wasThereBody": "Si estuviste en un evento sin entrada, puedes pagar la noche después, dentro de las 24 horas siguientes al final de la noche. La compra se refiere a una noche que ya ha tenido lugar y no está cubierta por el derecho de desistimiento (ley sueca (2005:59), capítulo 2, artículo 11, punto 12).",
     "back": "Volver",
     "heading": "Política de reembolsos",
     "lastUpdated": "Última actualización: 2026-05-01",
@@ -5058,7 +5072,7 @@
     },
     "help": {
       "title": "¿Te has atascado?",
-      "body": "Escríbenos a pablo.acosta@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
+      "body": "Escríbenos a support@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
     }
   },
   "entrance": {
@@ -5693,5 +5707,41 @@
     "error_too_old": "La comprobación es demasiado antigua. Haz una nueva en la Agencia Tributaria.",
     "error_invalid_source": "Fuente no válida.",
     "error_save_failed": "No se pudo guardar."
+  },
+  "selfCheckin": {
+    "button": "Hacer check-in",
+    "buttonParty": "Check-in de {n}",
+    "choose": "¿Quién hace check-in ahora?",
+    "working": "Haciendo check-in…",
+    "hint": "Desde 30 minutos antes del inicio puedes hacer check-in tú mismo aquí. La entrada se vuelve verde y pasas directamente.",
+    "opensAt": "El check-in abre a las {time}",
+    "tooEarly": "Demasiado pronto: el check-in abre a las {time}.",
+    "eveningOver": "El check-in ha cerrado por esta noche. Muestra el código QR en la puerta si necesitas entrar.",
+    "tooMany": "Demasiados intentos. Espera un minuto y vuelve a intentarlo.",
+    "failed": "No se pudo hacer check-in. Muestra el código QR en la puerta.",
+    "network": "Sin conexión con el servidor. Inténtalo de nuevo.",
+    "liveTitle": "Check-in {time}",
+    "liveHint": "Muestra esta pantalla en la puerta y entra.",
+    "liveNow": "Hora actual",
+    "colorLabel": "Color de la noche",
+    "showLive": "Ver entrada en vivo",
+    "party": "{in} de {total} con check-in",
+    "countsSold": "Vendidas",
+    "countsIn": "Con check-in",
+    "countsWaiting": "Sin llegar",
+    "colors": {
+      "red": "Rojo",
+      "orange": "Naranja",
+      "amber": "Ámbar",
+      "yellow": "Amarillo",
+      "lime": "Lima",
+      "teal": "Verde azulado",
+      "cyan": "Turquesa",
+      "blue": "Azul",
+      "indigo": "Índigo",
+      "violet": "Morado",
+      "pink": "Rosa",
+      "white": "Blanco"
+    }
   }
 }

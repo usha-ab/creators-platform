@@ -29,7 +29,7 @@ export async function GET(
   const { data: listing } = await admin
     .from("listings")
     .select(
-      "id, slug, user_id, title, price, event_date, event_time, series_slug, service_fee_mode, vat_rate"
+      "id, slug, user_id, title, price, event_date, event_time, event_end_time, series_slug, service_fee_mode, vat_rate"
     )
     .eq("id", listingId)
     .maybeSingle();

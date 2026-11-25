@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { EntryCountsBar, type EntryCountsLabels } from "@/components/tickets/entry-counts-bar";
 
 /**
  * Dörrskärmens yta. Medvetet ett enda mörkt tema: en platta i en dunkel bar ska
@@ -26,12 +27,15 @@ export function DoorScreen({
   isToday,
   tickets,
   passes,
+  entry = null,
 }: {
   title: string | null;
   dateLabel: string | null;
   isToday: boolean;
   tickets: Ticket[];
   passes: Ticket[];
+  /** Räknare och kvällens färg — bara när plattan har skanningsrätt. */
+  entry?: { listingId: string; labels: EntryCountsLabels } | null;
 }) {
   const [open, setOpen] = useState<Ticket | null>(null);
   const [left, setLeft] = useState(0);
@@ -153,6 +157,8 @@ export function DoorScreen({
             </div>
           )}
         </header>
+
+        {entry && isToday && <EntryCountsBar listingId={entry.listingId} labels={entry.labels} variant="door" />}
 
         {tickets.length > 0 ? (
           <>

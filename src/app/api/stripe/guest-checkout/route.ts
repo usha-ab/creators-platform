@@ -13,6 +13,7 @@ import { clampQuantity, createTicketAttendees, attendeeNamesToMeta } from "@/lib
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getSaleState } from "@/lib/listings/sale-state";
+import { eveningLineName, wasThereGate } from "@/lib/tickets/was-there";
 import { stockholmLocalToUtcISO } from "@/lib/time";
 import { getTranslations } from "next-intl/server";
 import {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames } = await req.json();
+    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames, wasThere: wasThereRequested } = await req.json();
     // Adressen är identiteten som knyter gästbiljetten till ett konto senare.
     // Sparas den som den skrevs slutar `guest_email = user.email` matcha så
     // fort någon råkar få en versal med sig från tangentbordet.
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
     // Fetch listing
     const { data: listing } = await supabase
       .from("listings")
-      .select("id, title, price, user_id, is_active, event_date, event_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug, vat_rate")
+      .select("id, title, price, user_id, is_active, event_date, event_time, event_end_time, event_location, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, service_fee_mode, listing_type, session_count, series_slug, vat_rate")
       .eq("id", listingId)
       .eq("is_active", true)
       .single();
@@ -96,8 +97,30 @@ export async function POST(req: NextRequest) {
     }
 
     // Timed automation: block when not buyable; use effective (early-bird) price.
-    const sale = getSaleState(listing, new Date());
-    if (!sale.buyable) {
+    const now = new Date();
+    // "Var du där?" — efterköp för en PASSERAD kväll, bara på begäran från
+    // bekräftelsesteget. Vanliga köp passerar grinden orörda och stoppas av
+    // sale-state om kvällen passerat. Se lib/tickets/was-there.ts.
+    const wasThere = await wasThereGate({
+      admin: createAdminClient(),
+      listing,
+      now,
+      requested: wasThereRequested === true,
+      isPass,
+      userId: null,
+      email: email,
+    });
+    if (wasThere.kind === "error") {
+      const te = await getTranslations("eventErrors");
+      return NextResponse.json({ error: te(wasThere.code), code: wasThere.code }, { status: wasThere.status });
+    }
+    if (wasThere.kind === "ok") qty = 1;
+    // Kvällens namn och datum på kvittoraden vid efterköp: köpet görs en
+    // annan dag än kvällen det gäller.
+    const lineTitle = wasThere.kind === "ok" ? eveningLineName(listing.title, listing.event_date, listing.event_time) : listing.title;
+
+    const sale = getSaleState(listing, now);
+    if (!sale.buyable && wasThere.kind !== "ok") {
       const te = await getTranslations("eventErrors");
       const msg =
         sale.state === "past" ? te("past") :
@@ -105,8 +128,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: msg }, { status: 403 });
     }
 
+
     // A selected ticket type sets its own price; otherwise the listing price.
-    const effectivePrice = ticketType ? ticketType.price : sale.price;
+    // Efterköpet säljer den passerade kvällen till ordinarie pris; sale-state
+    // har inget pris för en kväll som räknas som passerad.
+    const effectivePrice = ticketType ? ticketType.price : wasThere.kind === "ok" ? Number(listing.price) || 0 : sale.price;
 
     // Free tickets — create booking directly
     if (!effectivePrice || effectivePrice <= 0) {
@@ -264,7 +290,7 @@ export async function POST(req: NextRequest) {
       {
         price_data: {
           currency: "sek",
-          product_data: { name: ticketType ? `${listing.title} – ${ticketType.name}` : listing.title },
+          product_data: { name: ticketType ? `${lineTitle} – ${ticketType.name}` : lineTitle },
           unit_amount: amountInOre,
         },
         quantity: qty,
@@ -361,6 +387,7 @@ export async function POST(req: NextRequest) {
           reserved: "true",
           eventDate: listing.event_date || "",
           eventTime: listing.event_time || "",
+          wasThere: wasThere.kind === "ok" ? "true" : "",
         },
       });
     } catch (e) {

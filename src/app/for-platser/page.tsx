@@ -39,7 +39,7 @@ import { RedirectIfAuthed } from "@/components/landing/redirect-if-authed";
  * i event_settlement_payouts). Ändras det ska texten payout ändras med.
  */
 
-const CONTACT_EMAIL = "pablo.acosta@usha.se";
+const CONTACT_EMAIL = "support@usha.se";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("forVenues");

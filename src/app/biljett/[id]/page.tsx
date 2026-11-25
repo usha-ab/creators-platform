@@ -17,6 +17,11 @@ import { appleWalletConfigured, googleWalletConfigured } from "@/lib/tickets/wal
 import { swishOfferForListing } from "@/lib/swish/availability";
 import { swishPaymentUrl } from "@/lib/swish/config";
 import { PendingRefresh } from "./pending-refresh";
+import { isPaidBooking } from "@/lib/tickets/checkin";
+import { eveningIsOver, selfCheckinWindow } from "@/lib/tickets/evening";
+import { checkinColor } from "@/lib/tickets/checkin-color";
+import { LiveTicket } from "@/components/tickets/live-ticket";
+import { SelfCheckinButton } from "@/components/tickets/self-checkin-button";
 import WithdrawalCard from "./withdrawal-card";
 import { withdrawalState } from "@/lib/bookings/withdrawal";
 
@@ -50,7 +55,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, ticket_type_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, payment_method, amount_paid, created_at, minutes_total, is_free")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, ticket_type_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, payment_method, amount_paid, refunded_at, created_at, minutes_total, is_free")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -58,7 +63,7 @@ export default async function GuestTicketPage({
   const [{ data: listing }, { data: creator }] = await Promise.all([
     admin
       .from("listings")
-      .select("user_id, title, slug, event_date, event_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
+      .select("user_id, title, slug, event_date, event_time, event_end_time, event_location, venue_profile_id, venue_confirmed_at, pass_series_id, pass_series_ids, pass_covers")
       .eq("id", booking.listing_id)
       .maybeSingle(),
     admin
@@ -72,9 +77,8 @@ export default async function GuestTicketPage({
   // inte köpögonblicket, och hur många klipp som är kvar.
   const isPass = isPassBooking(booking);
   const passSeries = passSeriesIds(listing);
-  const passShown = isPass && passSeries.length > 0
-    ? (({ today, next }) => today ?? next)(pickOccurrence(await seriesOccurrences(admin, passSeries)))
-    : null;
+  const passPick = isPass && passSeries.length > 0 ? pickOccurrence(await seriesOccurrences(admin, passSeries)) : null;
+  const passShown = passPick ? passPick.today ?? passPick.next : null;
 
   let attendee: string | null = booking.guest_name;
   if (!attendee && booking.customer_id) {
@@ -136,9 +140,9 @@ export default async function GuestTicketPage({
         .order("price", { ascending: true })
     : { data: null };
 
-  const eventOver = listing?.event_date
-    ? listing.event_date < new Date().toISOString().slice(0, 10)
-    : false;
+  // Samma kvällsslut som köpgränsen (evening.ts) — inte UTC-datumet, som
+  // gömde tilläggen redan 01–02 svensk tid mitt under kvällen.
+  const eventOver = listing ? eveningIsOver(listing, new Date()) : false;
   const addOns = eventOver
     ? []
     : (otherTypes ?? []).filter(
@@ -217,7 +221,7 @@ export default async function GuestTicketPage({
   // Multi-ticket order: one QR per attendee, each individually scannable.
   // Swish-bokningar har inga attendee-rader (en QR, antalet platser ligger i
   // guest_count och skannern räknar), så de faller tillbaka på den enkla vyn.
-  const attendeeQrs: { id: string; label: string; checkedIn: boolean; qr: string }[] = [];
+  const attendeeQrs: { id: string; label: string; checkedIn: boolean; checkedInAt: string | null; qr: string }[] = [];
   if ((booking.guest_count ?? 1) > 1) {
     const { data: attRows } = await admin
       .from("ticket_attendees")
@@ -230,6 +234,7 @@ export default async function GuestTicketPage({
         id: a.id,
         label: a.name || t("guestLabel", { idx: a.idx, count: booking.guest_count ?? 1 }),
         checkedIn: !!a.checked_in_at,
+        checkedInAt: a.checked_in_at,
         qr: await QRCode.toDataURL(url, qrOpts),
       });
     }
@@ -257,6 +262,50 @@ export default async function GuestTicketPage({
 
   const canceled = booking.status === "canceled";
   const used = booking.status === "completed" || !!booking.checked_in_at;
+
+  // Självincheckning och den levande biljetten. Fönstret (start − 30 min till
+  // kvällens slut) och betalningen avgörs här på servern; rutten
+  // /api/tickets/self-checkin kontrollerar samma sak igen när gästen trycker.
+  // Klippkort: kvällens tillfälle i serien, och bara i dag — inte nästa kväll.
+  const now = new Date();
+  const evening = isPass ? passPick?.today ?? null : listing;
+  const eveningListingId = isPass ? passPick?.today?.id ?? null : booking.listing_id;
+  const checkinWindow = evening ? selfCheckinWindow(evening, now) : ({ state: "none" } as const);
+  const paid = isPaidBooking(booking);
+  let liveAt: string | null = null;
+  if (isPass && eveningListingId) {
+    const { data: clip } = await admin
+      .from("pass_redemptions")
+      .select("redeemed_at")
+      .eq("booking_id", booking.id)
+      .eq("listing_id", eveningListingId)
+      .eq("is_manual", false)
+      .maybeSingle();
+    liveAt = clip?.redeemed_at ?? null;
+  } else if (isMulti) {
+    liveAt = attendeeQrs.map((a) => a.checkedInAt).filter((x): x is string => !!x).sort().pop() ?? null;
+  } else {
+    liveAt = booking.checked_in_at;
+  }
+  // "Checka in" och den levande biljetten gäller till midnatt, eller till
+  // sluttiden om kvällen pågår efter midnatt (checkinButtonMode). Därefter är
+  // kvällen passerad; biljetten har redan betalats, så "Var du där?" hör inte
+  // hemma här utan på kvällens eventsida.
+  const eveningLive = checkinWindow.state === "open";
+  const showLive = !!liveAt && eveningLive && !canceled;
+  const attendeesIn = attendeeQrs.filter((a) => a.checkedIn).length;
+  const canSelfCheckin =
+    paid &&
+    !canceled &&
+    eveningLive &&
+    (isPass ? !liveAt && passRemaining(booking) > 0 : isMulti ? attendeesIn < attendeeQrs.length : !booking.checked_in_at);
+  const ts = await getTranslations("selfCheckin");
+  const color = showLive && eveningListingId && evening?.event_date ? checkinColor(eveningListingId, evening.event_date) : null;
+  const opensAtLabel =
+    checkinWindow.state === "before" && paid && !canceled
+      ? checkinWindow.opensAt.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Stockholm" })
+      : null;
+  const opensToday = checkinWindow.state === "before" && checkinWindow.opensAt.getTime() - now.getTime() < 18 * 3_600_000;
 
   // Swish som inte bekräftats än. Det här är sidan gästen landar på direkt
   // efter "Fortsätt till Swish": här görs betalningen, här står vad som händer
@@ -328,6 +377,37 @@ export default async function GuestTicketPage({
               <p className="mt-1 text-sm text-[var(--usha-muted)]">{attendee}</p>
             )}
           </div>
+
+          {showLive && liveAt && (
+            <LiveTicket
+              checkedInAt={liveAt}
+              title={(isPass ? passShown?.title : null) ?? listing?.title ?? t("eventFallback")}
+              dateLabel={dateLabel}
+              holder={attendee}
+              color={color ? { bg: color.bg, fg: color.fg, name: ts(`colors.${color.key}`) } : null}
+              note={isMulti ? ts("party", { in: attendeesIn, total: attendeeQrs.length }) : null}
+              labels={{ title: ts("liveTitle", { time: "{time}" }), hint: ts("liveHint"), now: ts("liveNow"), colorLabel: ts("colorLabel") }}
+            />
+          )}
+          {canSelfCheckin && (
+            <SelfCheckinButton
+              bookingId={booking.id}
+              attendees={isMulti ? attendeeQrs.map((a) => ({ id: a.id, label: a.label, checkedIn: a.checkedIn })) : undefined}
+              labels={{
+                button: ts("button"),
+                buttonParty: ts("buttonParty", { n: "{n}" }),
+                choose: ts("choose"),
+                working: ts("working"),
+                failed: ts("failed"),
+                network: ts("network"),
+              }}
+            />
+          )}
+          {!showLive && !canSelfCheckin && paid && !canceled && checkinWindow.state === "before" && (
+            <p className="rounded-xl border border-green-600/30 bg-green-600/10 p-3 text-center text-xs leading-relaxed text-[var(--usha-muted)]">
+              {opensToday && opensAtLabel ? ts("opensAt", { time: opensAtLabel }) : ts("hint")}
+            </p>
+          )}
 
           {/* QR or status */}
           {swishPending ? (

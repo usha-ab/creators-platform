@@ -75,6 +75,11 @@ export default async function RefundPolicyPage() {
         </section>
 
         <section>
+          <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("wasThereTitle")}</h2>
+          <p>{t("wasThereBody")}</p>
+        </section>
+
+        <section>
           <h2 className="mb-2 text-lg font-semibold text-[var(--usha-white)]">{t("timelineTitle")}</h2>
           <p>
             {t("timelineBody1")}{" "}

@@ -11,6 +11,9 @@ import Image from "next/image";
 import QRCode from "qrcode";
 import { ShareEventButton } from "@/components/share-event-button";
 import { openCheckout } from "@/lib/native-oauth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { SelfCheckinButton } from "@/components/tickets/self-checkin-button";
 
 interface TicketData {
   id: string;
@@ -33,6 +36,9 @@ interface TicketData {
   /** Ticket has been scanned/checked in at the door. */
   checkedIn: boolean;
   checkedInAt: string | null;
+  /** Självincheckning: "open" = kan checka in nu, "live" = incheckad i kväll. */
+  selfCheckin: "open" | "live" | null;
+  guestCount: number;
 }
 
 interface BookingData {
@@ -48,6 +54,7 @@ interface BookingData {
   ticket_type_name?: string | null;
   checked_in_at?: string | null;
   guest_count?: number | null;
+  self_checkin?: "open" | "live" | null;
   listings: {
     title: string;
     category: string;
@@ -191,6 +198,8 @@ function bookingToTicket(
     price,
     checkedIn: !!booking.checked_in_at,
     checkedInAt: booking.checked_in_at ?? null,
+    selfCheckin: booking.self_checkin ?? null,
+    guestCount: booking.guest_count ?? 1,
     title: listing?.title
       ? booking.ticket_type_name
         ? `${listing.title} · ${booking.ticket_type_name}`
@@ -362,6 +371,8 @@ function TicketCard({
 }) {
   const { toast } = useToast();
   const t = useTranslations("myTickets");
+  const ts = useTranslations("selfCheckin");
+  const router = useRouter();
   const [paying, setPaying] = useState(false);
 
   async function handlePay() {
@@ -491,6 +502,42 @@ function TicketCard({
                 })
               : t("checkedIn")}
           </div>
+        )}
+
+        {/* Självincheckning: en biljett checkas in direkt här och öppnar den
+            levande biljetten; ett sällskap väljs på biljettsidan. */}
+        {ticket.selfCheckin === "open" && (
+          <div className="mt-3">
+            {ticket.guestCount > 1 ? (
+              <Link
+                href={`/biljett/${ticket.id}`}
+                className="flex w-full items-center justify-center rounded-2xl bg-green-600 px-4 py-3 text-base font-bold text-white transition hover:bg-green-500"
+              >
+                {ts("button")}
+              </Link>
+            ) : (
+              <SelfCheckinButton
+                bookingId={ticket.id}
+                onDone={() => router.push(`/biljett/${ticket.id}`)}
+                labels={{
+                  button: ts("button"),
+                  buttonParty: ts("buttonParty", { n: "{n}" }),
+                  choose: ts("choose"),
+                  working: ts("working"),
+                  failed: ts("failed"),
+                  network: ts("network"),
+                }}
+              />
+            )}
+          </div>
+        )}
+        {ticket.selfCheckin === "live" && (
+          <Link
+            href={`/biljett/${ticket.id}`}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-green-600 px-4 py-3 text-base font-bold text-white transition hover:bg-green-500"
+          >
+            <CheckCircle2 size={18} /> {ts("showLive")}
+          </Link>
         )}
 
         {/* Unpaid, confirmed booking → pay directly here */}

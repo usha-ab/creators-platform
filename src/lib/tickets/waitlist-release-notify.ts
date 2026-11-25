@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { getTranslations, getLocale } from "next-intl/server";
 import { getResend, getFromEmail } from "@/lib/email/resend";
 import { escapeHtml, chunk } from "@/lib/email/broadcast";
-import { getSaleState } from "@/lib/listings/sale-state";
+import { getSaleState, isPastEvent } from "@/lib/listings/sale-state";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://usha.se";
 
@@ -56,7 +56,7 @@ export async function notifyWaitlistReleased(
     const { data: listing } = await admin
       .from("listings")
       .select(
-        "id, title, slug, price, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, is_active, event_date, content_language"
+        "id, title, slug, price, early_bird_start, early_bird_end, early_bird_price, public_sale_at, capacity, tickets_sold, is_active, event_date, event_time, event_end_time, content_language"
       )
       .eq("id", listingId)
       .maybeSingle();
@@ -67,8 +67,9 @@ export async function notifyWaitlistReleased(
     if (listing.is_active !== true) return { sent: 0 };
     const now = new Date();
     if (!getSaleState(listing, now).buyable) return { sent: 0 };
-    const todayStr = now.toISOString().slice(0, 10);
-    if (listing.event_date && listing.event_date < todayStr) return { sent: 0 };
+    // Samma kvällsslut som köpet (evening.ts). Den gamla jämförelsen mot
+    // UTC-datumet stängde redan 01–02 svensk tid, mitt under kvällen.
+    if (isPastEvent(listing.event_date, now, listing)) return { sent: 0 };
 
     const { data: entries } = await admin
       .from("event_waitlist")

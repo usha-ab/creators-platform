@@ -18,6 +18,8 @@ interface ListingCardProps {
     title: string;
     price: number | null;
     event_date: string | null;
+    event_time?: string | null;
+    event_end_time?: string | null;
     event_location: string | null;
     event_city?: string | null;
     event_venue?: string | null;
@@ -55,7 +57,7 @@ export async function ListingCard({
   const dateLocale = DATE_LOCALES[await getLocale()] ?? "en-GB";
   // Passerade event ligger kvar som bläddringsbart bibliotek, men säljs inte.
   const isPast =
-    getSaleState({ price: listing.price, event_date: listing.event_date }, new Date()).state === "past";
+    getSaleState({ price: listing.price, event_date: listing.event_date, event_time: listing.event_time, event_end_time: listing.event_end_time }, new Date()).state === "past";
   const isPopular = bookingCount >= 3;
   const isHot = bookingCount >= 8;
 

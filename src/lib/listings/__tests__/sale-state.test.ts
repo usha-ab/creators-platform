@@ -163,3 +163,29 @@ describe("isPastEvent", () => {
     expect(isPastEvent("2026-10-15", now)).toBe(true);
   });
 });
+
+/**
+ * Kvällsgränsen bor i lib/tickets/evening.ts (beslut Pablo 2026-11-25).
+ * Vanliga köp fungerar som förut — midnatt — utom för kvällar som pågår efter
+ * midnatt, där sluttiden gäller. Den passerade kvällen säljs bara via
+ * efterköpet ("Var du där?"), aldrig via sale-state.
+ */
+describe("getSaleState — kvällar över midnatt", () => {
+  const night = { price: 333, event_date: "2026-06-08", event_time: "22:00", event_end_time: "02:00" };
+  it("är köpbart efter midnatt medan kvällen pågår", () => {
+    expect(getSaleState(night, at("2026-06-08T23:30:00Z")).state).toBe("on_sale"); // 01:30
+  });
+  it("passerar vid sluttiden", () => {
+    expect(getSaleState(night, at("2026-06-09T00:00:00Z")).state).toBe("past"); // 02:00
+  });
+  it("en sluttid före midnatt stänger inte köpet tidigare än förut", () => {
+    const lab = { price: 333, event_date: "2026-06-08", event_time: "17:00", event_end_time: "22:00" };
+    expect(getSaleState(lab, at("2026-06-08T21:30:00Z")).state).toBe("on_sale"); // 23:30
+    expect(getSaleState(lab, at("2026-06-08T22:00:00Z")).state).toBe("past"); // 00:00
+  });
+  it("isPastEvent tar hänsyn till sluttiden när den skickas med", () => {
+    const now = new Date("2026-06-08T23:30:00Z");
+    expect(isPastEvent("2026-06-08", now)).toBe(true);
+    expect(isPastEvent("2026-06-08", now, { event_time: "22:00", event_end_time: "02:00" })).toBe(false);
+  });
+});
