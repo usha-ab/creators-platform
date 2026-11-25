@@ -454,7 +454,7 @@
     "payoutsMovedHint": "Conecta tu cuenta bancaria y consulta tus pagos",
     "noPlansTitle": "No hay suscripción que contratar",
     "noPlansCustomer": "Tu cuenta es gratuita y ya tiene todo lo necesario para comprar entradas, verlas en la app y seguir lo que te gusta. Si vienes a menudo, el bono es lo que baja el precio: se compra en la página de la noche, no aquí.",
-    "noPlansVenue": "Los locales no se suscriben con nosotros. El perfil es gratis, y quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local. Escribe a pablo.acosta@usha.se.",
+    "noPlansVenue": "Los locales no se suscriben con nosotros. El perfil es gratis, y quien vende entradas paga un 3,5 % + 3,50 SEK por entrada. Lo demás se fija en un acuerdo propio con cada local. Escribe a support@usha.se.",
     "subtitle": "Gestiona tu plan y tus pagos.",
     "paymentSuccess": "¡Pago realizado! Tu plan ya está activo.",
     "betaNotice": "Periodo beta: todas las funciones están desbloqueadas gratis para todos los usuarios.",
@@ -1028,7 +1028,9 @@
     "swishConfirmedTitle": "Tu pago por Swish está confirmado",
     "swishConfirmedMsg": "Hemos visto tu Swish para «{service}». La entrada está en Entradas.",
     "swishRejectedTitle": "No se pudo confirmar la compra por Swish",
-    "swishRejectedMsg": "No encontramos ningún pago de Swish para «{service}». Escríbenos si ya has pagado."
+    "swishRejectedMsg": "No encontramos ningún pago de Swish para «{service}». Escríbenos si ya has pagado.",
+    "withdrawalTitle": "Se ha desistido de una compra",
+    "withdrawalMsg": "{buyer} ha desistido de la compra de {service}."
   },
   "apiErrors": {
     "unauthorized": "No autorizado",
@@ -2614,7 +2616,11 @@
     "swishBack": "Pagar con tarjeta",
     "swishInvalidEmail": "Escribe un correo válido para que podamos enviarte la entrada.",
     "swishNoCredit": "El saldo de bienvenida solo se aplica al pagar con tarjeta.",
-    "swishContinue": "Continuar a"
+    "swishContinue": "Continuar a",
+    "passTermsValidUntil": "Válido hasta el {date}. Las sesiones que no se usen antes caducan.",
+    "passTermsWithdrawal": "Tienes 14 días de derecho de desistimiento desde el día de compra. Desistes con el botón Desistir de la compra en la entrada.",
+    "passTermsPolicyLink": "Cancelaciones y reembolsos",
+    "passEarlyStartLabel": "Quiero poder usar el bono de inmediato. Si desisto en 14 días, se descuenta una parte proporcional por las sesiones que haya usado."
   },
   "eventErrors": {
     "wasThereClosed": "Ya no es posible pagar esa noche después.",
@@ -2791,7 +2797,7 @@
   },
   "ticketPage": {
     "passChip": "Bono · quedan {remaining} de {total}",
-    "passValidUntil": "Válido hasta {date}",
+    "passValidUntil": "Válido hasta el {date}. Las sesiones no usadas caducan entonces.",
     "passCovers": "Cada uso da acceso a: {covers}",
     "walletApple": "Añadir a Apple Wallet",
     "walletGoogle": "Guardar en Google Wallet",
@@ -2824,7 +2830,34 @@
     "swishQrHint": "¿Estás en el ordenador? Escanea el código con la app de Swish",
     "swishUnavailable": "Swish no está disponible para esta noche ahora mismo. Contacta con el organizador.",
     "swishThen": "Paso 2: Confirmamos el pago. Entonces este recuadro se sustituye por tu código QR y la entrada se envía a {email}. No tienes que hacer nada más, la página se actualiza sola.",
-    "swishAtDoor": "¿Ya estás en la puerta? Enseña el recibo de Swish y entras directamente."
+    "swishAtDoor": "¿Ya estás en la puerta? Enseña el recibo de Swish y entras directamente.",
+    "withdrawal": {
+      "title": "Desistir de la compra",
+      "lead": "Tienes 14 días de derecho de desistimiento en bonos y paquetes sin fecha fija. El último día para desistir es el {date}. Te devolvemos el importe completo, incluida la tarifa de servicio.",
+      "open": "Desistir de la compra",
+      "nameLabel": "Tu nombre",
+      "emailLabel": "El correo con el que compraste",
+      "confirmText": "Desisto de mi compra de {title} ({code}). El bono deja de valer de inmediato.",
+      "confirm": "Confirmar que desisto",
+      "cancel": "Cancelar",
+      "doneTitle": "Has desistido de la compra",
+      "doneBody": "Recibimos tu aviso el {when}. Te hemos enviado un acuse de recibo por correo.",
+      "refundStripe": "El dinero vuelve a la tarjeta con la que pagaste y suele verse en 5–10 días hábiles.",
+      "refundManual": "Usha devuelve el importe en un plazo máximo de 14 días desde que recibimos tu aviso.",
+      "policyLink": "Cómo funcionan las cancelaciones y los reembolsos",
+      "fixedDate": "Las entradas para una fecha fija no tienen derecho de desistimiento (ley sueca de contratos a distancia, cap. 2, art. 11.12). Puedes cancelar según las normas del vendedor.",
+      "expired": "El plazo de desistimiento del bono terminó el {date}.",
+      "errors": {
+        "emailMismatch": "El correo no coincide con la compra. Escribe el correo con el que compraste, o escribe a support@usha.se.",
+        "expired": "El plazo de desistimiento ha terminado.",
+        "fixedDate": "Las entradas para una fecha fija no tienen derecho de desistimiento.",
+        "notWithdrawable": "Esta compra no se puede desistir aquí. Escribe a support@usha.se.",
+        "nameMissing": "Escribe tu nombre.",
+        "rateLimited": "Demasiados intentos. Espera un minuto y vuelve a intentarlo.",
+        "failed": "Algo salió mal. Inténtalo de nuevo, o escribe a support@usha.se y te ayudamos."
+      },
+      "refundNone": "Se usaron todas las sesiones, así que no se devuelve ningún importe."
+    }
   },
   "settlement": {
     "swishHeading": "Swish en la puerta",
@@ -3238,7 +3271,8 @@
     "addToAppleWallet": "Añadir a Apple Wallet",
     "saveToGoogleWallet": "Guardar en Google Wallet",
     "shareText": "Voy a {title} — ¡únete!",
-    "inviteFriends": "Invitar a amigos"
+    "inviteFriends": "Invitar a amigos",
+    "withdrawalLink": "Derecho de desistimiento y cancelación"
   },
   "toolsPage": {
     "partnerLabel": "Programa de partners",
@@ -4723,7 +4757,27 @@
     "statementCsvPaidDate": "Fecha de pago",
     "statementCsvTransfers": "Transferencia Stripe",
     "statementCsvTotal": "Total",
-    "statementCsvEarlier": "Ajustes de noches anteriores"
+    "statementCsvEarlier": "Ajustes de noches anteriores",
+    "withdrawalReceiptSubject": "Acuse de recibo: has desistido de {service}",
+    "withdrawalReceiptIntro": "Este es tu acuse de recibo. Recibimos tu desistimiento el {when}.",
+    "withdrawalLabelCode": "Código: {value}",
+    "withdrawalLabelReceived": "Recibido: {value}",
+    "withdrawalLabelAmount": "Se devuelve: {value} SEK",
+    "withdrawalRefundStripe": "El dinero vuelve a la tarjeta con la que pagaste, incluida la tarifa de servicio. Suele verse en tu cuenta en 5–10 días hábiles.",
+    "withdrawalRefundManual": "Pagaste con {method}. Usha devuelve el importe completo, incluida la tarifa de servicio, como máximo el {date}.",
+    "withdrawalReceiptOutro": "El bono ya no es válido. Si tienes dudas, escribe a support@usha.se.",
+    "withdrawalSellerSubject": "Un comprador ha desistido de {service}",
+    "withdrawalSellerIntro": "{buyer} ha ejercido el derecho de desistimiento, que vale 14 días para bonos y paquetes sin fecha fija. El bono está cerrado y ya no vale en la puerta.",
+    "withdrawalSellerRefundStripe": "Se ha devuelto el importe completo al comprador a través de Stripe. Tu parte se retira de tu cuenta de Stripe.",
+    "withdrawalSellerRefundManual": "El comprador pagó con {method}. Usha devuelve el importe como máximo el {date}.",
+    "withdrawalSellerOutro": "No tienes que hacer nada. Si tienes dudas, escribe a support@usha.se.",
+    "withdrawalRefundNone": "Se usaron todas las sesiones y habías pedido empezar a usar el bono de inmediato, así que no se devuelve ningún importe.",
+    "passReceiptValidUntil": "Válido hasta el {date}. Las sesiones que no se usen antes caducan.",
+    "passReceiptWithdrawal": "Tienes 14 días de derecho de desistimiento desde el día de compra. Desistes con el botón Desistir de la compra en la entrada. Si el vendedor cancela una noche, el bono se prolonga.",
+    "passExpirySubject": "Tu bono {title} vale hasta el {date}",
+    "passExpiryIntro": "Te quedan {remaining} sesiones en {title}. El bono vale hasta el {date} inclusive.",
+    "passExpiryLapse": "Las sesiones que no se usen antes caducan y no se devuelven.",
+    "passExpiryCta": "Ver el bono"
   },
   "adminPage": {
     "partnersLabel": "Programa de partners",
@@ -5031,7 +5085,7 @@
     },
     "help": {
       "title": "¿Te has atascado?",
-      "body": "Escríbenos a pablo.acosta@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
+      "body": "Escríbenos a support@usha.se y te ayudamos. La plataforma es nueva y vuestros comentarios la moldean."
     }
   },
   "entrance": {

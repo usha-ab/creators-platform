@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames, wasThere: wasThereRequested } = await req.json();
+    const { listingId, email: rawEmail, name, ticketTypeId, quantity, attendeeNames, wasThere: wasThereRequested, earlyStart } = await req.json();
     // Adressen är identiteten som knyter gästbiljetten till ett konto senare.
     // Sparas den som den skrevs slutar `guest_email = user.email` matcha så
     // fort någon råkar få en versal med sig från tangentbordet.
@@ -383,6 +383,8 @@ export async function POST(req: NextRequest) {
           affiliateId: affiliateId ?? "",
           ...utmMetadata(utm),
           sessionsTotal: isPass ? String(listing.session_count) : "",
+          // Kryssrutan i kassan (2 kap. 15 § p. 3). Bara ett uttryckligt true räknas.
+          passEarlyStart: isPass && earlyStart === true ? "true" : "false",
           attendeeNames: attendeeNamesToMeta(attendeeNames, qty),
           reserved: "true",
           eventDate: listing.event_date || "",

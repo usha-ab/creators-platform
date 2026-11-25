@@ -9,6 +9,7 @@ import { requirePaidSubscription, getSubscriptionStatus } from "@/lib/subscripti
 import { checkListingLimit } from "@/lib/listings/limits";
 import { generateUniqueListingSlug } from "@/lib/listings/slug";
 import { resolveEventCity } from "@/lib/listings/city";
+import { extendPassesForCanceledEvening } from "@/lib/passes/expiry-extension";
 
 const CATEGORIES = ["dance", "music", "photo", "video", "design", "yoga", "fitness", "other"] as const;
 const VALID_LISTING_TYPES = [
@@ -290,6 +291,9 @@ export async function toggleListingActive(id: string, isActive: boolean) {
 
   if (!user) return { error: "Ej inloggad" };
 
+  const admin = createAdminClient();
+  const { data: before } = await admin.from("listings").select("is_active").eq("id", id).eq("user_id", user.id).maybeSingle();
+
   const { error } = await supabase
     .from("listings")
     .update({ is_active: isActive })
@@ -297,6 +301,9 @@ export async function toggleListingActive(id: string, isActive: boolean) {
     .eq("user_id", user.id);
 
   if (error) return { error: "Kunde inte ändra status." };
+
+  // Inställd kväll i en serie: klippkorten förlängs (villkoren punkt 5).
+  if (before?.is_active && !isActive) await extendPassesForCanceledEvening(admin, id);
 
   revalidatePath("/dashboard/listings");
   return { success: true };

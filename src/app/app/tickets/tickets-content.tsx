@@ -709,6 +709,14 @@ function QRModal({
         <p className="mt-3 font-mono text-xs tracking-wider text-gray-400">{ticket.code}</p>
       </div>
 
+      {/* Ångerrätten och ångerknappen bor på biljettsidan, som också gäster når. */}
+      <a
+        href={`/biljett/${ticket.id}#angra`}
+        className="mt-3 text-xs font-medium text-gray-500 underline underline-offset-2 hover:text-gray-800"
+      >
+        {t("withdrawalLink")}
+      </a>
+
       {/* Wallet passes — skip once checked in (no longer needed at the door) */}
       {!checkedIn && (appleWallet || googleWallet) && (
         <div className="mt-5 flex w-full max-w-sm flex-col gap-2">

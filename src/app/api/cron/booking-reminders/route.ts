@@ -3,6 +3,7 @@ import { verifyCronAuth } from "@/lib/cron/auth";
 import { createClient } from "@supabase/supabase-js";
 import { sendBookingReminderEmail } from "@/lib/email/send-booking-reminder";
 import { shouldSendEmail } from "@/lib/email/check-preferences";
+import { sendPassExpiryReminders } from "@/lib/passes/expiry-reminders";
 
 function getSupabaseAdmin() {
   return createClient(
@@ -22,6 +23,10 @@ export async function GET(req: NextRequest) {
 
   const admin = getSupabaseAdmin();
 
+  // Klippkort som går ut om 30 eller 7 dagar med klipp kvar. Samma dagliga
+  // körning, så inget nytt jobb behöver läggas i usha-cron.
+  const passReminders = await sendPassExpiryReminders(admin);
+
   // Window: bookings scheduled on the next UTC calendar day.
   const start = new Date();
   start.setUTCHours(0, 0, 0, 0);
@@ -37,7 +42,7 @@ export async function GET(req: NextRequest) {
     .gte("scheduled_at", start.toISOString())
     .lt("scheduled_at", end.toISOString());
 
-  if (!bookings?.length) return NextResponse.json({ sent: 0 });
+  if (!bookings?.length) return NextResponse.json({ sent: 0, passReminders });
 
   let sent = 0;
 
@@ -96,5 +101,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ sent });
+  return NextResponse.json({ sent, passReminders });
 }

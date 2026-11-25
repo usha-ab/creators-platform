@@ -22,6 +22,8 @@ import { eveningIsOver, selfCheckinWindow } from "@/lib/tickets/evening";
 import { checkinColor } from "@/lib/tickets/checkin-color";
 import { LiveTicket } from "@/components/tickets/live-ticket";
 import { SelfCheckinButton } from "@/components/tickets/self-checkin-button";
+import WithdrawalCard from "./withdrawal-card";
+import { withdrawalState } from "@/lib/bookings/withdrawal";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +55,7 @@ export default async function GuestTicketPage({
   const admin = createAdminClient();
   const { data: booking } = await admin
     .from("bookings")
-    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, ticket_type_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, payment_method, amount_paid, refunded_at")
+    .select("id, status, scheduled_at, guest_name, guest_email, customer_id, creator_id, listing_id, checked_in_at, ticket_type_name, ticket_type_id, guest_count, sessions_total, sessions_redeemed, pass_expires_at, payment_method, amount_paid, refunded_at, created_at, minutes_total, is_free")
     .eq("id", id)
     .maybeSingle();
   if (!booking) notFound();
@@ -148,6 +150,48 @@ export default async function GuestTicketPage({
       );
 
   const locale = await getLocale();
+
+  // Ångerrätten (2 kap. distansavtalslagen): ett kort eller paket utan datum
+  // kan ångras här i 14 dagar, också av en gäst. En biljett till ett bestämt
+  // datum har ingen ångerrätt, och det ska stå. Ett redan ångrat köp visar
+  // beskedet i stället för knappen.
+  const withdrawal = withdrawalState(booking);
+  const { data: withdrawn } = await admin
+    .from("booking_withdrawals")
+    .select("received_at, refund_method")
+    .eq("booking_id", booking.id)
+    .maybeSingle();
+  let buyerEmail = booking.guest_email ?? "";
+  if (!buyerEmail && booking.customer_id && (withdrawal.kind === "open" || withdrawn)) {
+    const { data: c } = await admin.from("profiles").select("email").eq("id", booking.customer_id).maybeSingle();
+    buyerEmail = c?.email ?? "";
+  }
+  const tW = await getTranslations("ticketPage.withdrawal");
+  const withdrawalLabels = {
+    title: tW("title"),
+    lead: withdrawal.kind === "open" ? tW("lead", { date: withdrawal.lastDay }) : "",
+    open: tW("open"),
+    nameLabel: tW("nameLabel"),
+    emailLabel: tW("emailLabel"),
+    confirmText: tW("confirmText", { title: listing?.title ?? t("eventFallback"), code: `USH-${booking.id.slice(0, 8).toUpperCase()}` }),
+    confirm: tW("confirm"),
+    cancel: tW("cancel"),
+    doneTitle: tW("doneTitle"),
+    doneBody: tW("doneBody", { when: "{when}" }),
+    refundStripe: tW("refundStripe"),
+    refundManual: tW("refundManual"),
+    refundNone: tW("refundNone"),
+    policyLink: tW("policyLink"),
+    errors: {
+      emailMismatch: tW("errors.emailMismatch"),
+      expired: tW("errors.expired"),
+      fixedDate: tW("errors.fixedDate"),
+      notWithdrawable: tW("errors.notWithdrawable"),
+      nameMissing: tW("errors.nameMissing"),
+      rateLimited: tW("errors.rateLimited"),
+      failed: tW("errors.failed"),
+    },
+  };
 
   // "Följ oss" efter köpet. Gästen (utan konto) får en fråga med aktivt ja;
   // kontoinnehavaren får den vanliga följ-knappen. Frågan ställs här och inte
@@ -482,6 +526,37 @@ export default async function GuestTicketPage({
               {t("showAtEntrance")}
             </p>
           )}
+
+          {withdrawn ? (
+            <WithdrawalCard
+              bookingId={booking.id}
+              locale={locale}
+              initialName=""
+              initialEmail=""
+              labels={withdrawalLabels}
+              done={{
+                receivedAt: withdrawn.received_at,
+                refundMethod: withdrawn.refund_method === "stripe" || withdrawn.refund_method === "none" ? withdrawn.refund_method : "manual",
+              }}
+            />
+          ) : withdrawal.kind === "open" ? (
+            <WithdrawalCard
+              bookingId={booking.id}
+              locale={locale}
+              initialName={attendee ?? ""}
+              initialEmail={buyerEmail}
+              labels={withdrawalLabels}
+            />
+          ) : withdrawal.kind === "fixedDate" && !canceled ? (
+            <p id="angra" className="text-center text-xs leading-relaxed text-[var(--usha-muted)]">
+              {tW("fixedDate")}{" "}
+              <a href="/refund-policy" className="text-[var(--usha-gold)] hover:underline">{tW("policyLink")}</a>
+            </p>
+          ) : withdrawal.kind === "expired" && !canceled ? (
+            <p id="angra" className="text-center text-xs text-[var(--usha-muted)]">
+              {tW("expired", { date: withdrawal.lastDay })}
+            </p>
+          ) : null}
 
           {askVenue && venueName && !canceled && (
             <VenueConsentCard

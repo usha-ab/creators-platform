@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Ticket, Loader2, HeartPulse, Smartphone } from "lucide-react";
 import { useToast } from "@/components/ui/toaster";
 import type { SwishOffer } from "@/lib/swish/availability";
@@ -10,6 +10,7 @@ import { applicableCredit, SIGNUP_CREDIT_MIN_SPEND_ORE } from "@/lib/credits/sig
 import { trackEvent } from "@/lib/analytics";
 import { ANALYTICS_EVENTS } from "@/lib/analytics/events";
 import { openCheckout } from "@/lib/native-oauth";
+import { passExpiryFrom } from "@/lib/passes/series-pass";
 
 interface TicketType {
   id: string;
@@ -117,6 +118,11 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     () => passes.find((p) => p.id === preselectPassId)?.id ?? null
   );
   const selectedPass = passes.find((p) => p.id === selectedPassId) ?? null;
+  // "Jag vill kunna använda kortet direkt" (2 kap. 15 § p. 3). Aldrig förifylld:
+  // bara en uttrycklig begäran ger säljaren rätt att dra av för använda klipp
+  // om köpet ångras.
+  const [earlyStart, setEarlyStart] = useState(false);
+  const locale = useLocale();
   // Epassi: kunden betalar i Epassi-appen, inte här. Vi skapar ett vilande
   // kort som arrangören bekräftar när köpet syns i Epassis portal.
   const [epassiLoading, setEpassiLoading] = useState(false);
@@ -391,6 +397,38 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
     </label>
   ) : null;
 
+  // Klippkortets villkor FÖRE köpet: sista giltighetsdag, att oanvända klipp
+  // förfaller, ångerrätten och var ångerknappen finns. Förfallet måste stå vid
+  // köpet och inte bara i villkoren (ARN 2023-17878), och ångerrätten ska vara
+  // känd före köpet (2 kap. 2 § p. 10 och 12).
+  const passTerms = selectedPass && selectedPass.sessionCount > 0 && selectedPass.price > 0 ? (
+    <div className="mb-3 space-y-2 rounded-xl border border-[var(--usha-border)] px-4 py-3 text-left text-[12px] leading-relaxed text-[var(--usha-muted)]">
+      <p className="text-[var(--usha-white)]">
+        {t("passTermsValidUntil", {
+          date: passExpiryFrom(new Date(), selectedPass.sessionCount).toLocaleDateString(
+            locale === "en" ? "en-GB" : locale === "es" ? "es-ES" : "sv-SE",
+            { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Stockholm" }
+          ),
+        })}
+      </p>
+      <p>
+        {t("passTermsWithdrawal")}{" "}
+        <a href="/refund-policy" target="_blank" rel="noopener" className="text-[var(--usha-gold)] underline underline-offset-2">
+          {t("passTermsPolicyLink")}
+        </a>
+      </p>
+      <label className="flex cursor-pointer items-start gap-2">
+        <input
+          type="checkbox"
+          checked={earlyStart}
+          onChange={(e) => setEarlyStart(e.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--usha-gold)]"
+        />
+        <span>{t("passEarlyStartLabel")}</span>
+      </label>
+    </div>
+  ) : null;
+
   // Avdraget måste synas innan man trycker, annars är det ingen anledning att
   // trycka. Står det bara i Stripe har köparen redan bestämt sig.
   const creditNote =
@@ -561,9 +599,10 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         {qtyStepper}
         {nameInputs}
         {attendanceOptIn}
+        {passTerms}
         {creditNote}
         <button
-          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId: selectedPass?.id ?? listingId, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames, showAttendance })}
+          onClick={() => checkout("/api/stripe/ticket-checkout", { listingId: selectedPass?.id ?? listingId, ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined, quantity: effectiveQty, attendeeNames, showAttendance, earlyStart: !!selectedPass && earlyStart })}
           disabled={loading || typeSoldOut}
           className={BTN}
         >
@@ -609,6 +648,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
         {picker}
         {qtyStepper}
         {nameInputs}
+        {passTerms}
         {accountPrompt}
         <button
           type="button"
@@ -619,6 +659,7 @@ export function BookButton({ listingId, price, isLoggedIn, ticketTypes = [], pas
               ticketTypeId: selectedPass ? undefined : selectedTypeId || undefined,
               quantity: effectiveQty,
               attendeeNames,
+              earlyStart: !!selectedPass && earlyStart,
             })
           }
           className={BTN}

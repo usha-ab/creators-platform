@@ -18,7 +18,9 @@ import { stripe } from "@/lib/stripe/client";
 // plain (non-Connect) charge those flags are omitted (Stripe rejects them).
 // ---------------------------------------------------------------------------
 export async function refundBookingCharge(
-  paymentIntentId: string
+  paymentIntentId: string,
+  /** Delåterbetalning i öre. Utelämnas = hela beloppet (som förut). */
+  amountOre?: number
 ): Promise<{ refundId: string; amount: number }> {
   const pi = await stripe.paymentIntents.retrieve(paymentIntentId, {
     expand: ["latest_charge"],
@@ -35,6 +37,7 @@ export async function refundBookingCharge(
 
   const refund = await stripe.refunds.create({
     payment_intent: paymentIntentId,
+    ...(amountOre != null ? { amount: amountOre } : {}),
     ...(isDestinationCharge
       ? { reverse_transfer: true, refund_application_fee: true }
       : {}),

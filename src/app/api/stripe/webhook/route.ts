@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { totalCreditOre } from "@/lib/credits/promo-discount";
-import { passBookingFields } from "@/lib/passes/series-pass";
+import { passBookingFields, passEarlyStartFields, passExpiryFrom } from "@/lib/passes/series-pass";
 import { utmBookingFields } from "@/lib/analytics/utm";
 import { recordBookingRewards } from "@/lib/affiliate/rewards";
 import { ROLES, normalizeRole } from "@/lib/roles";
@@ -237,6 +237,7 @@ export async function POST(req: NextRequest) {
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
             ...passBookingFields(session.metadata?.sessionsTotal),
+            ...passEarlyStartFields(session.metadata),
             ...utmBookingFields(session.metadata),
           }).select("id").single();
 
@@ -291,6 +292,7 @@ export async function POST(req: NextRequest) {
               bookingId: guestBooking?.id,
               seller: buildSeller(creatorId, creatorRes.data),
               amountOre: amountPaid,
+              passValidUntil: passValidUntilFromMeta(session.metadata),
             }).catch(err => console.error("Guest confirmation email failed:", err));
           }
 
@@ -479,6 +481,7 @@ export async function POST(req: NextRequest) {
             ticket_type_id: session.metadata?.ticketTypeId || null,
             ticket_type_name: session.metadata?.ticketTypeName || null,
             ...passBookingFields(session.metadata?.sessionsTotal),
+            ...passEarlyStartFields(session.metadata),
             ...utmBookingFields(session.metadata),
           }).select("id").single();
 
@@ -538,7 +541,7 @@ export async function POST(req: NextRequest) {
           }
 
           // Send ticket confirmation email (non-blocking)
-          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt), amountPaid)
+          sendTicketConfirmationEmail(getSupabaseAdmin(), userId, creatorId!, listingId!, new Date(scheduledAt), amountPaid, passValidUntilFromMeta(session.metadata))
             .catch(err => console.error("Ticket confirmation email failed:", err));
 
           // Notify the owner (+ co-organizers) of the sale / sold-out.
@@ -1168,6 +1171,8 @@ async function sendTicketConfirmationEmail(
   scheduledAt: Date,
   /** Vad köparen betalade, i ören — kvittoraden i mejlet. */
   amountOre?: number | null,
+  /** Klippkort: sista giltighetsdag för kvittot. */
+  passValidUntil?: Date | null,
 ) {
   const [customerRes, creatorRes, listingRes] = await Promise.all([
     admin.from("profiles").select("email, full_name").eq("id", customerId).single(),
@@ -1194,8 +1199,15 @@ async function sendTicketConfirmationEmail(
     location: listingRes.data?.event_location || undefined,
     seller: buildSeller(creatorId, creatorRes.data),
     amountOre,
+    passValidUntil,
     customerId,
   });
+}
+
+/** Klippkortets sista giltighetsdag, räknad som när bokningen skrevs. */
+function passValidUntilFromMeta(metadata: Record<string, string> | null | undefined): Date | null {
+  const n = Number(metadata?.sessionsTotal);
+  return Number.isFinite(n) && n > 0 ? passExpiryFrom(new Date(), n) : null;
 }
 
 /** Receipt seller block for a payee profile (org.nr when a verified company). */
