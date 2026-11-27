@@ -62,12 +62,12 @@ describe("volontärens väg", () => {
 
   it("bokat, före fönstret: säger när incheckningen öppnar", () => {
     const j = volunteerJourney({ ...base, roleStatuses: ["approved"], booked: [shift] });
-    expect(j.next).toEqual({ kind: "checkInLater", shift, opensAt: "2026-11-26T15:30:00.000Z" });
+    expect(j.next).toEqual({ kind: "checkInLater", shift, opensAt: "2026-11-26T15:00:00.000Z" });
     expect(j.steps.map((s) => s.state)).toEqual(["done", "done", "current"]);
   });
 
-  it("i fönstret (Sammy 26 nov): stora knappen, även 30 min före", () => {
-    for (const t of ["2026-11-26T15:30:00.000Z", "2026-11-26T17:59:00.000Z"]) {
+  it("i fönstret (Sammy 26 nov): stora knappen, även en timme före", () => {
+    for (const t of ["2026-11-26T15:00:00.000Z", "2026-11-26T17:59:00.000Z"]) {
       const j = volunteerJourney({ ...base, roleStatuses: ["approved"], booked: [shift], now: new Date(t) });
       expect(j.next).toEqual({ kind: "checkInNow", shift });
     }

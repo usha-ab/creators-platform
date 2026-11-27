@@ -6,9 +6,9 @@ import { checkinReminderRange, isCheckinReminderDue, stockholmClock } from "@/li
 
 /**
  * Cron (varje kvart): påminn volontären om att checka in när incheckningen
- * öppnar, 30 minuter före passet.
+ * öppnar, en timme före passet.
  *
- * Volontären checkar in sig själv på /app/taxi/[kväll] från 30 minuter före
+ * Volontären checkar in sig själv på /app/taxi/[kväll] från en timme före
  * passet till dess slut. Ett pass utan incheckning blir en varning när det tar
  * slut, så en volontär som stod där hela kvällen men aldrig tryckte på knappen
  * fick en varning (Sammy, 12 nov). Notisen går som push och leder rakt till

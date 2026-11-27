@@ -24,22 +24,22 @@ describe("isCheckinReminderDue", () => {
     ...extra,
   });
 
-  it("går när incheckningen öppnar, 30 min före (Sammy 17–19)", () => {
-    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:30"))).toBe(true);
+  it("går när incheckningen öppnar, en timme före (Sammy 17–19)", () => {
+    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:00"))).toBe(true);
   });
 
-  it("körningen varje kvart: 16:15 för tidigt, 16:30 i tid", () => {
-    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:15"))).toBe(false);
-    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:30"))).toBe(true);
+  it("körningen varje kvart: 15:45 för tidigt, 16:00 i tid", () => {
+    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("15:45"))).toBe(false);
+    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:00"))).toBe(true);
   });
 
   it("tål att servern kör ett par minuter före", () => {
-    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("16:27"))).toBe(true);
+    expect(isCheckinReminderDue(shift("17:00", "19:00"), at("15:57"))).toBe(true);
   });
 
-  it("pass på kvart: 19:15 påminns 18:45", () => {
-    expect(isCheckinReminderDue(shift("19:15", "21:15"), at("18:30"))).toBe(false);
-    expect(isCheckinReminderDue(shift("19:15", "21:15"), at("18:45"))).toBe(true);
+  it("pass på kvart: 19:15 påminns 18:15", () => {
+    expect(isCheckinReminderDue(shift("19:15", "21:15"), at("18:00"))).toBe(false);
+    expect(isCheckinReminderDue(shift("19:15", "21:15"), at("18:15"))).toBe(true);
   });
 
   it("fångar ett pass som redan börjat om körningen missats, men inte för sent", () => {

@@ -3,7 +3,7 @@
  *
  * 1. Incheckning. Sammy bokade 17–19 men checkade aldrig in, och påminnelsen
  *    kom först när passet redan börjat. Nu går den när incheckningen öppnar,
- *    30 minuter före passet. Jobbet körs varje kvart; ett pass räknas som
+ *    en timme före passet. Jobbet körs varje kvart; ett pass räknas som
  *    "dags" från fem minuter innan incheckningen öppnar (klockan på servern
  *    kan gå ett par sekunder före) till dess att passet tar slut, så länge det
  *    inte började för mer än en timme sedan. Stämpeln checkin_reminded_at

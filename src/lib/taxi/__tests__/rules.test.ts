@@ -98,9 +98,9 @@ describe("varningar", () => {
 });
 
 describe("incheckning", () => {
-  it("öppnar 30 minuter före och stänger vid passets slut", () => {
-    expect(canCheckIn(shift, new Date("2026-11-12T17:29:00Z"))).toBe(false);
-    expect(canCheckIn(shift, new Date("2026-11-12T17:30:00Z"))).toBe(true);
+  it("öppnar en timme före och stänger vid passets slut", () => {
+    expect(canCheckIn(shift, new Date("2026-11-12T16:59:00Z"))).toBe(false);
+    expect(canCheckIn(shift, new Date("2026-11-12T17:00:00Z"))).toBe(true);
     expect(canCheckIn(shift, new Date("2026-11-12T20:01:00Z"))).toBe(false);
   });
 });

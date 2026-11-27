@@ -36,7 +36,7 @@ export const SUSPENSION_MONTHS = 6;
 export const CANCEL_DEADLINE_TIME = "10:00";
 export const MIN_AGE = 18;
 /** Incheckning öppnar så här långt innan passet. */
-export const CHECKIN_EARLY_MINUTES = 30;
+export const CHECKIN_EARLY_MINUTES = 60;
 
 const MIN = 60_000;
 const ms = (iso: string) => Date.parse(iso);
